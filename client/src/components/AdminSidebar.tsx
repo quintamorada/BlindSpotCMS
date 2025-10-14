@@ -4,6 +4,7 @@ import {
   Package, 
   FolderTree, 
   FileText, 
+  Users,
   Image as ImageIcon,
   Settings,
   Home
@@ -40,6 +41,11 @@ const menuItems = [
     title: "Páginas",
     url: "/admin/paginas",
     icon: FileText,
+  },
+  {
+    title: "Usuários",
+    url: "/admin/usuarios",
+    icon: Users,
   },
   {
     title: "Imagens",
