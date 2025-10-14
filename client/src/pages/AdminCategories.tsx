@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import type { Product } from "@shared/schema";
+import type { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -19,36 +19,24 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { Category } from "@shared/schema";
 import { RequireAuth } from "@/lib/auth";
 
-function AdminProductsRealContent() {
+function AdminCategoriesContent() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   
-  const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ['/api/products'],
-  });
-
-  const { data: categories } = useQuery<Category[]>({
+  const { data: categories, isLoading } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest('DELETE', `/api/products/${id}`);
+      await apiRequest('DELETE', `/api/categories/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
-      toast({ title: "Produto deletado com sucesso!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+      toast({ title: "Categoria deletada com sucesso!" });
     },
   });
 
@@ -58,29 +46,27 @@ function AdminProductsRealContent() {
   
   const columns = [
     { key: 'name', label: 'Nome' },
-    { key: 'categoryId', label: 'Categoria' },
-    { key: 'price', label: 'Preço' },
-    { key: 'active', label: 'Status' }
+    { key: 'slug', label: 'Slug' },
+    { key: 'description', label: 'Descrição' }
   ];
   
-  const data = products?.map(p => ({
-    id: p.id,
-    name: p.name,
-    categoryId: categories?.find(c => c.id === p.categoryId)?.name || '-',
-    price: `R$ ${parseFloat(p.price).toFixed(2)}`,
-    active: p.active ? 'Ativo' : 'Inativo'
+  const data = categories?.map(c => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    description: c.description || '-'
   })) || [];
   
   const handleEdit = (id: string) => {
-    const product = products?.find(p => p.id === id);
-    if (product) {
-      setEditingProduct(product);
+    const category = categories?.find(c => c.id === id);
+    if (category) {
+      setEditingCategory(category);
       setDialogOpen(true);
     }
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('Tem certeza que deseja deletar este produto?')) {
+    if (confirm('Tem certeza que deseja deletar esta categoria?')) {
       deleteMutation.mutate(id);
     }
   };
@@ -94,26 +80,25 @@ function AdminProductsRealContent() {
           <main className="flex-1 overflow-auto p-6 bg-muted/30">
             <div className="max-w-7xl mx-auto space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-bold">Produtos</h2>
+                <h2 className="text-3xl font-bold">Categorias</h2>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button onClick={() => setEditingProduct(null)} data-testid="button-add-product">
+                    <Button onClick={() => setEditingCategory(null)} data-testid="button-add-category">
                       <Plus className="h-4 w-4 mr-2" />
-                      Adicionar Produto
+                      Adicionar Categoria
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingProduct ? 'Editar Produto' : 'Novo Produto'}
+                        {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
                       </DialogTitle>
                     </DialogHeader>
-                    <ProductForm 
-                      product={editingProduct} 
-                      categories={categories || []}
+                    <CategoryForm 
+                      category={editingCategory} 
                       onClose={() => {
                         setDialogOpen(false);
-                        setEditingProduct(null);
+                        setEditingCategory(null);
                       }} 
                     />
                   </DialogContent>
@@ -124,7 +109,7 @@ function AdminProductsRealContent() {
                 <div className="text-center py-12">Carregando...</div>
               ) : (
                 <DataTable
-                  title="Todos os Produtos"
+                  title="Todas as Categorias"
                   columns={columns}
                   data={data}
                   onEdit={handleEdit}
@@ -139,34 +124,30 @@ function AdminProductsRealContent() {
   );
 }
 
-function ProductForm({ product, categories, onClose }: { 
-  product: Product | null; 
-  categories: Category[];
+function CategoryForm({ category, onClose }: { 
+  category: Category | null; 
   onClose: () => void;
 }) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name: product?.name || '',
-    slug: product?.slug || '',
-    description: product?.description || '',
-    price: product?.price || '',
-    categoryId: product?.categoryId || '',
-    featured: product?.featured || false,
-    active: product?.active !== false,
+    name: category?.name || '',
+    slug: category?.slug || '',
+    description: category?.description || '',
+    image: category?.image || '',
   });
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
-      if (product) {
-        return await apiRequest('PUT', `/api/products/${product.id}`, data);
+      if (category) {
+        return await apiRequest('PUT', `/api/categories/${category.id}`, data);
       } else {
-        return await apiRequest('POST', '/api/products', data);
+        return await apiRequest('POST', '/api/categories', data);
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/products'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
       toast({ 
-        title: product ? "Produto atualizado!" : "Produto criado!",
+        title: category ? "Categoria atualizada!" : "Categoria criada!",
       });
       onClose();
     },
@@ -186,7 +167,7 @@ function ProductForm({ product, categories, onClose }: {
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           required
-          data-testid="input-product-name"
+          data-testid="input-category-name"
         />
       </div>
 
@@ -197,7 +178,7 @@ function ProductForm({ product, categories, onClose }: {
           value={formData.slug}
           onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
           required
-          data-testid="input-product-slug"
+          data-testid="input-category-slug"
         />
       </div>
 
@@ -207,60 +188,36 @@ function ProductForm({ product, categories, onClose }: {
           id="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          data-testid="input-product-description"
+          data-testid="input-category-description"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="price">Preço</Label>
-          <Input
-            id="price"
-            type="number"
-            step="0.01"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            required
-            data-testid="input-product-price"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category">Categoria</Label>
-          <Select 
-            value={formData.categoryId} 
-            onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
-          >
-            <SelectTrigger data-testid="select-product-category">
-              <SelectValue placeholder="Selecione..." />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="image">URL da Imagem</Label>
+        <Input
+          id="image"
+          value={formData.image}
+          onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+          data-testid="input-category-image"
+        />
       </div>
 
-      <div className="flex gap-2 justify-end pt-4">
+      <div className="flex gap-2 justify-end">
         <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel">
           Cancelar
         </Button>
         <Button type="submit" disabled={mutation.isPending} data-testid="button-save">
-          {mutation.isPending ? 'Salvando...' : 'Salvar'}
+          {mutation.isPending ? "Salvando..." : "Salvar"}
         </Button>
       </div>
     </form>
   );
 }
 
-export default function AdminProductsReal() {
+export default function AdminCategories() {
   return (
     <RequireAuth>
-      <AdminProductsRealContent />
+      <AdminCategoriesContent />
     </RequireAuth>
   );
 }

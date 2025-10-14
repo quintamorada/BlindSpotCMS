@@ -4,8 +4,9 @@ import AdminHeader from "@/components/AdminHeader";
 import StatsCard from "@/components/StatsCard";
 import DataTable from "@/components/DataTable";
 import { Package, FolderTree, FileText, Image as ImageIcon } from "lucide-react";
+import { RequireAuth } from "@/lib/auth";
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
   const style = {
     "--sidebar-width": "16rem",
   };
@@ -75,5 +76,13 @@ export default function AdminDashboard() {
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <RequireAuth>
+      <AdminDashboardContent />
+    </RequireAuth>
   );
 }
