@@ -6,7 +6,8 @@ import * as schema from "@shared/schema";
 import type { 
   Category, InsertCategory,
   Product, InsertProduct,
-  Page, InsertPage
+  Page, InsertPage,
+  User, InsertUser
 } from "@shared/schema";
 import ws from "ws";
 
@@ -40,6 +41,15 @@ export interface IStorage {
   createPage(page: InsertPage): Promise<Page>;
   updatePage(id: string, page: Partial<InsertPage>): Promise<Page | undefined>;
   deletePage(id: string): Promise<boolean>;
+
+  // Users
+  getUsers(): Promise<User[]>;
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<boolean>;
 }
 
 export class DbStorage implements IStorage {
@@ -146,6 +156,45 @@ export class DbStorage implements IStorage {
 
   async deletePage(id: string): Promise<boolean> {
     const result = await db.delete(schema.pages).where(eq(schema.pages.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Users
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(schema.users);
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(schema.users).where(eq(schema.users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(schema.users).where(eq(schema.users.username, username));
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const result = await db.select().from(schema.users).where(eq(schema.users.email, email));
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const result = await db.insert(schema.users).values({ id, ...insertUser }).returning();
+    return result[0];
+  }
+
+  async updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined> {
+    const result = await db.update(schema.users)
+      .set({ ...user, updatedAt: new Date() })
+      .where(eq(schema.users.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await db.delete(schema.users).where(eq(schema.users.id, id)).returning();
     return result.length > 0;
   }
 }
