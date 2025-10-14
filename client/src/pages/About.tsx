@@ -1,33 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Award, Users, Clock } from "lucide-react";
-import { Link } from "wouter";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
-              Persianas Premium
-            </Link>
-            <div className="flex gap-6">
-              <Link href="/" className="hover:text-primary">
-                Início
-              </Link>
-              <Link href="/produtos" className="hover:text-primary">
-                Produtos
-              </Link>
-              <Link href="/sobre" className="hover:text-primary text-primary">
-                Sobre Nós
-              </Link>
-              <Link href="/contato" className="hover:text-primary">
-                Contato
-              </Link>
-            </div>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
 
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto">
@@ -119,6 +98,7 @@ export default function About() {
           </Card>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

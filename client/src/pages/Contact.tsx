@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
-import { Link } from "wouter";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -22,30 +23,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
-              Persianas Premium
-            </Link>
-            <div className="flex gap-6">
-              <Link href="/" className="hover:text-primary">
-                Início
-              </Link>
-              <Link href="/produtos" className="hover:text-primary">
-                Produtos
-              </Link>
-              <Link href="/sobre" className="hover:text-primary">
-                Sobre Nós
-              </Link>
-              <Link href="/contato" className="hover:text-primary text-primary">
-                Contato
-              </Link>
-            </div>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
 
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
@@ -160,6 +139,7 @@ export default function Contact() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
