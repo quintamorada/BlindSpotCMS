@@ -4,16 +4,16 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
+import HomeReal from "@/pages/HomeReal";
 import AdminDashboard from "@/pages/AdminDashboard";
-import AdminProducts from "@/pages/AdminProducts";
+import AdminProductsReal from "@/pages/AdminProductsReal";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={HomeReal} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/produtos" component={AdminProducts} />
+      <Route path="/admin/produtos" component={AdminProductsReal} />
       <Route component={NotFound} />
     </Switch>
   );
