@@ -36,7 +36,7 @@ export async function seedDatabase() {
       name: "Horizontal",
       slug: "horizontal",
       description: "Clássicas e versáteis para qualquer ambiente",
-      image: "https://images.unsplash.com/photo-1545259742-24f940214927?w=800&h=600&fit=crop"
+      image: "https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=800&fit=crop&q=80"
     });
 
     // Create products
@@ -97,7 +97,7 @@ export async function seedDatabase() {
       description: "Persiana horizontal em alumínio de alta qualidade. Clássica e durável.",
       price: "199.90",
       categoryId: horizontal.id,
-      images: ["https://images.unsplash.com/photo-1545259742-24f940214927?w=800&h=600&fit=crop"],
+      images: ["https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=800&fit=crop&q=80"],
       specifications: {
         material: "Alumínio",
         cores: ["Branco", "Prata", "Dourado"],
@@ -165,7 +165,7 @@ export async function seedDatabase() {
       description: "Persiana horizontal em madeira nobre. Charme e elegância atemporal.",
       price: "499.90",
       categoryId: horizontal.id,
-      images: ["https://images.unsplash.com/photo-1545259742-24f940214927?w=800&h=600&fit=crop"],
+      images: ["https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800&h=800&fit=crop&q=80"],
       specifications: {
         material: "Madeira nobre",
         cores: ["Mogno", "Cerejeira", "Nogueira"],
