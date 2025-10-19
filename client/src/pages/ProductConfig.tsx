@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { Product } from "@shared/schema";
+import type { Product, CategoryColor } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRoute } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { Ruler, Check } from "lucide-react";
+import { Ruler, Check, AlertCircle } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +38,7 @@ export default function ProductConfig() {
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
   const [bandoSide, setBandoSide] = useState<"left" | "right" | null>(null);
+  const [selectedColor, setSelectedColor] = useState<CategoryColor | null>(null);
   const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -48,6 +50,11 @@ export default function ProductConfig() {
   });
 
   const product = products?.find(p => p.slug === slug);
+
+  const { data: colors, isLoading: colorsLoading } = useQuery<CategoryColor[]>({
+    queryKey: product?.categoryId ? [`/api/categories/${product.categoryId}/colors`] : [],
+    enabled: !!product?.categoryId,
+  });
 
   if (!product) {
     return (
@@ -70,7 +77,8 @@ export default function ProductConfig() {
   const area = widthNum * heightNum;
   const totalPrice = area * pricePerSqm;
 
-  const isValidConfig = widthNum > 0 && heightNum > 0 && bandoSide !== null;
+  const hasColors = colors && colors.length > 0;
+  const isValidConfig = widthNum > 0 && heightNum > 0 && bandoSide !== null && (!hasColors || selectedColor !== null);
   const isValidCustomerInfo = customerName.trim() !== "" && customerEmail.trim() !== "" && customerPhone.trim() !== "";
 
   const createOrderMutation = useMutation({
@@ -86,6 +94,7 @@ export default function ProductConfig() {
       setWidth("");
       setHeight("");
       setBandoSide(null);
+      setSelectedColor(null);
       setCustomerName("");
       setCustomerEmail("");
       setCustomerPhone("");
@@ -121,6 +130,9 @@ export default function ProductConfig() {
         width: widthNum.toString(),
         height: heightNum.toString(),
         bandoSide,
+        colorId: selectedColor?.id,
+        colorName: selectedColor?.name,
+        colorCode: selectedColor?.code,
         pricePerSqm: pricePerSqm.toString(),
         totalPrice: totalPrice.toString()
       }]
@@ -281,6 +293,65 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Cor da Persiana</Label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Escolha a cor desejada para sua persiana
+                  </p>
+                  {colorsLoading ? (
+                    <div className="text-sm text-muted-foreground py-4 text-center">
+                      Carregando cores disponíveis...
+                    </div>
+                  ) : !hasColors ? (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Este produto não possui cores disponíveis no momento.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {colors.map((color) => (
+                        <button
+                          key={color.id}
+                          type="button"
+                          onClick={() => setSelectedColor(color)}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            selectedColor?.id === color.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border"
+                          }`}
+                          data-testid={`button-color-${color.id}`}
+                        >
+                          <div className="aspect-square mb-2 rounded-md overflow-hidden border">
+                            <img
+                              src={color.image}
+                              alt={color.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23e5e7eb"/%3E%3Ctext x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                              }}
+                            />
+                          </div>
+                          <div className="text-center">
+                            <div className="font-medium text-sm" data-testid={`text-color-name-${color.id}`}>
+                              {color.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
+                              {color.code}
+                            </div>
+                          </div>
+                          {selectedColor?.id === color.id && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {area > 0 && (
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <div className="flex justify-between text-sm">
@@ -342,6 +413,23 @@ export default function ProductConfig() {
               <div className="text-sm text-muted-foreground">
                 Bandô: {bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
               </div>
+              {selectedColor && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Cor:</span>
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={selectedColor.image} 
+                      alt={selectedColor.name}
+                      className="w-6 h-6 rounded border object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Crect width="24" height="24" fill="%23e5e7eb"/%3E%3C/svg%3E';
+                      }}
+                    />
+                    <span className="font-medium">{selectedColor.name}</span>
+                    <span className="text-muted-foreground text-xs">({selectedColor.code})</span>
+                  </div>
+                </div>
+              )}
               <div className="font-bold text-lg text-[hsl(35,65%,55%)]">
                 Total: R$ {totalPrice.toFixed(2)}
               </div>
