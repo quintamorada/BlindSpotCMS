@@ -5,8 +5,56 @@ import { insertCategorySchema, insertProductSchema, insertPageSchema, insertUser
 import { z } from "zod";
 import { authenticateUser, hashPassword } from "./auth";
 import { requireAuth, requireAdmin } from "./middleware";
+import multer from "multer";
+import sharp from "sharp";
+import path from "path";
+import { promises as fs } from "fs";
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas imagens JPEG, PNG e WebP são permitidas'));
+    }
+  }
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Image Upload API
+  app.post("/api/upload/product-image", requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
+      }
+
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'products');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
+      const filepath = path.join(uploadsDir, filename);
+
+      await sharp(req.file.buffer)
+        .resize(800, 800, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .webp({ quality: 85 })
+        .toFile(filepath);
+
+      const imageUrl = `/uploads/products/${filename}`;
+      res.json({ url: imageUrl });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      res.status(500).json({ error: "Erro ao fazer upload da imagem" });
+    }
+  });
+
   // Auth API
   app.post("/api/auth/login", async (req, res) => {
     const { username, password } = req.body;

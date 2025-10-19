@@ -23,6 +23,9 @@ app.use(express.urlencoded({ extended: false }));
 // Serve attached assets (images)
 app.use('/assets', express.static('attached_assets'));
 
+// Serve uploaded images
+app.use('/uploads', express.static('uploads'));
+
 const PgSession = connectPgSimple(session);
 const sessionPool = new Pool({ connectionString: process.env.DATABASE_URL });
 
