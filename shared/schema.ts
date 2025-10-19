@@ -13,6 +13,15 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const categoryColors = pgTable("category_colors", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  categoryId: varchar("category_id", { length: 36 }).references(() => categories.id, { onDelete: "cascade" }).notNull(),
+  name: text("name").notNull(),
+  code: text("code").notNull(),
+  image: text("image").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const products = pgTable("products", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
   name: text("name").notNull(),
@@ -82,6 +91,11 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
   createdAt: true,
 });
 
+export const insertCategoryColorSchema = createInsertSchema(categoryColors).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
@@ -96,6 +110,9 @@ export const insertPageSchema = createInsertSchema(pages).omit({
 
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+
+export type CategoryColor = typeof categoryColors.$inferSelect;
+export type InsertCategoryColor = z.infer<typeof insertCategoryColorSchema>;
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
