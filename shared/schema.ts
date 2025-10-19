@@ -50,6 +50,33 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const bandoSideEnum = pgEnum("bando_side", ["left", "right"]);
+export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "in_production", "delivered", "cancelled"]);
+
+export const orders = pgTable("orders", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
+  status: orderStatusEnum("status").default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  orderId: varchar("order_id", { length: 36 }).references(() => orders.id).notNull(),
+  productId: varchar("product_id", { length: 36 }).references(() => products.id).notNull(),
+  productName: text("product_name").notNull(),
+  width: numeric("width", { precision: 10, scale: 2 }).notNull(),
+  height: numeric("height", { precision: 10, scale: 2 }).notNull(),
+  bandoSide: bandoSideEnum("bando_side").notNull(),
+  pricePerSqm: numeric("price_per_sqm", { precision: 10, scale: 2 }).notNull(),
+  totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
@@ -82,5 +109,27 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertOrderItemSchemaForCreate = insertOrderItemSchema.omit({
+  orderId: true,
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+
+export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
+export type InsertOrderItemForCreate = z.infer<typeof insertOrderItemSchemaForCreate>;

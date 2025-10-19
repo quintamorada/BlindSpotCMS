@@ -8,6 +8,7 @@ import type { Category, Product } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
+import { useLocation } from "wouter";
 
 function getThumbUrl(imageUrl: string): string {
   if (imageUrl.includes('-large.webp')) {
@@ -17,6 +18,8 @@ function getThumbUrl(imageUrl: string): string {
 }
 
 export default function HomeReal() {
+  const [, setLocation] = useLocation();
+  
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
@@ -131,7 +134,12 @@ export default function HomeReal() {
                     </div>
                     
                     <div className="p-4 pt-0">
-                      <Button className="w-full" variant="outline" data-testid={`button-details-${product.id}`}>
+                      <Button 
+                        className="w-full" 
+                        variant="outline" 
+                        onClick={() => setLocation(`/produto/${product.slug}`)}
+                        data-testid={`button-details-${product.id}`}
+                      >
                         Ver Detalhes
                       </Button>
                     </div>

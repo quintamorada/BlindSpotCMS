@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCategorySchema, insertProductSchema, insertPageSchema, insertUserSchema } from "@shared/schema";
+import { insertCategorySchema, insertProductSchema, insertPageSchema, insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate } from "@shared/schema";
 import { z } from "zod";
 import { authenticateUser, hashPassword } from "./auth";
 import { requireAuth, requireAdmin } from "./middleware";
@@ -319,6 +319,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Page not found" });
     }
     res.status(204).send();
+  });
+
+  // Orders API
+  app.get("/api/orders", requireAdmin, async (req, res) => {
+    const orders = await storage.getOrders();
+    res.json(orders);
+  });
+
+  app.get("/api/orders/:id", requireAdmin, async (req, res) => {
+    const order = await storage.getOrder(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.json(order);
+  });
+
+  app.post("/api/orders", async (req, res) => {
+    try {
+      const orderData = insertOrderSchema.parse(req.body.order);
+      const itemsData = z.array(insertOrderItemSchemaForCreate).parse(req.body.items);
+
+      const order = await storage.createOrder(orderData);
+
+      const items = await Promise.all(
+        itemsData.map(item => storage.createOrderItem({ ...item, orderId: order.id }))
+      );
+
+      res.status(201).json({ order, items });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/orders/:id", requireAdmin, async (req, res) => {
+    try {
+      const data = insertOrderSchema.partial().parse(req.body);
+      const order = await storage.updateOrder(req.params.id, data);
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/orders/:id", requireAdmin, async (req, res) => {
+    const deleted = await storage.deleteOrder(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    res.status(204).send();
+  });
+
+  // Order Items API
+  app.get("/api/orders/:orderId/items", requireAdmin, async (req, res) => {
+    const items = await storage.getOrderItems(req.params.orderId);
+    res.json(items);
   });
 
   const httpServer = createServer(app);

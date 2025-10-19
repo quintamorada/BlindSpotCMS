@@ -14,12 +14,14 @@ import Login from "@/pages/Login";
 import Contact from "@/pages/Contact";
 import About from "@/pages/About";
 import Products from "@/pages/Products";
+import ProductConfig from "@/pages/ProductConfig";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomeReal} />
       <Route path="/produtos" component={Products} />
+      <Route path="/produto/:slug" component={ProductConfig} />
       <Route path="/contato" component={Contact} />
       <Route path="/sobre" component={About} />
       <Route path="/login" component={Login} />

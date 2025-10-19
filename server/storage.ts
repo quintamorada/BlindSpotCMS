@@ -7,7 +7,9 @@ import type {
   Category, InsertCategory,
   Product, InsertProduct,
   Page, InsertPage,
-  User, InsertUser
+  User, InsertUser,
+  Order, InsertOrder,
+  OrderItem, InsertOrderItem
 } from "@shared/schema";
 import ws from "ws";
 
@@ -50,6 +52,19 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
+
+  // Orders
+  getOrders(): Promise<Order[]>;
+  getOrder(id: string): Promise<Order | undefined>;
+  createOrder(order: InsertOrder): Promise<Order>;
+  updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
+  deleteOrder(id: string): Promise<boolean>;
+
+  // Order Items
+  getOrderItems(orderId: string): Promise<OrderItem[]>;
+  getOrderItem(id: string): Promise<OrderItem | undefined>;
+  createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem>;
+  deleteOrderItem(id: string): Promise<boolean>;
 }
 
 export class DbStorage implements IStorage {
@@ -195,6 +210,56 @@ export class DbStorage implements IStorage {
 
   async deleteUser(id: string): Promise<boolean> {
     const result = await db.delete(schema.users).where(eq(schema.users.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Orders
+  async getOrders(): Promise<Order[]> {
+    return await db.select().from(schema.orders);
+  }
+
+  async getOrder(id: string): Promise<Order | undefined> {
+    const result = await db.select().from(schema.orders).where(eq(schema.orders.id, id));
+    return result[0];
+  }
+
+  async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    const id = randomUUID();
+    const result = await db.insert(schema.orders).values({ id, ...insertOrder }).returning();
+    return result[0];
+  }
+
+  async updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined> {
+    const result = await db.update(schema.orders)
+      .set({ ...order, updatedAt: new Date() })
+      .where(eq(schema.orders.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteOrder(id: string): Promise<boolean> {
+    const result = await db.delete(schema.orders).where(eq(schema.orders.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Order Items
+  async getOrderItems(orderId: string): Promise<OrderItem[]> {
+    return await db.select().from(schema.orderItems).where(eq(schema.orderItems.orderId, orderId));
+  }
+
+  async getOrderItem(id: string): Promise<OrderItem | undefined> {
+    const result = await db.select().from(schema.orderItems).where(eq(schema.orderItems.id, id));
+    return result[0];
+  }
+
+  async createOrderItem(insertOrderItem: InsertOrderItem): Promise<OrderItem> {
+    const id = randomUUID();
+    const result = await db.insert(schema.orderItems).values({ id, ...insertOrderItem }).returning();
+    return result[0];
+  }
+
+  async deleteOrderItem(id: string): Promise<boolean> {
+    const result = await db.delete(schema.orderItems).where(eq(schema.orderItems.id, id)).returning();
     return result.length > 0;
   }
 }

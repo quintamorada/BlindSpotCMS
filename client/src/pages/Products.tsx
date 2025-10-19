@@ -6,8 +6,17 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
+import { useLocation } from "wouter";
+
+function getThumbUrl(imageUrl: string): string {
+  if (imageUrl.includes('-large.webp')) {
+    return imageUrl.replace('-large.webp', '-thumb.webp');
+  }
+  return imageUrl;
+}
 
 export default function Products() {
+  const [, setLocation] = useLocation();
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
@@ -38,7 +47,7 @@ export default function Products() {
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {product.images && product.images[0] && (
                     <img 
-                      src={product.images[0]} 
+                      src={getThumbUrl(product.images[0])} 
                       alt={product.name}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -75,6 +84,17 @@ export default function Products() {
                   <div className="text-xl font-bold text-[hsl(35,65%,55%)]" data-testid={`text-price-${product.id}`}>
                     R$ {parseFloat(product.price).toFixed(2)}/m²
                   </div>
+                </div>
+                
+                <div className="p-4 pt-0">
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => setLocation(`/produto/${product.slug}`)}
+                    data-testid={`button-details-${product.id}`}
+                  >
+                    Configurar e Comprar
+                  </Button>
                 </div>
               </Card>
             ))}
