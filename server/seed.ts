@@ -1,4 +1,5 @@
 import { storage } from "./storage";
+import { hashPassword } from "./auth";
 
 export async function seedDatabase() {
   try {
@@ -9,6 +10,18 @@ export async function seedDatabase() {
     }
 
     console.log("Seeding database...");
+
+    // Create admin user
+    const hashedPassword = await hashPassword("admin123");
+    await storage.createUser({
+      username: "superadmin",
+      email: "admin@persianas.com",
+      password: hashedPassword,
+      role: "admin",
+      active: true
+    });
+
+    console.log("Admin user created: superadmin / admin123");
 
     // Create categories
     const blackout = await storage.createCategory({
