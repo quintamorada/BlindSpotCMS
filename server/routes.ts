@@ -272,8 +272,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/categories/:categoryId/colors/:id", requireAuth, async (req, res) => {
     try {
+      const existingColor = await storage.getCategoryColor(req.params.id);
+      if (!existingColor) {
+        return res.status(404).json({ error: "Color not found" });
+      }
+      if (existingColor.categoryId !== req.params.categoryId) {
+        return res.status(404).json({ error: "Color not found in this category" });
+      }
+      
       const data = insertCategoryColorSchema.partial().parse(req.body);
-      const color = await storage.updateCategoryColor(req.params.id, data);
+      const color = await storage.updateCategoryColor(req.params.id, {
+        ...data,
+        categoryId: req.params.categoryId
+      });
       if (!color) {
         return res.status(404).json({ error: "Color not found" });
       }
@@ -287,6 +298,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.delete("/api/categories/:categoryId/colors/:id", requireAuth, async (req, res) => {
+    const existingColor = await storage.getCategoryColor(req.params.id);
+    if (!existingColor) {
+      return res.status(404).json({ error: "Color not found" });
+    }
+    if (existingColor.categoryId !== req.params.categoryId) {
+      return res.status(404).json({ error: "Color not found in this category" });
+    }
+    
     const deleted = await storage.deleteCategoryColor(req.params.id);
     if (!deleted) {
       return res.status(404).json({ error: "Color not found" });
