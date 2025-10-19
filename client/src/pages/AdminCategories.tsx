@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -94,6 +95,9 @@ function AdminCategoriesContent() {
                       <DialogTitle>
                         {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
                       </DialogTitle>
+                      <DialogDescription>
+                        {editingCategory ? 'Edite as informações da categoria e suas cores' : 'Preencha as informações para criar uma nova categoria'}
+                      </DialogDescription>
                     </DialogHeader>
                     <CategoryForm 
                       category={editingCategory} 
@@ -329,6 +333,9 @@ function CategoryColorsManager({ categoryId }: { categoryId: string }) {
                     alt={color.name}
                     className="w-12 h-12 rounded object-cover border"
                     data-testid={`img-color-${color.id}`}
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"%3E%3Crect width="48" height="48" fill="%23e5e7eb"/%3E%3Ctext x="24" y="24" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm truncate" data-testid={`text-color-name-${color.id}`}>
@@ -491,6 +498,9 @@ function ColorForm({
               alt="Preview"
               className="w-16 h-16 rounded object-cover border"
               data-testid="img-color-preview"
+              onError={(e) => {
+                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" fill="%23e5e7eb"/%3E%3Ctext x="32" y="32" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+              }}
             />
           )}
           <div className="flex-1">
