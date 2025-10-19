@@ -60,7 +60,7 @@ function AdminProductsRealContent() {
   const columns = [
     { key: 'name', label: 'Nome' },
     { key: 'categoryId', label: 'Categoria' },
-    { key: 'price', label: 'Preço' },
+    { key: 'price', label: 'Preço/m²' },
     { key: 'active', label: 'Status' }
   ];
   
@@ -68,7 +68,7 @@ function AdminProductsRealContent() {
     id: p.id,
     name: p.name,
     categoryId: categories?.find(c => c.id === p.categoryId)?.name || '-',
-    price: `R$ ${parseFloat(p.price).toFixed(2)}`,
+    price: `R$ ${parseFloat(p.price).toFixed(2)}/m²`,
     active: p.active ? 'Ativo' : 'Inativo'
   })) || [];
   
@@ -261,7 +261,7 @@ function ProductForm({ product, categories, onClose }: {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="price">Preço</Label>
+          <Label htmlFor="price">Preço por m²</Label>
           <Input
             id="price"
             type="number"
@@ -269,6 +269,7 @@ function ProductForm({ product, categories, onClose }: {
             value={formData.price}
             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             required
+            placeholder="Ex: 299.90"
             data-testid="input-product-price"
           />
         </div>

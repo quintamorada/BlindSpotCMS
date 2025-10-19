@@ -126,7 +126,7 @@ export default function HomeReal() {
                         {product.name}
                       </h3>
                       <div className="text-xl font-bold text-[hsl(35,65%,55%)]" data-testid={`text-price-${product.id}`}>
-                        A partir de R$ {parseFloat(product.price).toFixed(2)}
+                        R$ {parseFloat(product.price).toFixed(2)}/m²
                       </div>
                     </div>
                     

@@ -42,7 +42,7 @@ export default function ProductCard({ id, name, category, price, image, featured
         <div className="text-xs text-muted-foreground mb-1" data-testid={`text-category-${id}`}>{category}</div>
         <h3 className="font-semibold text-lg mb-2" data-testid={`text-name-${id}`}>{name}</h3>
         <div className="text-xl font-bold text-[hsl(35,65%,55%)]" data-testid={`text-price-${id}`}>
-          A partir de R$ {price.toFixed(2)}
+          R$ {price.toFixed(2)}/m²
         </div>
       </CardContent>
       
