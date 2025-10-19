@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import * as schema from "@shared/schema";
 import type { 
   Category, InsertCategory,
+  CategoryColor, InsertCategoryColor,
   Product, InsertProduct,
   Page, InsertPage,
   User, InsertUser,
@@ -26,6 +27,13 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category | undefined>;
   deleteCategory(id: string): Promise<boolean>;
+
+  // Category Colors
+  getCategoryColors(categoryId: string): Promise<CategoryColor[]>;
+  getCategoryColor(id: string): Promise<CategoryColor | undefined>;
+  createCategoryColor(color: InsertCategoryColor): Promise<CategoryColor>;
+  updateCategoryColor(id: string, color: Partial<InsertCategoryColor>): Promise<CategoryColor | undefined>;
+  deleteCategoryColor(id: string): Promise<boolean>;
 
   // Products
   getProducts(): Promise<Product[]>;
@@ -99,6 +107,35 @@ export class DbStorage implements IStorage {
 
   async deleteCategory(id: string): Promise<boolean> {
     const result = await db.delete(schema.categories).where(eq(schema.categories.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Category Colors
+  async getCategoryColors(categoryId: string): Promise<CategoryColor[]> {
+    return await db.select().from(schema.categoryColors).where(eq(schema.categoryColors.categoryId, categoryId));
+  }
+
+  async getCategoryColor(id: string): Promise<CategoryColor | undefined> {
+    const result = await db.select().from(schema.categoryColors).where(eq(schema.categoryColors.id, id));
+    return result[0];
+  }
+
+  async createCategoryColor(insertColor: InsertCategoryColor): Promise<CategoryColor> {
+    const id = randomUUID();
+    const result = await db.insert(schema.categoryColors).values({ id, ...insertColor }).returning();
+    return result[0];
+  }
+
+  async updateCategoryColor(id: string, color: Partial<InsertCategoryColor>): Promise<CategoryColor | undefined> {
+    const result = await db.update(schema.categoryColors)
+      .set(color)
+      .where(eq(schema.categoryColors.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCategoryColor(id: string): Promise<boolean> {
+    const result = await db.delete(schema.categoryColors).where(eq(schema.categoryColors.id, id)).returning();
     return result.length > 0;
   }
 
