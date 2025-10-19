@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { Product, CategoryColor } from "@shared/schema";
+import type { Product, CategoryColor, Category } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +40,12 @@ export default function ProductConfig() {
   });
 
   const product = products?.find(p => p.slug === slug);
+
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+  });
+
+  const category = categories?.find(c => c.id === product?.categoryId);
 
   const { data: colors, isLoading: colorsLoading } = useQuery<CategoryColor[]>({
     queryKey: product?.categoryId ? [`/api/categories/${product.categoryId}/colors`] : [],
@@ -199,9 +205,9 @@ export default function ProductConfig() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Lado do Bandô (Cordinha)</Label>
+                  <Label>Lado do comando {category?.name || ''}</Label>
                   <p className="text-xs text-muted-foreground mb-3">
-                    Clique na imagem para selecionar o lado onde ficará a cordinha
+                    Clique na imagem para selecionar o lado onde ficará o comando
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <button
