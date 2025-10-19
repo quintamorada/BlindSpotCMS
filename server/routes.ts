@@ -449,6 +449,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/orders/:id/status", requireAdmin, async (req, res) => {
+    try {
+      const { status } = z.object({ status: z.enum(["pending", "confirmed", "in_production", "delivered", "cancelled"]) }).parse(req.body);
+      const order = await storage.updateOrder(req.params.id, { status });
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+      res.json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.put("/api/orders/:id", requireAdmin, async (req, res) => {
     try {
       const data = insertOrderSchema.partial().parse(req.body);

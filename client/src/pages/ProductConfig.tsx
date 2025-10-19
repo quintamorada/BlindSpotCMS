@@ -7,20 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { Ruler, Check, AlertCircle } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { Ruler, Check, AlertCircle, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+import { useCart } from "@/contexts/CartContext";
 import bandoLeftImg from "@assets/generated_images/Blinds_cord_left_side_a7dc741f.png";
 import bandoRightImg from "@assets/generated_images/Blinds_cord_right_side_408c3c17.png";
 
@@ -39,11 +31,9 @@ export default function ProductConfig() {
   const [height, setHeight] = useState<string>("");
   const [bandoSide, setBandoSide] = useState<"left" | "right" | null>(null);
   const [selectedColor, setSelectedColor] = useState<CategoryColor | null>(null);
-  const [showCheckoutDialog, setShowCheckoutDialog] = useState(false);
-  const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
   const { toast } = useToast();
+  const { addItem } = useCart();
+  const [, setLocation] = useLocation();
 
   const { data: products } = useQuery<Product[]>({
     queryKey: ['/api/products'],
@@ -79,66 +69,35 @@ export default function ProductConfig() {
 
   const hasColors = colors && colors.length > 0;
   const isValidConfig = widthNum > 0 && heightNum > 0 && bandoSide !== null && (!hasColors || selectedColor !== null);
-  const isValidCustomerInfo = customerName.trim() !== "" && customerEmail.trim() !== "" && customerPhone.trim() !== "";
-
-  const createOrderMutation = useMutation({
-    mutationFn: async (orderDetails: any) => {
-      return await apiRequest('POST', '/api/orders', orderDetails);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Pedido criado com sucesso!",
-        description: "Entraremos em contato em breve para confirmar sua compra.",
-      });
-      setShowCheckoutDialog(false);
-      setWidth("");
-      setHeight("");
-      setBandoSide(null);
-      setSelectedColor(null);
-      setCustomerName("");
-      setCustomerEmail("");
-      setCustomerPhone("");
-    },
-    onError: () => {
-      toast({
-        title: "Erro ao criar pedido",
-        description: "Tente novamente mais tarde.",
-        variant: "destructive",
-      });
-    }
-  });
 
   const handleAddToCart = () => {
     if (!isValidConfig) return;
-    setShowCheckoutDialog(true);
-  };
 
-  const handleConfirmOrder = () => {
-    if (!isValidCustomerInfo || !isValidConfig) return;
+    addItem({
+      productId: product.id,
+      productName: product.name,
+      productSlug: product.slug,
+      width: widthNum,
+      height: heightNum,
+      bandoSide: bandoSide!,
+      colorId: selectedColor?.id,
+      colorName: selectedColor?.name,
+      colorCode: selectedColor?.code,
+      colorImage: selectedColor?.image,
+      pricePerSqm: pricePerSqm,
+      totalPrice: totalPrice,
+      area: area
+    });
 
-    const orderDetails = {
-      order: {
-        customerName,
-        customerEmail,
-        customerPhone,
-        totalAmount: totalPrice.toString(),
-        status: "pending"
-      },
-      items: [{
-        productId: product.id,
-        productName: product.name,
-        width: widthNum.toString(),
-        height: heightNum.toString(),
-        bandoSide,
-        colorId: selectedColor?.id,
-        colorName: selectedColor?.name,
-        colorCode: selectedColor?.code,
-        pricePerSqm: pricePerSqm.toString(),
-        totalPrice: totalPrice.toString()
-      }]
-    };
+    toast({
+      title: "Produto adicionado ao carrinho!",
+      description: "Continue comprando ou finalize seu pedido.",
+    });
 
-    createOrderMutation.mutate(orderDetails);
+    setWidth("");
+    setHeight("");
+    setBandoSide(null);
+    setSelectedColor(null);
   };
 
   return (
@@ -377,123 +336,34 @@ export default function ProductConfig() {
                   </div>
                 )}
 
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  disabled={!isValidConfig}
-                  onClick={handleAddToCart}
-                  data-testid="button-add-to-cart"
-                >
-                  {!isValidConfig 
-                    ? "Complete a configuração" 
-                    : "Adicionar ao Pedido"}
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    disabled={!isValidConfig}
+                    onClick={handleAddToCart}
+                    data-testid="button-add-to-cart"
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    {!isValidConfig 
+                      ? "Complete a configuração" 
+                      : "Adicionar ao Carrinho"}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    className="w-full" 
+                    onClick={() => setLocation("/carrinho")}
+                    data-testid="button-view-cart"
+                  >
+                    Ver Carrinho
+                  </Button>
+                </div>
               </Card>
             </div>
           </div>
         </div>
       </main>
       <Footer />
-
-      <Dialog open={showCheckoutDialog} onOpenChange={setShowCheckoutDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Finalize seu Pedido</DialogTitle>
-            <DialogDescription>
-              Preencha seus dados para que possamos entrar em contato e confirmar seu pedido.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <div className="font-medium">{product.name}</div>
-              <div className="text-sm text-muted-foreground">
-                {widthNum}m × {heightNum}m = {area.toFixed(2)}m²
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Bandô: {bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
-              </div>
-              {selectedColor && (
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-muted-foreground">Cor:</span>
-                  <div className="flex items-center gap-2">
-                    <img 
-                      src={selectedColor.image} 
-                      alt={selectedColor.name}
-                      className="w-6 h-6 rounded border object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Crect width="24" height="24" fill="%23e5e7eb"/%3E%3C/svg%3E';
-                      }}
-                    />
-                    <span className="font-medium">{selectedColor.name}</span>
-                    <span className="text-muted-foreground text-xs">({selectedColor.code})</span>
-                  </div>
-                </div>
-              )}
-              <div className="font-bold text-lg text-[hsl(35,65%,55%)]">
-                Total: R$ {totalPrice.toFixed(2)}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="customer-name">Nome Completo</Label>
-              <Input
-                id="customer-name"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Seu nome"
-                required
-                data-testid="input-customer-name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="customer-email">E-mail</Label>
-              <Input
-                id="customer-email"
-                type="email"
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="seu@email.com"
-                required
-                data-testid="input-customer-email"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="customer-phone">Telefone/WhatsApp</Label>
-              <Input
-                id="customer-phone"
-                type="tel"
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="(00) 00000-0000"
-                required
-                data-testid="input-customer-phone"
-              />
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button 
-                variant="outline" 
-                className="flex-1"
-                onClick={() => setShowCheckoutDialog(false)}
-                data-testid="button-cancel-order"
-              >
-                Cancelar
-              </Button>
-              <Button 
-                className="flex-1"
-                onClick={handleConfirmOrder}
-                disabled={!isValidCustomerInfo || createOrderMutation.isPending}
-                data-testid="button-confirm-order"
-              >
-                {createOrderMutation.isPending ? "Enviando..." : "Confirmar Pedido"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

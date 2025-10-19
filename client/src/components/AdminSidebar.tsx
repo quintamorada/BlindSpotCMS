@@ -7,7 +7,8 @@ import {
   Users,
   Image as ImageIcon,
   Settings,
-  Home
+  Home,
+  ShoppingBag
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,6 +27,11 @@ const menuItems = [
     title: "Dashboard",
     url: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Pedidos",
+    url: "/admin/pedidos",
+    icon: ShoppingBag,
   },
   {
     title: "Produtos",

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2, Search } from "lucide-react";
+import { Edit, Trash2, Search, Eye } from "lucide-react";
 import { useState } from "react";
 
 interface Column {
@@ -15,9 +15,11 @@ interface DataTableProps {
   data: Record<string, any>[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onView?: (id: string) => void;
+  renderCell?: (column: Column, value: any, row: Record<string, any>) => React.ReactNode;
 }
 
-export default function DataTable({ title, columns, data, onEdit, onDelete }: DataTableProps) {
+export default function DataTable({ title, columns, data, onEdit, onDelete, onView, renderCell }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   
   const filteredData = data.filter(row =>
@@ -63,27 +65,41 @@ export default function DataTable({ title, columns, data, onEdit, onDelete }: Da
                 >
                   {columns.map((column) => (
                     <td key={column.key} className="p-3 text-sm">
-                      {row[column.key]}
+                      {renderCell ? renderCell(column, row[column.key], row) : row[column.key]}
                     </td>
                   ))}
                   <td className="p-3 text-right">
                     <div className="flex gap-2 justify-end">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => onEdit?.(row.id)}
-                        data-testid={`button-edit-${row.id}`}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => onDelete?.(row.id)}
-                        data-testid={`button-delete-${row.id}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {onView && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => onView(row.id)}
+                          data-testid={`button-view-${row.id}`}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {onEdit && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => onEdit(row.id)}
+                          data-testid={`button-edit-${row.id}`}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => onDelete(row.id)}
+                          data-testid={`button-delete-${row.id}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>
