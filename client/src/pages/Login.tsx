@@ -22,9 +22,10 @@ export default function Login() {
 
     try {
       const response = await apiRequest("POST", "/api/auth/login", formData);
+      const data = await response.json();
       toast({
         title: "Login realizado com sucesso!",
-        description: `Bem-vindo, ${response.user.username}`,
+        description: `Bem-vindo, ${data.user.username}`,
       });
       setLocation("/admin");
     } catch (error: any) {
