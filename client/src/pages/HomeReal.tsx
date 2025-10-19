@@ -9,6 +9,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 
+function getThumbUrl(imageUrl: string): string {
+  if (imageUrl.includes('-large.webp')) {
+    return imageUrl.replace('-large.webp', '-thumb.webp');
+  }
+  return imageUrl;
+}
+
 export default function HomeReal() {
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
@@ -89,7 +96,7 @@ export default function HomeReal() {
                     <div className="relative aspect-[4/3] overflow-hidden">
                       {product.images && product.images[0] && (
                         <img 
-                          src={product.images[0]} 
+                          src={getThumbUrl(product.images[0])} 
                           alt={product.name}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />

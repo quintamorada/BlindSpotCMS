@@ -26,32 +26,56 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Image Upload API
-  app.post("/api/upload/product-image", requireAuth, upload.single('image'), async (req, res) => {
+  // Image Upload API - Multiple images
+  app.post("/api/upload/product-images", requireAuth, upload.array('images', 10), async (req, res) => {
     try {
-      if (!req.file) {
+      const files = req.files as Express.Multer.File[];
+      
+      if (!files || files.length === 0) {
         return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
       }
 
       const uploadsDir = path.join(process.cwd(), 'uploads', 'products');
       await fs.mkdir(uploadsDir, { recursive: true });
 
-      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
-      const filepath = path.join(uploadsDir, filename);
+      const uploadedImages = await Promise.all(
+        files.map(async (file) => {
+          const baseFilename = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+          
+          // Criar versão grande (para página de detalhes)
+          const largeFilename = `${baseFilename}-large.webp`;
+          const largeFilepath = path.join(uploadsDir, largeFilename);
+          
+          await sharp(file.buffer)
+            .resize(1200, 1200, {
+              fit: 'inside',
+              withoutEnlargement: true
+            })
+            .webp({ quality: 90 })
+            .toFile(largeFilepath);
 
-      await sharp(req.file.buffer)
-        .resize(800, 800, {
-          fit: 'inside',
-          withoutEnlargement: true
+          // Criar versão thumbnail (para home/listagens)
+          const thumbFilename = `${baseFilename}-thumb.webp`;
+          const thumbFilepath = path.join(uploadsDir, thumbFilename);
+          
+          await sharp(file.buffer)
+            .resize(400, 400, {
+              fit: 'cover'
+            })
+            .webp({ quality: 80 })
+            .toFile(thumbFilepath);
+
+          return {
+            large: `/uploads/products/${largeFilename}`,
+            thumb: `/uploads/products/${thumbFilename}`
+          };
         })
-        .webp({ quality: 85 })
-        .toFile(filepath);
+      );
 
-      const imageUrl = `/uploads/products/${filename}`;
-      res.json({ url: imageUrl });
+      res.json({ images: uploadedImages });
     } catch (error) {
-      console.error('Error uploading image:', error);
-      res.status(500).json({ error: "Erro ao fazer upload da imagem" });
+      console.error('Error uploading images:', error);
+      res.status(500).json({ error: "Erro ao fazer upload das imagens" });
     }
   });
 

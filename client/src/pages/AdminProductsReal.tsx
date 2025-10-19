@@ -19,7 +19,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import { X, Upload, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -156,7 +156,7 @@ function ProductForm({ product, categories, onClose }: {
     featured: product?.featured || false,
     active: product?.active !== false,
   });
-  const [newImageUrl, setNewImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
@@ -174,6 +174,47 @@ function ProductForm({ product, categories, onClose }: {
       onClose();
     },
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const formDataUpload = new FormData();
+      Array.from(files).forEach(file => {
+        formDataUpload.append('images', file);
+      });
+
+      const response = await fetch('/api/upload/product-images', {
+        method: 'POST',
+        body: formDataUpload,
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao fazer upload das imagens');
+      }
+
+      const data = await response.json();
+      
+      const newImageUrls = data.images.map((img: any) => img.large);
+      setFormData({ 
+        ...formData, 
+        images: [...formData.images, ...newImageUrls] 
+      });
+
+      toast({ title: "Imagens enviadas com sucesso!" });
+    } catch (error) {
+      toast({ 
+        title: "Erro ao fazer upload", 
+        description: "Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,59 +290,68 @@ function ProductForm({ product, categories, onClose }: {
       </div>
 
       <div className="space-y-2">
-        <Label>Imagens (URLs)</Label>
-        <div className="space-y-2">
-          {formData.images.map((url, index) => (
-            <div key={index} className="flex gap-2">
-              <Input
-                value={url}
-                onChange={(e) => {
-                  const newImages = [...formData.images];
-                  newImages[index] = e.target.value;
-                  setFormData({ ...formData, images: newImages });
-                }}
-                placeholder="https://exemplo.com/imagem.jpg"
-                data-testid={`input-image-${index}`}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  const newImages = formData.images.filter((_, i) => i !== index);
-                  setFormData({ ...formData, images: newImages });
-                }}
-                data-testid={`button-remove-image-${index}`}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+        <Label>Imagens do Produto</Label>
+        <div className="space-y-4">
+          {formData.images.length > 0 && (
+            <div className="grid grid-cols-3 gap-4">
+              {formData.images.map((url, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={url} 
+                    alt={`Imagem ${index + 1}`}
+                    className="w-full h-32 object-cover rounded-md border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      const newImages = formData.images.filter((_, i) => i !== index);
+                      setFormData({ ...formData, images: newImages });
+                    }}
+                    data-testid={`button-remove-image-${index}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
-          ))}
-          <div className="flex gap-2">
-            <Input
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              placeholder="Cole a URL da imagem aqui"
-              data-testid="input-new-image"
+          )}
+          
+          <div className="border-2 border-dashed rounded-lg p-6 text-center">
+            <input
+              type="file"
+              id="image-upload"
+              multiple
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              onChange={handleImageUpload}
+              className="hidden"
+              disabled={uploading}
+              data-testid="input-image-upload"
             />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                if (newImageUrl.trim()) {
-                  setFormData({ ...formData, images: [...formData.images, newImageUrl.trim()] });
-                  setNewImageUrl('');
-                }
-              }}
-              data-testid="button-add-image"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar
-            </Button>
+            <label htmlFor="image-upload" className="cursor-pointer">
+              <div className="flex flex-col items-center gap-2">
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
+                    <p className="text-sm text-muted-foreground">Fazendo upload...</p>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-10 w-10 text-muted-foreground" />
+                    <p className="text-sm font-medium">Clique para fazer upload</p>
+                    <p className="text-xs text-muted-foreground">
+                      PNG, JPG ou WebP (máx. 5MB por imagem)
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Você pode selecionar múltiplas imagens
+                    </p>
+                  </>
+                )}
+              </div>
+            </label>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Adicione URLs de imagens (ex: do Unsplash, Imgur, ou seu servidor)
-          </p>
         </div>
       </div>
 
