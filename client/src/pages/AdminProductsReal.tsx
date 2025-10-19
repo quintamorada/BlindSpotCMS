@@ -197,13 +197,17 @@ function ProductForm({ product, categories, onClose }: {
 
       const data = await response.json();
       
+      // Salvar apenas a URL da versão large, o thumb é gerado automaticamente pelo nome
       const newImageUrls = data.images.map((img: any) => img.large);
       setFormData({ 
         ...formData, 
         images: [...formData.images, ...newImageUrls] 
       });
 
-      toast({ title: "Imagens enviadas com sucesso!" });
+      toast({ 
+        title: "Imagens enviadas com sucesso!",
+        description: `${data.images.length} imagem(ns) processada(s) e otimizada(s)`
+      });
     } catch (error) {
       toast({ 
         title: "Erro ao fazer upload", 
