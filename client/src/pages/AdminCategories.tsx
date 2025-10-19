@@ -198,16 +198,6 @@ function CategoryForm({ category, onClose }: {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="image">URL da Imagem</Label>
-          <Input
-            id="image"
-            value={formData.image}
-            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-            data-testid="input-category-image"
-          />
-        </div>
-
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel">
             Cancelar
