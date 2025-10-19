@@ -19,6 +19,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -151,9 +152,11 @@ function ProductForm({ product, categories, onClose }: {
     description: product?.description || '',
     price: product?.price || '',
     categoryId: product?.categoryId || '',
+    images: product?.images || [],
     featured: product?.featured || false,
     active: product?.active !== false,
   });
+  const [newImageUrl, setNewImageUrl] = useState('');
 
   const mutation = useMutation({
     mutationFn: async (data: any) => {
@@ -242,6 +245,63 @@ function ProductForm({ product, categories, onClose }: {
               ))}
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Imagens (URLs)</Label>
+        <div className="space-y-2">
+          {formData.images.map((url, index) => (
+            <div key={index} className="flex gap-2">
+              <Input
+                value={url}
+                onChange={(e) => {
+                  const newImages = [...formData.images];
+                  newImages[index] = e.target.value;
+                  setFormData({ ...formData, images: newImages });
+                }}
+                placeholder="https://exemplo.com/imagem.jpg"
+                data-testid={`input-image-${index}`}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => {
+                  const newImages = formData.images.filter((_, i) => i !== index);
+                  setFormData({ ...formData, images: newImages });
+                }}
+                data-testid={`button-remove-image-${index}`}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <Input
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              placeholder="Cole a URL da imagem aqui"
+              data-testid="input-new-image"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (newImageUrl.trim()) {
+                  setFormData({ ...formData, images: [...formData.images, newImageUrl.trim()] });
+                  setNewImageUrl('');
+                }
+              }}
+              data-testid="button-add-image"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Adicione URLs de imagens (ex: do Unsplash, Imgur, ou seu servidor)
+          </p>
         </div>
       </div>
 
