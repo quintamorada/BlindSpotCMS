@@ -15,28 +15,28 @@ export async function seedDatabase() {
       name: "Blackout",
       slug: "blackout",
       description: "Persianas com bloqueio total de luz para ambientes que necessitam escurecimento completo",
-      image: "/assets/image_1760401396397.png"
+      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop"
     });
 
     const rolo = await storage.createCategory({
       name: "Rolô",
       slug: "rolo",
       description: "Persianas práticas e elegantes com sistema de rolagem",
-      image: "/assets/image_1760401396397.png"
+      image: "https://images.unsplash.com/photo-1631889993959-41b4e9c6e3c5?w=800&h=600&fit=crop"
     });
 
     const vertical = await storage.createCategory({
       name: "Vertical",
       slug: "vertical",
       description: "Ideais para janelas grandes e portas de vidro",
-      image: "/assets/image_1760401396397.png"
+      image: "https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?w=800&h=600&fit=crop"
     });
 
     const horizontal = await storage.createCategory({
       name: "Horizontal",
       slug: "horizontal",
       description: "Clássicas e versáteis para qualquer ambiente",
-      image: "/assets/image_1760401396397.png"
+      image: "https://images.unsplash.com/photo-1545259742-24f940214927?w=800&h=600&fit=crop"
     });
 
     // Create products
@@ -46,7 +46,7 @@ export async function seedDatabase() {
       description: "Persiana blackout de alta qualidade com tecido importado. Bloqueio total de luz, ideal para quartos e home theater.",
       price: "299.90",
       categoryId: blackout.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop"],
       specifications: {
         material: "Tecido blackout importado",
         cores: ["Branco", "Bege", "Cinza", "Preto"],
@@ -63,7 +63,7 @@ export async function seedDatabase() {
       description: "Persiana rolô em tecido linho premium. Design clean e moderno para qualquer ambiente.",
       price: "249.90",
       categoryId: rolo.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1631889993959-41b4e9c6e3c5?w=800&h=600&fit=crop"],
       specifications: {
         material: "Tecido linho",
         cores: ["Natural", "Branco", "Bege"],
@@ -80,7 +80,7 @@ export async function seedDatabase() {
       description: "Persiana vertical em PVC de alta resistência. Perfeita para janelas grandes e ambientes comerciais.",
       price: "349.90",
       categoryId: vertical.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?w=800&h=600&fit=crop"],
       specifications: {
         material: "PVC resistente",
         cores: ["Branco", "Bege", "Cinza"],
@@ -97,7 +97,7 @@ export async function seedDatabase() {
       description: "Persiana horizontal em alumínio de alta qualidade. Clássica e durável.",
       price: "199.90",
       categoryId: horizontal.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1545259742-24f940214927?w=800&h=600&fit=crop"],
       specifications: {
         material: "Alumínio",
         cores: ["Branco", "Prata", "Dourado"],
@@ -114,7 +114,7 @@ export async function seedDatabase() {
       description: "Persiana blackout com vedação lateral completa. Bloqueio 100% de luz externa.",
       price: "399.90",
       categoryId: blackout.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop"],
       specifications: {
         material: "Tecido blackout + vedação",
         cores: ["Branco", "Cinza", "Preto"],
@@ -131,7 +131,7 @@ export async function seedDatabase() {
       description: "Persiana rolô em tecido screen. Filtra luz solar e mantém a visibilidade externa.",
       price: "279.90",
       categoryId: rolo.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1631889993959-41b4e9c6e3c5?w=800&h=600&fit=crop"],
       specifications: {
         material: "Tecido screen",
         cores: ["Branco", "Cinza", "Bronze"],
@@ -148,7 +148,7 @@ export async function seedDatabase() {
       description: "Persiana vertical em tecido premium. Elegância e sofisticação para ambientes requintados.",
       price: "429.90",
       categoryId: vertical.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?w=800&h=600&fit=crop"],
       specifications: {
         material: "Tecido premium",
         cores: ["Bege", "Cinza", "Terracota"],
@@ -165,7 +165,7 @@ export async function seedDatabase() {
       description: "Persiana horizontal em madeira nobre. Charme e elegância atemporal.",
       price: "499.90",
       categoryId: horizontal.id,
-      images: ["/assets/image_1760401396397.png"],
+      images: ["https://images.unsplash.com/photo-1545259742-24f940214927?w=800&h=600&fit=crop"],
       specifications: {
         material: "Madeira nobre",
         cores: ["Mogno", "Cerejeira", "Nogueira"],
