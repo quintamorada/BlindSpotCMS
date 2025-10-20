@@ -33,7 +33,14 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    
+    const parsed = JSON.parse(saved);
+    return parsed.map((item: any) => ({
+      ...item,
+      aluminumBando: item.aluminumBando ?? false,
+      aluminumBandoPrice: item.aluminumBandoPrice ?? 0,
+    }));
   });
 
   useEffect(() => {

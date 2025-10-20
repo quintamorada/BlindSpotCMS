@@ -65,6 +65,9 @@ export default function Cart() {
                         <div data-testid={`text-item-bando-${index}`}>
                           Bandô: {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
                         </div>
+                        <div data-testid={`text-item-aluminum-bando-${index}`}>
+                          Bandô de Alumínio: {item.aluminumBando ? `Sim (+R$ ${item.aluminumBandoPrice.toFixed(2)})` : 'Não'}
+                        </div>
                         {item.colorName && (
                           <div className="flex items-center gap-2" data-testid={`text-item-color-${index}`}>
                             <span>Cor:</span>

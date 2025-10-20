@@ -221,6 +221,12 @@ function AdminOrdersContent() {
                                 {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
                               </span>
                             </div>
+                            <div>
+                              <span className="text-muted-foreground">Bandô de Alumínio:</span>{" "}
+                              <span data-testid={`text-item-aluminum-bando-${index}`}>
+                                {item.aluminumBando ? `Sim (+R$ ${parseFloat(item.aluminumBandoPrice || "0").toFixed(2)})` : 'Não'}
+                              </span>
+                            </div>
                             {item.colorName && (
                               <div className="col-span-2">
                                 <span className="text-muted-foreground">Cor:</span>{" "}
