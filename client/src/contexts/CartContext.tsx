@@ -1,6 +1,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { CategoryColor } from "@shared/schema";
 
+export type VerticalControl = "lateral-esquerda" | "lateral-direita" | "central-esquerda" | "central-direita" | "invertido-esquerda" | "invertido-direita";
+export type VerticalBando = "sem-laterais" | "lateral-esquerda" | "lateral-direita" | "duas-laterais";
+
 export interface CartItem {
   productId: string;
   productName: string;
@@ -14,6 +17,8 @@ export interface CartItem {
   colorImage?: string;
   aluminumBando: boolean;
   aluminumBandoPrice: number;
+  verticalControl?: VerticalControl;
+  verticalBando?: VerticalBando;
   pricePerSqm: number;
   totalPrice: number;
   area: number;

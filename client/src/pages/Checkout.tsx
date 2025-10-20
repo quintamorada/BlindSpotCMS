@@ -66,6 +66,8 @@ export default function Checkout() {
         colorCode: item.colorCode,
         aluminumBando: item.aluminumBando,
         aluminumBandoPrice: item.aluminumBandoPrice.toString(),
+        verticalControl: item.verticalControl,
+        verticalBando: item.verticalBando,
         pricePerSqm: item.pricePerSqm.toString(),
         totalPrice: item.totalPrice.toString()
       }))

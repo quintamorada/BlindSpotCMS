@@ -62,6 +62,8 @@ export const users = pgTable("users", {
 
 export const bandoSideEnum = pgEnum("bando_side", ["left", "right"]);
 export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "in_production", "delivered", "cancelled"]);
+export const verticalControlEnum = pgEnum("vertical_control", ["lateral-esquerda", "lateral-direita", "central-esquerda", "central-direita", "invertido-esquerda", "invertido-direita"]);
+export const verticalBandoEnum = pgEnum("vertical_bando", ["sem-laterais", "lateral-esquerda", "lateral-direita", "duas-laterais"]);
 
 export const orders = pgTable("orders", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
@@ -93,6 +95,8 @@ export const orderItems = pgTable("order_items", {
   colorCode: text("color_code"),
   aluminumBando: boolean("aluminum_bando").default(false).notNull(),
   aluminumBandoPrice: numeric("aluminum_bando_price", { precision: 10, scale: 2 }).default("0"),
+  verticalControl: verticalControlEnum("vertical_control"),
+  verticalBando: verticalBandoEnum("vertical_bando"),
   pricePerSqm: numeric("price_per_sqm", { precision: 10, scale: 2 }).notNull(),
   totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

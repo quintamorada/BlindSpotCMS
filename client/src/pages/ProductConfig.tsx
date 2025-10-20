@@ -12,11 +12,23 @@ import { Badge } from "@/components/ui/badge";
 import { Ruler, Check, AlertCircle, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useCart } from "@/contexts/CartContext";
+import { useCart, type VerticalControl, type VerticalBando } from "@/contexts/CartContext";
 import bandoLeftImg from "@assets/generated_images/Blinds_cord_left_side_a7dc741f.png";
 import bandoRightImg from "@assets/generated_images/Blinds_cord_right_side_408c3c17.png";
 import bandoWithAluminumImg from "@assets/generated_images/Window_blind_with_aluminum_valance_29be8e56.png";
 import bandoWithoutAluminumImg from "@assets/generated_images/Window_blind_without_valance_a6bff01c.png";
+
+import verticalLateralEsquerda from "@assets/generated_images/Modern_vertical_blinds_left_control_1c65cae8.png";
+import verticalLateralDireita from "@assets/generated_images/Modern_vertical_blinds_right_control_87bc0abf.png";
+import verticalCentralEsquerda from "@assets/generated_images/Modern_vertical_blinds_center-left_control_aacf7a6e.png";
+import verticalCentralDireita from "@assets/generated_images/Modern_vertical_blinds_center-right_control_b9cd9cf2.png";
+import verticalInvertidoEsquerda from "@assets/generated_images/Modern_vertical_blinds_inverted-left_control_b36f1402.png";
+import verticalInvertidoDireita from "@assets/generated_images/Modern_vertical_blinds_inverted-right_control_ed6be82b.png";
+
+import verticalBandoSemLaterais from "@assets/generated_images/Vertical_blinds_valance_no_sides_a00e3ce1.png";
+import verticalBandoLateralEsquerda from "@assets/generated_images/Vertical_blinds_valance_left_side_117db8a4.png";
+import verticalBandoLateralDireita from "@assets/generated_images/Vertical_blinds_valance_right_side_720920a6.png";
+import verticalBandoDuasLaterais from "@assets/generated_images/Vertical_blinds_valance_both_sides_b13c9e5b.png";
 
 function getThumbUrl(imageUrl: string): string {
   if (imageUrl.includes('-large.webp')) {
@@ -34,6 +46,8 @@ export default function ProductConfig() {
   const [bandoSide, setBandoSide] = useState<"left" | "right" | null>(null);
   const [selectedColor, setSelectedColor] = useState<CategoryColor | null>(null);
   const [aluminumBando, setAluminumBando] = useState<boolean | null>(null);
+  const [verticalControl, setVerticalControl] = useState<VerticalControl | null>(null);
+  const [verticalBando, setVerticalBando] = useState<VerticalBando | null>(null);
   const { toast } = useToast();
   const { addItem } = useCart();
   const [, setLocation] = useLocation();
@@ -83,8 +97,11 @@ export default function ProductConfig() {
 
   const hasColors = colors && colors.length > 0;
   const productHasBando = product?.hasBando ?? true;
+  const isVertical = category?.slug === "vertical";
+  
   const isValidConfig = widthNum > 0 && heightNum > 0 && 
-    (productHasBando ? bandoSide !== null && aluminumBando !== null : true) && 
+    (isVertical ? verticalControl !== null && productHasBando ? verticalBando !== null : true : 
+      productHasBando ? bandoSide !== null && aluminumBando !== null : true) && 
     (!hasColors || selectedColor !== null);
 
   const handleAddToCart = () => {
@@ -96,13 +113,15 @@ export default function ProductConfig() {
       productSlug: product.slug,
       width: widthNum,
       height: heightNum,
-      bandoSide: productHasBando ? bandoSide! : "left",
+      bandoSide: isVertical ? "left" : (productHasBando ? bandoSide! : "left"),
       colorId: selectedColor?.id,
       colorName: selectedColor?.name,
       colorCode: selectedColor?.code,
       colorImage: selectedColor?.image,
-      aluminumBando: productHasBando ? aluminumBando! : false,
-      aluminumBandoPrice: productHasBando ? aluminumBandoPrice : 0,
+      aluminumBando: isVertical ? false : (productHasBando ? aluminumBando! : false),
+      aluminumBandoPrice: isVertical ? 0 : (productHasBando ? aluminumBandoPrice : 0),
+      verticalControl: isVertical ? verticalControl! : undefined,
+      verticalBando: isVertical && productHasBando ? verticalBando! : undefined,
       pricePerSqm: pricePerSqm,
       totalPrice: totalPrice,
       area: area
@@ -118,6 +137,8 @@ export default function ProductConfig() {
     setBandoSide(null);
     setSelectedColor(null);
     setAluminumBando(null);
+    setVerticalControl(null);
+    setVerticalBando(null);
   };
 
   return (
@@ -218,10 +239,260 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
-                {productHasBando && (
+                {isVertical ? (
                   <>
                     <div className="space-y-2">
-                      <Label>Lado do comando {category?.name || ''}</Label>
+                      <Label>Acionamento</Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Escolha a posição do acionamento da persiana vertical
+                      </p>
+                      <div className="grid grid-cols-3 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("lateral-esquerda")}
+                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                            verticalControl === "lateral-esquerda" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-lateral-esquerda"
+                        >
+                          <img 
+                            src={verticalLateralEsquerda} 
+                            alt="Lateral Esquerda"
+                            className="w-full h-20 object-contain mb-1"
+                          />
+                          <div className="text-center text-xs font-medium">Lateral Esquerda</div>
+                          {verticalControl === "lateral-esquerda" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("lateral-direita")}
+                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                            verticalControl === "lateral-direita" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-lateral-direita"
+                        >
+                          <img 
+                            src={verticalLateralDireita} 
+                            alt="Lateral Direita"
+                            className="w-full h-20 object-contain mb-1"
+                          />
+                          <div className="text-center text-xs font-medium">Lateral Direita</div>
+                          {verticalControl === "lateral-direita" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("central-esquerda")}
+                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                            verticalControl === "central-esquerda" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-central-esquerda"
+                        >
+                          <img 
+                            src={verticalCentralEsquerda} 
+                            alt="Central Esquerda"
+                            className="w-full h-20 object-contain mb-1"
+                          />
+                          <div className="text-center text-xs font-medium">Central Esquerda</div>
+                          {verticalControl === "central-esquerda" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("central-direita")}
+                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                            verticalControl === "central-direita" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-central-direita"
+                        >
+                          <img 
+                            src={verticalCentralDireita} 
+                            alt="Central Direita"
+                            className="w-full h-20 object-contain mb-1"
+                          />
+                          <div className="text-center text-xs font-medium">Central Direita</div>
+                          {verticalControl === "central-direita" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("invertido-esquerda")}
+                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                            verticalControl === "invertido-esquerda" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-invertido-esquerda"
+                        >
+                          <img 
+                            src={verticalInvertidoEsquerda} 
+                            alt="Invertido Esquerda"
+                            className="w-full h-20 object-contain mb-1"
+                          />
+                          <div className="text-center text-xs font-medium">Invertido Esquerda</div>
+                          {verticalControl === "invertido-esquerda" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("invertido-direita")}
+                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                            verticalControl === "invertido-direita" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-invertido-direita"
+                        >
+                          <img 
+                            src={verticalInvertidoDireita} 
+                            alt="Invertido Direita"
+                            className="w-full h-20 object-contain mb-1"
+                          />
+                          <div className="text-center text-xs font-medium">Invertido Direita</div>
+                          {verticalControl === "invertido-direita" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {productHasBando && (
+                      <div className="space-y-2">
+                        <Label>Bandô</Label>
+                        <p className="text-xs text-muted-foreground mb-3">
+                          Escolha o tipo de bandô para a persiana vertical
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setVerticalBando("sem-laterais")}
+                            className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                              verticalBando === "sem-laterais" 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border"
+                            }`}
+                            data-testid="button-bando-sem-laterais"
+                          >
+                            <img 
+                              src={verticalBandoSemLaterais} 
+                              alt="Sem Laterais"
+                              className="w-full h-20 object-contain mb-1"
+                            />
+                            <div className="text-center text-xs font-medium">Sem Laterais</div>
+                            {verticalBando === "sem-laterais" && (
+                              <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setVerticalBando("lateral-esquerda")}
+                            className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                              verticalBando === "lateral-esquerda" 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border"
+                            }`}
+                            data-testid="button-bando-lateral-esquerda"
+                          >
+                            <img 
+                              src={verticalBandoLateralEsquerda} 
+                              alt="Lateral Esquerda"
+                              className="w-full h-20 object-contain mb-1"
+                            />
+                            <div className="text-center text-xs font-medium">Lateral Esquerda</div>
+                            {verticalBando === "lateral-esquerda" && (
+                              <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setVerticalBando("lateral-direita")}
+                            className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                              verticalBando === "lateral-direita" 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border"
+                            }`}
+                            data-testid="button-bando-lateral-direita"
+                          >
+                            <img 
+                              src={verticalBandoLateralDireita} 
+                              alt="Lateral Direita"
+                              className="w-full h-20 object-contain mb-1"
+                            />
+                            <div className="text-center text-xs font-medium">Lateral Direita</div>
+                            {verticalBando === "lateral-direita" && (
+                              <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setVerticalBando("duas-laterais")}
+                            className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                              verticalBando === "duas-laterais" 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border"
+                            }`}
+                            data-testid="button-bando-duas-laterais"
+                          >
+                            <img 
+                              src={verticalBandoDuasLaterais} 
+                              alt="Duas Laterais"
+                              className="w-full h-20 object-contain mb-1"
+                            />
+                            <div className="text-center text-xs font-medium">Duas Laterais</div>
+                            {verticalBando === "duas-laterais" && (
+                              <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : productHasBando && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Lado do comando</Label>
                       <p className="text-xs text-muted-foreground mb-3">
                         Clique na imagem para selecionar o lado onde ficará o comando
                       </p>
