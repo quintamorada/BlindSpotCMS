@@ -25,10 +25,10 @@ import verticalCentralDireita from "@assets/generated_images/Modern_vertical_bli
 import verticalInvertidoEsquerda from "@assets/generated_images/Modern_vertical_blinds_inverted-left_control_b36f1402.png";
 import verticalInvertidoDireita from "@assets/generated_images/Modern_vertical_blinds_inverted-right_control_ed6be82b.png";
 
-import verticalBandoSemLaterais from "@assets/generated_images/Vertical_blinds_valance_no_sides_a00e3ce1.png";
-import verticalBandoLateralEsquerda from "@assets/generated_images/Vertical_blinds_valance_left_side_117db8a4.png";
-import verticalBandoLateralDireita from "@assets/generated_images/Vertical_blinds_valance_right_side_720920a6.png";
-import verticalBandoDuasLaterais from "@assets/generated_images/Vertical_blinds_valance_both_sides_b13c9e5b.png";
+import verticalBandoSemLaterais from "@assets/bando_options/sem-laterais.png";
+import verticalBandoLateralEsquerda from "@assets/bando_options/lateral-esquerda.png";
+import verticalBandoLateralDireita from "@assets/bando_options/lateral-direita.png";
+import verticalBandoDuasLaterais from "@assets/bando_options/duas-laterais.png";
 
 function getThumbUrl(imageUrl: string): string {
   if (imageUrl.includes('-large.webp')) {
