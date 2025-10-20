@@ -4,6 +4,7 @@ import { SiWhatsapp, SiInstagram, SiFacebook } from "react-icons/si";
 import { Mail, Phone, MapPin, Shield, Award, Truck } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Settings } from "@shared/schema";
+import { Link } from "wouter";
 
 export default function Footer() {
   const { data: settings } = useQuery<Settings>({
@@ -38,10 +39,26 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Produtos</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Persianas Blackout</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Persianas Rolô</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Persianas Vertical</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Persianas Horizontal</a></li>
+              <li>
+                <Link href="/categoria/blackout" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-blackout">
+                  Persianas Blackout
+                </Link>
+              </li>
+              <li>
+                <Link href="/categoria/rolo" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-rolo">
+                  Persianas Rolô
+                </Link>
+              </li>
+              <li>
+                <Link href="/categoria/vertical" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-vertical">
+                  Persianas Vertical
+                </Link>
+              </li>
+              <li>
+                <Link href="/categoria/horizontal" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-horizontal">
+                  Persianas Horizontal
+                </Link>
+              </li>
             </ul>
           </div>
           

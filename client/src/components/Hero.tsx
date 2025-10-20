@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@assets/stock_images/window_blinds_modern_3f492354.jpg";
+import { useLocation } from "wouter";
 
 export default function Hero() {
+  const [, setLocation] = useLocation();
+
   return (
     <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
@@ -25,6 +28,7 @@ export default function Hero() {
             size="lg" 
             className="bg-[hsl(35,65%,55%)] hover:bg-[hsl(35,65%,50%)] text-white border-0 font-semibold px-8"
             data-testid="button-hero-catalog"
+            onClick={() => setLocation("/catalogo")}
           >
             Ver Catálogo
           </Button>
@@ -33,6 +37,7 @@ export default function Hero() {
             variant="outline" 
             className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 font-semibold px-8"
             data-testid="button-hero-quote"
+            onClick={() => setLocation("/contato")}
           >
             Solicitar Orçamento
           </Button>

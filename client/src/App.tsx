@@ -20,11 +20,15 @@ import Products from "@/pages/Products";
 import ProductConfig from "@/pages/ProductConfig";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
+import CategoryProducts from "@/pages/CategoryProducts";
+import Catalog from "@/pages/Catalog";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomeReal} />
+      <Route path="/catalogo" component={Catalog} />
+      <Route path="/categoria/:slug" component={CategoryProducts} />
       <Route path="/produtos" component={Products} />
       <Route path="/produto/:slug" component={ProductConfig} />
       <Route path="/carrinho" component={Cart} />

@@ -28,7 +28,7 @@ export default function Contact() {
 
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">Entre em Contato</h1>
+          <h1 className="text-4xl font-bold mb-8 text-center" data-testid="text-page-title">Solicitar Orçamento</h1>
           
           <div className="grid md:grid-cols-2 gap-8">
             <Card>
