@@ -293,6 +293,121 @@ export default function ProductConfig() {
 
                 {isVertical ? (
                   <>
+                    <div className="space-y-2">
+                      <Label>Posição do Controle</Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Escolha a posição do controle para a persiana vertical
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("lateral-esquerda")}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            verticalControl === "lateral-esquerda" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-lateral-esquerda"
+                        >
+                          <div className="text-center text-sm font-medium">Lateral Esquerda</div>
+                          {verticalControl === "lateral-esquerda" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("lateral-direita")}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            verticalControl === "lateral-direita" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-lateral-direita"
+                        >
+                          <div className="text-center text-sm font-medium">Lateral Direita</div>
+                          {verticalControl === "lateral-direita" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("central-esquerda")}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            verticalControl === "central-esquerda" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-central-esquerda"
+                        >
+                          <div className="text-center text-sm font-medium">Central Esquerda</div>
+                          {verticalControl === "central-esquerda" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("central-direita")}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            verticalControl === "central-direita" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-central-direita"
+                        >
+                          <div className="text-center text-sm font-medium">Central Direita</div>
+                          {verticalControl === "central-direita" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("invertido-esquerda")}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            verticalControl === "invertido-esquerda" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-invertido-esquerda"
+                        >
+                          <div className="text-center text-sm font-medium">Invertido Esquerda</div>
+                          {verticalControl === "invertido-esquerda" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setVerticalControl("invertido-direita")}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            verticalControl === "invertido-direita" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-control-invertido-direita"
+                        >
+                          <div className="text-center text-sm font-medium">Invertido Direita</div>
+                          {verticalControl === "invertido-direita" && (
+                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
                     {productHasBando && (
                       <div className="space-y-2">
