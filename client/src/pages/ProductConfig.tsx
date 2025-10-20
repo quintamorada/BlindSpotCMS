@@ -82,9 +82,9 @@ export default function ProductConfig() {
   const totalPrice = (area * pricePerSqm) + aluminumBandoPrice;
 
   const hasColors = colors && colors.length > 0;
-  const categoryHasBando = category?.hasBando ?? true;
+  const productHasBando = product?.hasBando ?? true;
   const isValidConfig = widthNum > 0 && heightNum > 0 && 
-    (categoryHasBando ? bandoSide !== null && aluminumBando !== null : true) && 
+    (productHasBando ? bandoSide !== null && aluminumBando !== null : true) && 
     (!hasColors || selectedColor !== null);
 
   const handleAddToCart = () => {
@@ -96,13 +96,13 @@ export default function ProductConfig() {
       productSlug: product.slug,
       width: widthNum,
       height: heightNum,
-      bandoSide: categoryHasBando ? bandoSide! : "left",
+      bandoSide: productHasBando ? bandoSide! : "left",
       colorId: selectedColor?.id,
       colorName: selectedColor?.name,
       colorCode: selectedColor?.code,
       colorImage: selectedColor?.image,
-      aluminumBando: categoryHasBando ? aluminumBando! : false,
-      aluminumBandoPrice: categoryHasBando ? aluminumBandoPrice : 0,
+      aluminumBando: productHasBando ? aluminumBando! : false,
+      aluminumBandoPrice: productHasBando ? aluminumBandoPrice : 0,
       pricePerSqm: pricePerSqm,
       totalPrice: totalPrice,
       area: area
@@ -218,7 +218,7 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
-                {categoryHasBando && (
+                {productHasBando && (
                   <>
                     <div className="space-y-2">
                       <Label>Lado do comando {category?.name || ''}</Label>
