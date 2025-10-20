@@ -10,7 +10,6 @@ export const categories = pgTable("categories", {
   slug: text("slug").notNull().unique(),
   description: text("description"),
   image: text("image"),
-  hasBando: boolean("has_bando").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -34,6 +33,7 @@ export const products = pgTable("products", {
   specifications: jsonb("specifications"),
   featured: boolean("featured").default(false),
   active: boolean("active").default(true),
+  hasBando: boolean("has_bando").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

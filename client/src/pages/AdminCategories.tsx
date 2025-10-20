@@ -135,6 +135,7 @@ function CategoryForm({ category, onClose }: {
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const [currentCategory, setCurrentCategory] = useState<Category | null>(category);
   const [formData, setFormData] = useState({
     name: category?.name || '',
     slug: category?.slug || '',
@@ -143,20 +144,25 @@ function CategoryForm({ category, onClose }: {
     hasBando: category?.hasBando ?? true,
   });
 
-  const mutation = useMutation({
+  const mutation = useMutation<Category, Error, any>({
     mutationFn: async (data: any) => {
-      if (category) {
-        return await apiRequest('PUT', `/api/categories/${category.id}`, data);
+      if (currentCategory) {
+        const response = await apiRequest('PUT', `/api/categories/${currentCategory.id}`, data);
+        return await response.json();
       } else {
-        return await apiRequest('POST', '/api/categories', data);
+        const response = await apiRequest('POST', '/api/categories', data);
+        return await response.json();
       }
     },
-    onSuccess: () => {
+    onSuccess: (newCategory: Category) => {
       queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
       toast({ 
-        title: category ? "Categoria atualizada!" : "Categoria criada!",
+        title: currentCategory ? "Categoria atualizada!" : "Categoria criada!",
+        description: currentCategory ? undefined : "Agora você pode adicionar cores para esta categoria.",
       });
-      onClose();
+      if (!currentCategory) {
+        setCurrentCategory(newCategory);
+      }
     },
   });
 
@@ -222,9 +228,9 @@ function CategoryForm({ category, onClose }: {
         </div>
       </form>
 
-      {category && (
+      {currentCategory && (
         <div className="pt-4 border-t">
-          <CategoryColorsManager categoryId={category.id} />
+          <CategoryColorsManager categoryId={currentCategory.id} />
         </div>
       )}
     </div>
