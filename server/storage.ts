@@ -10,7 +10,8 @@ import type {
   Page, InsertPage,
   User, InsertUser,
   Order, InsertOrder,
-  OrderItem, InsertOrderItem
+  OrderItem, InsertOrderItem,
+  Settings, InsertSettings
 } from "@shared/schema";
 import ws from "ws";
 
@@ -73,6 +74,10 @@ export interface IStorage {
   getOrderItem(id: string): Promise<OrderItem | undefined>;
   createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem>;
   deleteOrderItem(id: string): Promise<boolean>;
+
+  // Settings
+  getSettings(): Promise<Settings | undefined>;
+  updateSettings(settings: Partial<InsertSettings>): Promise<Settings | undefined>;
 }
 
 export class DbStorage implements IStorage {
@@ -305,6 +310,20 @@ export class DbStorage implements IStorage {
   async deleteOrderItem(id: string): Promise<boolean> {
     const result = await db.delete(schema.orderItems).where(eq(schema.orderItems.id, id)).returning();
     return result.length > 0;
+  }
+
+  // Settings
+  async getSettings(): Promise<Settings | undefined> {
+    const result = await db.select().from(schema.settings).where(eq(schema.settings.id, 'default'));
+    return result[0];
+  }
+
+  async updateSettings(settings: Partial<InsertSettings>): Promise<Settings | undefined> {
+    const result = await db.update(schema.settings)
+      .set({ ...settings, updatedAt: new Date() })
+      .where(eq(schema.settings.id, 'default'))
+      .returning();
+    return result[0];
   }
 }
 
