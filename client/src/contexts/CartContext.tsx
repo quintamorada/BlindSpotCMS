@@ -12,6 +12,8 @@ export interface CartItem {
   colorName?: string;
   colorCode?: string;
   colorImage?: string;
+  aluminumBando: boolean;
+  aluminumBandoPrice: number;
   pricePerSqm: number;
   totalPrice: number;
   area: number;
