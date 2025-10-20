@@ -2,8 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiWhatsapp, SiInstagram, SiFacebook } from "react-icons/si";
 import { Mail, Phone, MapPin, Shield, Award, Truck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { Settings } from "@shared/schema";
 
 export default function Footer() {
+  const { data: settings } = useQuery<Settings>({
+    queryKey: ['/api/settings'],
+  });
+
+  const contactEmail = settings?.contactEmail || "contato@persianas.com.br";
+  const contactPhone = settings?.contactPhone || "(11) 9999-9999";
+
   return (
     <footer className="bg-card border-t">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -41,11 +50,11 @@ export default function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>(11) 9999-9999</span>
+                <span data-testid="text-footer-phone">{contactPhone}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
-                <span>contato@persianas.com.br</span>
+                <span data-testid="text-footer-email">{contactEmail}</span>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />

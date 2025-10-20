@@ -10,25 +10,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RequireAuth } from "@/lib/auth";
 import { useState, useEffect } from "react";
-import { DollarSign, Save } from "lucide-react";
+import { DollarSign, Save, Mail, Phone } from "lucide-react";
 import type { Settings } from "@shared/schema";
 
 function AdminSettingsContent() {
   const { toast } = useToast();
   const [aluminumBandoPrice, setAluminumBandoPrice] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   
   const { data: settings, isLoading } = useQuery<Settings>({
     queryKey: ['/api/settings'],
   });
 
   useEffect(() => {
-    if (settings?.aluminumBandoPrice) {
-      setAluminumBandoPrice(settings.aluminumBandoPrice);
+    if (settings) {
+      if (settings.aluminumBandoPrice) {
+        setAluminumBandoPrice(settings.aluminumBandoPrice);
+      }
+      if (settings.contactEmail) {
+        setContactEmail(settings.contactEmail);
+      }
+      if (settings.contactPhone) {
+        setContactPhone(settings.contactPhone);
+      }
     }
   }, [settings]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { aluminumBandoPrice: string }) => {
+    mutationFn: async (data: { aluminumBandoPrice: string; contactEmail: string; contactPhone: string }) => {
       await apiRequest('PUT', '/api/settings', data);
     },
     onSuccess: () => {
@@ -60,7 +70,20 @@ function AdminSettingsContent() {
       return;
     }
 
-    updateMutation.mutate({ aluminumBandoPrice: price.toFixed(2) });
+    if (!contactEmail || !contactPhone) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Email e telefone de contato são obrigatórios.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    updateMutation.mutate({ 
+      aluminumBandoPrice: price.toFixed(2),
+      contactEmail,
+      contactPhone
+    });
   };
 
   const style = {
@@ -85,7 +108,7 @@ function AdminSettingsContent() {
               {isLoading ? (
                 <div className="text-center py-12">Carregando...</div>
               ) : (
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -116,19 +139,64 @@ function AdminSettingsContent() {
                           Este valor será adicionado ao total quando o cliente optar por incluir bandô de alumínio na persiana
                         </p>
                       </div>
+                    </CardContent>
+                  </Card>
 
-                      <div className="flex justify-end gap-3">
-                        <Button 
-                          type="submit" 
-                          disabled={updateMutation.isPending}
-                          data-testid="button-save-settings"
-                        >
-                          <Save className="h-4 w-4 mr-2" />
-                          {updateMutation.isPending ? 'Salvando...' : 'Salvar Configurações'}
-                        </Button>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Phone className="h-5 w-5" />
+                        Informações de Contato
+                      </CardTitle>
+                      <CardDescription>
+                        Configure o email e telefone que aparecerão no rodapé do site
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="contactEmail" className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          Email de Contato
+                        </Label>
+                        <Input
+                          id="contactEmail"
+                          type="email"
+                          placeholder="contato@exemplo.com.br"
+                          value={contactEmail}
+                          onChange={(e) => setContactEmail(e.target.value)}
+                          data-testid="input-contact-email"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="contactPhone" className="flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
+                          Telefone de Contato
+                        </Label>
+                        <Input
+                          id="contactPhone"
+                          type="tel"
+                          placeholder="(11) 99999-9999"
+                          value={contactPhone}
+                          onChange={(e) => setContactPhone(e.target.value)}
+                          data-testid="input-contact-phone"
+                          required
+                        />
                       </div>
                     </CardContent>
                   </Card>
+
+                  <div className="flex justify-end gap-3">
+                    <Button 
+                      type="submit" 
+                      disabled={updateMutation.isPending}
+                      data-testid="button-save-settings"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      {updateMutation.isPending ? 'Salvando...' : 'Salvar Configurações'}
+                    </Button>
+                  </div>
                 </form>
               )}
             </div>

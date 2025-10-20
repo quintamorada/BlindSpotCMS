@@ -37,6 +37,7 @@ function AdminOrdersContent() {
 
   const { data: orders, isLoading } = useQuery<OrderWithItems[]>({
     queryKey: ['/api/orders'],
+    refetchInterval: 30000,
   });
 
   const updateStatusMutation = useMutation({
