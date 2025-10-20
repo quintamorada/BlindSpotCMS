@@ -73,6 +73,12 @@ export const orders = pgTable("orders", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const settings = pgTable("settings", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  aluminumBandoPrice: numeric("aluminum_bando_price", { precision: 10, scale: 2 }).notNull().default("0"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const orderItems = pgTable("order_items", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
   orderId: varchar("order_id", { length: 36 }).references(() => orders.id).notNull(),
@@ -84,6 +90,8 @@ export const orderItems = pgTable("order_items", {
   colorId: varchar("color_id", { length: 36 }),
   colorName: text("color_name"),
   colorCode: text("color_code"),
+  aluminumBando: boolean("aluminum_bando").default(false).notNull(),
+  aluminumBandoPrice: numeric("aluminum_bando_price", { precision: 10, scale: 2 }).default("0"),
   pricePerSqm: numeric("price_per_sqm", { precision: 10, scale: 2 }).notNull(),
   totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -108,6 +116,11 @@ export const insertProductSchema = createInsertSchema(products).omit({
 export const insertPageSchema = createInsertSchema(pages).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSettingsSchema = createInsertSchema(settings).omit({
+  id: true,
   updatedAt: true,
 });
 
@@ -153,3 +166,6 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type InsertOrderItemForCreate = z.infer<typeof insertOrderItemSchemaForCreate>;
+
+export type Settings = typeof settings.$inferSelect;
+export type InsertSettings = z.infer<typeof insertSettingsSchema>;
