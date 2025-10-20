@@ -197,6 +197,67 @@ export default function ProductConfig() {
                   ))}
                 </div>
               )}
+
+              <Card className="p-4">
+                <div className="space-y-2">
+                  <Label>Cor da Persiana</Label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Escolha a cor desejada para sua persiana
+                  </p>
+                  {colorsLoading ? (
+                    <div className="text-sm text-muted-foreground py-4 text-center">
+                      Carregando cores disponíveis...
+                    </div>
+                  ) : !hasColors ? (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Este produto não possui cores disponíveis no momento.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {colors.map((color) => (
+                        <button
+                          key={color.id}
+                          type="button"
+                          onClick={() => setSelectedColor(color)}
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
+                            selectedColor?.id === color.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border"
+                          }`}
+                          data-testid={`button-color-${color.id}`}
+                        >
+                          <div className="aspect-square mb-2 rounded-md overflow-hidden border">
+                            <img
+                              src={color.image}
+                              alt={color.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23e5e7eb"/%3E%3Ctext x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                              }}
+                            />
+                          </div>
+                          <div className="text-center">
+                            <div className="font-medium text-sm" data-testid={`text-color-name-${color.id}`}>
+                              {color.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
+                              {color.code}
+                            </div>
+                          </div>
+                          {selectedColor?.id === color.id && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Card>
             </div>
 
             <div className="space-y-6">
@@ -519,65 +580,6 @@ export default function ProductConfig() {
                     </div>
                   </>
                 )}
-
-                <div className="space-y-2">
-                  <Label>Cor da Persiana</Label>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Escolha a cor desejada para sua persiana
-                  </p>
-                  {colorsLoading ? (
-                    <div className="text-sm text-muted-foreground py-4 text-center">
-                      Carregando cores disponíveis...
-                    </div>
-                  ) : !hasColors ? (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Este produto não possui cores disponíveis no momento.
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {colors.map((color) => (
-                        <button
-                          key={color.id}
-                          type="button"
-                          onClick={() => setSelectedColor(color)}
-                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
-                            selectedColor?.id === color.id
-                              ? "border-primary bg-primary/5"
-                              : "border-border"
-                          }`}
-                          data-testid={`button-color-${color.id}`}
-                        >
-                          <div className="aspect-square mb-2 rounded-md overflow-hidden border">
-                            <img
-                              src={color.image}
-                              alt={color.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23e5e7eb"/%3E%3Ctext x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
-                              }}
-                            />
-                          </div>
-                          <div className="text-center">
-                            <div className="font-medium text-sm" data-testid={`text-color-name-${color.id}`}>
-                              {color.name}
-                            </div>
-                            <div className="text-xs text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
-                              {color.code}
-                            </div>
-                          </div>
-                          {selectedColor?.id === color.id && (
-                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                              <Check className="h-4 w-4" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
                 {area > 0 && (
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
