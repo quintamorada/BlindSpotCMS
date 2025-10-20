@@ -18,12 +18,12 @@ import bandoRightImg from "@assets/generated_images/Blinds_cord_right_side_408c3
 import bandoWithAluminumImg from "@assets/generated_images/Window_blind_with_aluminum_valance_29be8e56.png";
 import bandoWithoutAluminumImg from "@assets/generated_images/Window_blind_without_valance_a6bff01c.png";
 
-import verticalLateralEsquerda from "@assets/generated_images/Modern_vertical_blinds_left_control_1c65cae8.png";
-import verticalLateralDireita from "@assets/generated_images/Modern_vertical_blinds_right_control_87bc0abf.png";
-import verticalCentralEsquerda from "@assets/generated_images/Modern_vertical_blinds_center-left_control_aacf7a6e.png";
-import verticalCentralDireita from "@assets/generated_images/Modern_vertical_blinds_center-right_control_b9cd9cf2.png";
-import verticalInvertidoEsquerda from "@assets/generated_images/Modern_vertical_blinds_inverted-left_control_b36f1402.png";
-import verticalInvertidoDireita from "@assets/generated_images/Modern_vertical_blinds_inverted-right_control_ed6be82b.png";
+import verticalLateralEsquerda from "@assets/control_types/lateral-esquerda.png";
+import verticalLateralDireita from "@assets/control_types/lateral-direita.png";
+import verticalCentralEsquerda from "@assets/control_types/central-esquerda.png";
+import verticalCentralDireita from "@assets/control_types/central-direita.png";
+import verticalInvertidoEsquerda from "@assets/control_types/invertido-esquerda.png";
+import verticalInvertidoDireita from "@assets/control_types/invertido-direita.png";
 
 import verticalBandoSemLaterais from "@assets/bando_options/sem-laterais.png";
 import verticalBandoLateralEsquerda from "@assets/bando_options/lateral-esquerda.png";
