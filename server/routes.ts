@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCategorySchema, insertCategoryColorSchema, insertProductSchema, insertPageSchema, insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate } from "@shared/schema";
+import { insertCategorySchema, insertCategoryColorSchema, insertProductSchema, insertPageSchema, insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate, insertSettingsSchema } from "@shared/schema";
 import { z } from "zod";
 import { authenticateUser, hashPassword } from "./auth";
 import { requireAuth, requireAdmin } from "./middleware";
@@ -493,6 +493,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/orders/:orderId/items", requireAdmin, async (req, res) => {
     const items = await storage.getOrderItems(req.params.orderId);
     res.json(items);
+  });
+
+  // Settings API
+  app.get("/api/settings", async (req, res) => {
+    const settings = await storage.getSettings();
+    res.json(settings);
+  });
+
+  app.put("/api/settings", requireAdmin, async (req, res) => {
+    try {
+      const data = insertSettingsSchema.partial().parse(req.body);
+      const settings = await storage.updateSettings(data);
+      if (!settings) {
+        return res.status(404).json({ error: "Settings not found" });
+      }
+      res.json(settings);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
   });
 
   const httpServer = createServer(app);
