@@ -82,7 +82,10 @@ export default function ProductConfig() {
   const totalPrice = (area * pricePerSqm) + aluminumBandoPrice;
 
   const hasColors = colors && colors.length > 0;
-  const isValidConfig = widthNum > 0 && heightNum > 0 && bandoSide !== null && aluminumBando !== null && (!hasColors || selectedColor !== null);
+  const categoryHasBando = category?.hasBando ?? true;
+  const isValidConfig = widthNum > 0 && heightNum > 0 && 
+    (categoryHasBando ? bandoSide !== null && aluminumBando !== null : true) && 
+    (!hasColors || selectedColor !== null);
 
   const handleAddToCart = () => {
     if (!isValidConfig) return;
@@ -93,13 +96,13 @@ export default function ProductConfig() {
       productSlug: product.slug,
       width: widthNum,
       height: heightNum,
-      bandoSide: bandoSide!,
+      bandoSide: categoryHasBando ? bandoSide! : "left",
       colorId: selectedColor?.id,
       colorName: selectedColor?.name,
       colorCode: selectedColor?.code,
       colorImage: selectedColor?.image,
-      aluminumBando: aluminumBando!,
-      aluminumBandoPrice: aluminumBandoPrice,
+      aluminumBando: categoryHasBando ? aluminumBando! : false,
+      aluminumBandoPrice: categoryHasBando ? aluminumBandoPrice : 0,
       pricePerSqm: pricePerSqm,
       totalPrice: totalPrice,
       area: area
@@ -215,114 +218,118 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Lado do comando {category?.name || ''}</Label>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Clique na imagem para selecionar o lado onde ficará o comando
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setBandoSide("left")}
-                      className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
-                        bandoSide === "left" 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border"
-                      }`}
-                      data-testid="button-bando-left"
-                    >
-                      <img 
-                        src={bandoLeftImg} 
-                        alt="Bandô Esquerdo"
-                        className="w-full h-32 object-contain mb-2"
-                      />
-                      <div className="text-center font-medium">Esquerdo</div>
-                      {bandoSide === "left" && (
-                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                          <Check className="h-4 w-4" />
-                        </div>
-                      )}
-                    </button>
+                {categoryHasBando && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Lado do comando {category?.name || ''}</Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Clique na imagem para selecionar o lado onde ficará o comando
+                      </p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setBandoSide("left")}
+                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                            bandoSide === "left" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-bando-left"
+                        >
+                          <img 
+                            src={bandoLeftImg} 
+                            alt="Bandô Esquerdo"
+                            className="w-full h-32 object-contain mb-2"
+                          />
+                          <div className="text-center font-medium">Esquerdo</div>
+                          {bandoSide === "left" && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setBandoSide("right")}
-                      className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
-                        bandoSide === "right" 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border"
-                      }`}
-                      data-testid="button-bando-right"
-                    >
-                      <img 
-                        src={bandoRightImg} 
-                        alt="Bandô Direito"
-                        className="w-full h-32 object-contain mb-2"
-                      />
-                      <div className="text-center font-medium">Direito</div>
-                      {bandoSide === "right" && (
-                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                          <Check className="h-4 w-4" />
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                </div>
+                        <button
+                          type="button"
+                          onClick={() => setBandoSide("right")}
+                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                            bandoSide === "right" 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-bando-right"
+                        >
+                          <img 
+                            src={bandoRightImg} 
+                            alt="Bandô Direito"
+                            className="w-full h-32 object-contain mb-2"
+                          />
+                          <div className="text-center font-medium">Direito</div>
+                          {bandoSide === "right" && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Bandô de Alumínio</Label>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Escolha se deseja adicionar bandô de alumínio
-                    {aluminumBandoPrice > 0 && ` (+R$ ${aluminumBandoPrice.toFixed(2)})`}
-                  </p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setAluminumBando(true)}
-                      className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
-                        aluminumBando === true 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border"
-                      }`}
-                      data-testid="button-aluminum-bando-yes"
-                    >
-                      <img 
-                        src={bandoWithAluminumImg} 
-                        alt="Com Bandô de Alumínio"
-                        className="w-full h-32 object-contain mb-2"
-                      />
-                      <div className="text-center font-medium">Com Bandô</div>
-                      {aluminumBando === true && (
-                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                          <Check className="h-4 w-4" />
-                        </div>
-                      )}
-                    </button>
+                    <div className="space-y-2">
+                      <Label>Bandô de Alumínio</Label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Escolha se deseja adicionar bandô de alumínio
+                        {aluminumBandoPrice > 0 && ` (+R$ ${aluminumBandoPrice.toFixed(2)})`}
+                      </p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          type="button"
+                          onClick={() => setAluminumBando(true)}
+                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                            aluminumBando === true 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-aluminum-bando-yes"
+                        >
+                          <img 
+                            src={bandoWithAluminumImg} 
+                            alt="Com Bandô de Alumínio"
+                            className="w-full h-32 object-contain mb-2"
+                          />
+                          <div className="text-center font-medium">Com Bandô</div>
+                          {aluminumBando === true && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
 
-                    <button
-                      type="button"
-                      onClick={() => setAluminumBando(false)}
-                      className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
-                        aluminumBando === false 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border"
-                      }`}
-                      data-testid="button-aluminum-bando-no"
-                    >
-                      <img 
-                        src={bandoWithoutAluminumImg} 
-                        alt="Sem Bandô de Alumínio"
-                        className="w-full h-32 object-contain mb-2"
-                      />
-                      <div className="text-center font-medium">Sem Bandô</div>
-                      {aluminumBando === false && (
-                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
-                          <Check className="h-4 w-4" />
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                </div>
+                        <button
+                          type="button"
+                          onClick={() => setAluminumBando(false)}
+                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                            aluminumBando === false 
+                              ? "border-primary bg-primary/5" 
+                              : "border-border"
+                          }`}
+                          data-testid="button-aluminum-bando-no"
+                        >
+                          <img 
+                            src={bandoWithoutAluminumImg} 
+                            alt="Sem Bandô de Alumínio"
+                            className="w-full h-32 object-contain mb-2"
+                          />
+                          <div className="text-center font-medium">Sem Bandô</div>
+                          {aluminumBando === false && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                              <Check className="h-4 w-4" />
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <div className="space-y-2">
                   <Label>Cor da Persiana</Label>
