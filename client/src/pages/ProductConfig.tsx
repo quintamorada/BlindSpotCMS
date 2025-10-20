@@ -111,6 +111,18 @@ export default function ProductConfig() {
   const handleAddToCart = () => {
     if (!isValidConfig) return;
 
+    const mapControlTypeToVerticalControl = (name: string | undefined): VerticalControl | undefined => {
+      if (!name) return undefined;
+      const lowerName = name.toLowerCase();
+      if (lowerName.includes('lateral') && lowerName.includes('esquerdo')) return 'lateral-esquerda';
+      if (lowerName.includes('lateral') && lowerName.includes('direito')) return 'lateral-direita';
+      if (lowerName.includes('central') && lowerName.includes('esquerdo')) return 'central-esquerda';
+      if (lowerName.includes('central') && lowerName.includes('direito')) return 'central-direita';
+      if (lowerName.includes('invertido') && lowerName.includes('esquerdo')) return 'invertido-esquerda';
+      if (lowerName.includes('invertido') && lowerName.includes('direito')) return 'invertido-direita';
+      return undefined;
+    };
+
     addItem({
       productId: product.id,
       productName: product.name,
@@ -124,6 +136,7 @@ export default function ProductConfig() {
       colorImage: selectedColor?.image,
       aluminumBando: isVertical ? false : (productHasBando ? aluminumBando! : false),
       aluminumBandoPrice: isVertical ? 0 : (productHasBando ? aluminumBandoPrice : 0),
+      verticalControl: isVertical ? mapControlTypeToVerticalControl(selectedControlType?.name) : undefined,
       verticalBando: isVertical && productHasBando ? verticalBando! : undefined,
       controlTypeId: selectedControlType?.id,
       controlTypeName: selectedControlType?.name,
