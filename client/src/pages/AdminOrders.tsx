@@ -216,18 +216,47 @@ function AdminOrdersContent() {
                                 {parseFloat(item.width)}m × {parseFloat(item.height)}m
                               </span>
                             </div>
-                            <div>
-                              <span className="text-muted-foreground">Bandô:</span>{" "}
-                              <span data-testid={`text-item-bando-${index}`}>
-                                {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Bandô de Alumínio:</span>{" "}
-                              <span data-testid={`text-item-aluminum-bando-${index}`}>
-                                {item.aluminumBando ? `Sim (+R$ ${parseFloat(item.aluminumBandoPrice || "0").toFixed(2)})` : 'Não'}
-                              </span>
-                            </div>
+                            
+                            {item.verticalControl ? (
+                              <>
+                                <div>
+                                  <span className="text-muted-foreground">Acionamento:</span>{" "}
+                                  <span data-testid={`text-item-control-${index}`}>
+                                    {item.verticalControl === 'lateral-esquerda' && 'Lateral esquerdo'}
+                                    {item.verticalControl === 'lateral-direita' && 'Lateral direito'}
+                                    {item.verticalControl === 'central-esquerda' && 'Central esquerdo'}
+                                    {item.verticalControl === 'central-direita' && 'Central direito'}
+                                    {item.verticalControl === 'invertido-esquerda' && 'Invertido esquerdo'}
+                                    {item.verticalControl === 'invertido-direita' && 'Invertido direito'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Bandô:</span>{" "}
+                                  <span data-testid={`text-item-vertical-bando-${index}`}>
+                                    {item.verticalBando === 'sem-laterais' && 'Sem Laterais'}
+                                    {item.verticalBando === 'lateral-esquerda' && 'Lateral Esquerda'}
+                                    {item.verticalBando === 'lateral-direita' && 'Lateral Direita'}
+                                    {item.verticalBando === 'duas-laterais' && 'Duas Laterais'}
+                                  </span>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <div>
+                                  <span className="text-muted-foreground">Lado do comando:</span>{" "}
+                                  <span data-testid={`text-item-bando-${index}`}>
+                                    {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Bandô de Alumínio:</span>{" "}
+                                  <span data-testid={`text-item-aluminum-bando-${index}`}>
+                                    {item.aluminumBando ? `Sim (+R$ ${parseFloat(item.aluminumBandoPrice || "0").toFixed(2)})` : 'Não'}
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                            
                             {item.colorName && (
                               <div className="col-span-2">
                                 <span className="text-muted-foreground">Cor:</span>{" "}
