@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { Product, CategoryColor, Category } from "@shared/schema";
+import type { Product, CategoryColor, Category, Settings } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCart } from "@/contexts/CartContext";
 import bandoLeftImg from "@assets/generated_images/Blinds_cord_left_side_a7dc741f.png";
 import bandoRightImg from "@assets/generated_images/Blinds_cord_right_side_408c3c17.png";
+import bandoWithAluminumImg from "@assets/generated_images/Window_blind_with_aluminum_valance_29be8e56.png";
+import bandoWithoutAluminumImg from "@assets/generated_images/Window_blind_without_valance_a6bff01c.png";
 
 function getThumbUrl(imageUrl: string): string {
   if (imageUrl.includes('-large.webp')) {
@@ -31,6 +33,7 @@ export default function ProductConfig() {
   const [height, setHeight] = useState<string>("");
   const [bandoSide, setBandoSide] = useState<"left" | "right" | null>(null);
   const [selectedColor, setSelectedColor] = useState<CategoryColor | null>(null);
+  const [aluminumBando, setAluminumBando] = useState<boolean | null>(null);
   const { toast } = useToast();
   const { addItem } = useCart();
   const [, setLocation] = useLocation();
@@ -52,6 +55,10 @@ export default function ProductConfig() {
     enabled: !!product?.categoryId,
   });
 
+  const { data: settings } = useQuery<Settings>({
+    queryKey: ['/api/settings'],
+  });
+
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -71,10 +78,11 @@ export default function ProductConfig() {
   const widthNum = parseFloat(width) || 0;
   const heightNum = parseFloat(height) || 0;
   const area = widthNum * heightNum;
-  const totalPrice = area * pricePerSqm;
+  const aluminumBandoPrice = aluminumBando ? parseFloat(settings?.aluminumBandoPrice || "0") : 0;
+  const totalPrice = (area * pricePerSqm) + aluminumBandoPrice;
 
   const hasColors = colors && colors.length > 0;
-  const isValidConfig = widthNum > 0 && heightNum > 0 && bandoSide !== null && (!hasColors || selectedColor !== null);
+  const isValidConfig = widthNum > 0 && heightNum > 0 && bandoSide !== null && aluminumBando !== null && (!hasColors || selectedColor !== null);
 
   const handleAddToCart = () => {
     if (!isValidConfig) return;
@@ -90,6 +98,8 @@ export default function ProductConfig() {
       colorName: selectedColor?.name,
       colorCode: selectedColor?.code,
       colorImage: selectedColor?.image,
+      aluminumBando: aluminumBando!,
+      aluminumBandoPrice: aluminumBandoPrice,
       pricePerSqm: pricePerSqm,
       totalPrice: totalPrice,
       area: area
@@ -104,6 +114,7 @@ export default function ProductConfig() {
     setHeight("");
     setBandoSide(null);
     setSelectedColor(null);
+    setAluminumBando(null);
   };
 
   return (
@@ -250,6 +261,61 @@ export default function ProductConfig() {
                       />
                       <div className="text-center font-medium">Direito</div>
                       {bandoSide === "right" && (
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                          <Check className="h-4 w-4" />
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Bandô de Alumínio</Label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Escolha se deseja adicionar bandô de alumínio
+                    {aluminumBandoPrice > 0 && ` (+R$ ${aluminumBandoPrice.toFixed(2)})`}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setAluminumBando(true)}
+                      className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                        aluminumBando === true 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border"
+                      }`}
+                      data-testid="button-aluminum-bando-yes"
+                    >
+                      <img 
+                        src={bandoWithAluminumImg} 
+                        alt="Com Bandô de Alumínio"
+                        className="w-full h-32 object-contain mb-2"
+                      />
+                      <div className="text-center font-medium">Com Bandô</div>
+                      {aluminumBando === true && (
+                        <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                          <Check className="h-4 w-4" />
+                        </div>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setAluminumBando(false)}
+                      className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                        aluminumBando === false 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border"
+                      }`}
+                      data-testid="button-aluminum-bando-no"
+                    >
+                      <img 
+                        src={bandoWithoutAluminumImg} 
+                        alt="Sem Bandô de Alumínio"
+                        className="w-full h-32 object-contain mb-2"
+                      />
+                      <div className="text-center font-medium">Sem Bandô</div>
+                      {aluminumBando === false && (
                         <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
                           <Check className="h-4 w-4" />
                         </div>
