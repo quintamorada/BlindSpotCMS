@@ -100,8 +100,10 @@ export default function ProductConfig() {
   const isVertical = category?.slug === "vertical";
   
   const isValidConfig = widthNum > 0 && heightNum > 0 && 
-    (isVertical ? verticalControl !== null && productHasBando ? verticalBando !== null : true : 
-      productHasBando ? bandoSide !== null && aluminumBando !== null : true) && 
+    (isVertical 
+      ? (verticalControl !== null && (productHasBando ? verticalBando !== null : true))
+      : (productHasBando ? (bandoSide !== null && aluminumBando !== null) : true)
+    ) && 
     (!hasColors || selectedColor !== null);
 
   const handleAddToCart = () => {
