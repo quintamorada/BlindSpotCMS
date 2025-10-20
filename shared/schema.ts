@@ -10,6 +10,7 @@ export const categories = pgTable("categories", {
   slug: text("slug").notNull().unique(),
   description: text("description"),
   image: text("image"),
+  controlTypes: jsonb("control_types"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
