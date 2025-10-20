@@ -12,6 +12,7 @@ import AdminCategories from "@/pages/AdminCategories";
 import AdminPages from "@/pages/AdminPages";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminOrders from "@/pages/AdminOrders";
+import AdminSettings from "@/pages/AdminSettings";
 import Login from "@/pages/Login";
 import Contact from "@/pages/Contact";
 import About from "@/pages/About";
@@ -37,6 +38,7 @@ function Router() {
       <Route path="/admin/paginas" component={AdminPages} />
       <Route path="/admin/usuarios" component={AdminUsers} />
       <Route path="/admin/pedidos" component={AdminOrders} />
+      <Route path="/admin/configuracoes" component={AdminSettings} />
       <Route component={NotFound} />
     </Switch>
   );
