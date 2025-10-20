@@ -220,7 +220,7 @@ function AdminOrdersContent() {
                             {item.verticalControl ? (
                               <>
                                 <div>
-                                  <span className="text-muted-foreground">Acionamento:</span>{" "}
+                                  <span className="text-muted-foreground">Tipo de Acionamento:</span>{" "}
                                   <span data-testid={`text-item-control-${index}`}>
                                     {item.verticalControl === 'lateral-esquerda' && 'Lateral esquerdo'}
                                     {item.verticalControl === 'lateral-direita' && 'Lateral direito'}
@@ -242,6 +242,14 @@ function AdminOrdersContent() {
                               </>
                             ) : (
                               <>
+                                {item.controlTypeName && (
+                                  <div>
+                                    <span className="text-muted-foreground">Tipo de Acionamento:</span>{" "}
+                                    <span data-testid={`text-item-control-type-${index}`}>
+                                      {item.controlTypeName}
+                                    </span>
+                                  </div>
+                                )}
                                 <div>
                                   <span className="text-muted-foreground">Lado do comando:</span>{" "}
                                   <span data-testid={`text-item-bando-${index}`}>
