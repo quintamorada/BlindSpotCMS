@@ -20,6 +20,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { RequireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -139,6 +140,7 @@ function CategoryForm({ category, onClose }: {
     slug: category?.slug || '',
     description: category?.description || '',
     image: category?.image || '',
+    hasBando: category?.hasBando ?? true,
   });
 
   const mutation = useMutation({
@@ -196,6 +198,18 @@ function CategoryForm({ category, onClose }: {
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             data-testid="input-category-description"
           />
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="hasBando"
+            checked={formData.hasBando}
+            onCheckedChange={(checked) => setFormData({ ...formData, hasBando: checked === true })}
+            data-testid="checkbox-has-bando"
+          />
+          <Label htmlFor="hasBando" className="text-sm font-normal cursor-pointer">
+            Esta categoria tem opção de bando
+          </Label>
         </div>
 
         <div className="flex gap-2 justify-end">
