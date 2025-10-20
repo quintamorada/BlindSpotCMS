@@ -168,25 +168,55 @@ export default function Checkout() {
                         <div className="font-medium text-sm" data-testid={`text-checkout-item-${index}`}>
                           {item.productName}
                         </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {item.width}m × {item.height}m ({item.area.toFixed(2)}m²)
-                        </div>
-                        {item.colorName && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                            {item.colorImage && (
-                              <img 
-                                src={item.colorImage} 
-                                alt={item.colorName}
-                                className="w-4 h-4 rounded border object-cover"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Crect width="16" height="16" fill="%23e5e7eb"/%3E%3C/svg%3E';
-                                }}
-                              />
-                            )}
-                            <span>{item.colorName}</span>
+                        <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
+                          <div>
+                            <span className="font-medium text-foreground">Medidas:</span> {item.width}m × {item.height}m ({item.area.toFixed(2)}m²)
                           </div>
-                        )}
-                        <div className="text-sm font-medium mt-1">
+                          
+                          {item.controlTypeName && (
+                            <div>
+                              <span className="font-medium text-foreground">Tipo de Acionamento:</span> {item.controlTypeName}
+                            </div>
+                          )}
+                          
+                          {item.verticalBando ? (
+                            <div>
+                              <span className="font-medium text-foreground">Bandô:</span> {
+                                item.verticalBando === 'sem-laterais' ? 'Sem Laterais' :
+                                item.verticalBando === 'lateral-esquerda' ? 'Lateral Esquerda' :
+                                item.verticalBando === 'lateral-direita' ? 'Lateral Direita' :
+                                'Duas Laterais'
+                              }
+                            </div>
+                          ) : (
+                            <>
+                              <div>
+                                <span className="font-medium text-foreground">Comando:</span> {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">Bandô de Alumínio:</span> {item.aluminumBando ? `Sim (+R$ ${item.aluminumBandoPrice.toFixed(2)})` : 'Não'}
+                              </div>
+                            </>
+                          )}
+                          
+                          {item.colorName && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium text-foreground">Cor:</span>
+                              {item.colorImage && (
+                                <img 
+                                  src={item.colorImage} 
+                                  alt={item.colorName}
+                                  className="w-4 h-4 rounded border object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Crect width="16" height="16" fill="%23e5e7eb"/%3E%3C/svg%3E';
+                                  }}
+                                />
+                              )}
+                              <span className="text-foreground">{item.colorName}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-sm font-medium mt-2">
                           R$ {item.totalPrice.toFixed(2)}
                         </div>
                       </div>

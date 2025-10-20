@@ -60,17 +60,38 @@ export default function Cart() {
                       </h3>
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <div data-testid={`text-item-dimensions-${index}`}>
-                          Medidas: {item.width}m × {item.height}m = {item.area.toFixed(2)}m²
+                          <span className="font-medium text-foreground">Medidas:</span> {item.width}m × {item.height}m = {item.area.toFixed(2)}m²
                         </div>
-                        <div data-testid={`text-item-bando-${index}`}>
-                          Bandô: {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
-                        </div>
-                        <div data-testid={`text-item-aluminum-bando-${index}`}>
-                          Bandô de Alumínio: {item.aluminumBando ? `Sim (+R$ ${item.aluminumBandoPrice.toFixed(2)})` : 'Não'}
-                        </div>
+                        
+                        {item.controlTypeName && (
+                          <div data-testid={`text-item-control-type-${index}`}>
+                            <span className="font-medium text-foreground">Tipo de Acionamento:</span> {item.controlTypeName}
+                          </div>
+                        )}
+
+                        {item.verticalBando ? (
+                          <div data-testid={`text-item-vertical-bando-${index}`}>
+                            <span className="font-medium text-foreground">Bandô:</span> {
+                              item.verticalBando === 'sem-laterais' ? 'Sem Laterais' :
+                              item.verticalBando === 'lateral-esquerda' ? 'Lateral Esquerda' :
+                              item.verticalBando === 'lateral-direita' ? 'Lateral Direita' :
+                              'Duas Laterais'
+                            }
+                          </div>
+                        ) : (
+                          <>
+                            <div data-testid={`text-item-bando-${index}`}>
+                              <span className="font-medium text-foreground">Comando:</span> {item.bandoSide === 'left' ? 'Esquerdo' : 'Direito'}
+                            </div>
+                            <div data-testid={`text-item-aluminum-bando-${index}`}>
+                              <span className="font-medium text-foreground">Bandô de Alumínio:</span> {item.aluminumBando ? `Sim (+R$ ${item.aluminumBandoPrice.toFixed(2)})` : 'Não'}
+                            </div>
+                          </>
+                        )}
+
                         {item.colorName && (
                           <div className="flex items-center gap-2" data-testid={`text-item-color-${index}`}>
-                            <span>Cor:</span>
+                            <span className="font-medium text-foreground">Cor:</span>
                             {item.colorImage && (
                               <img 
                                 src={item.colorImage} 
@@ -81,11 +102,11 @@ export default function Cart() {
                                 }}
                               />
                             )}
-                            <span className="font-medium">{item.colorName}</span>
+                            <span className="font-medium text-foreground">{item.colorName}</span>
                             <span className="text-xs">({item.colorCode})</span>
                           </div>
                         )}
-                        <div className="text-xs" data-testid={`text-item-price-per-sqm-${index}`}>
+                        <div className="text-xs mt-2" data-testid={`text-item-price-per-sqm-${index}`}>
                           R$ {item.pricePerSqm.toFixed(2)}/m²
                         </div>
                       </div>
