@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCategorySchema, insertCategoryColorSchema, insertProductSchema, insertPageSchema, insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate, insertSettingsSchema } from "@shared/schema";
+import { insertCategorySchema, insertCategoryColorSchema, insertCategoryControlTypeSchema, insertProductSchema, insertPageSchema, insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate, insertSettingsSchema } from "@shared/schema";
 import { z } from "zod";
 import { authenticateUser, hashPassword } from "./auth";
 import { requireAuth, requireAdmin } from "./middleware";
@@ -51,6 +51,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ image: `/uploads/colors/${filename}` });
     } catch (error) {
       console.error('Error uploading color image:', error);
+      res.status(500).json({ error: "Erro ao fazer upload da imagem" });
+    }
+  });
+
+  // Control Type Image Upload API
+  app.post("/api/upload/control-type-image", requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
+      }
+
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'control-types');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
+      const filepath = path.join(uploadsDir, filename);
+      
+      await sharp(file.buffer)
+        .resize(300, 300, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .webp({ quality: 90 })
+        .toFile(filepath);
+
+      res.json({ image: `/uploads/control-types/${filename}` });
+    } catch (error) {
+      console.error('Error uploading control type image:', error);
       res.status(500).json({ error: "Erro ao fazer upload da imagem" });
     }
   });
@@ -309,6 +339,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const deleted = await storage.deleteCategoryColor(req.params.id);
     if (!deleted) {
       return res.status(404).json({ error: "Color not found" });
+    }
+    res.status(204).send();
+  });
+
+  // Category Control Types API
+  app.get("/api/categories/:categoryId/control-types", async (req, res) => {
+    const controlTypes = await storage.getCategoryControlTypes(req.params.categoryId);
+    res.json(controlTypes);
+  });
+
+  app.post("/api/categories/:categoryId/control-types", requireAuth, async (req, res) => {
+    try {
+      const data = insertCategoryControlTypeSchema.parse({
+        ...req.body,
+        categoryId: req.params.categoryId
+      });
+      const controlType = await storage.createCategoryControlType(data);
+      res.status(201).json(controlType);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/categories/:categoryId/control-types/:id", requireAuth, async (req, res) => {
+    try {
+      const existingControlType = await storage.getCategoryControlType(req.params.id);
+      if (!existingControlType) {
+        return res.status(404).json({ error: "Control type not found" });
+      }
+      if (existingControlType.categoryId !== req.params.categoryId) {
+        return res.status(404).json({ error: "Control type not found in this category" });
+      }
+      
+      const data = insertCategoryControlTypeSchema.partial().parse(req.body);
+      const controlType = await storage.updateCategoryControlType(req.params.id, {
+        ...data,
+        categoryId: req.params.categoryId
+      });
+      if (!controlType) {
+        return res.status(404).json({ error: "Control type not found" });
+      }
+      res.json(controlType);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/categories/:categoryId/control-types/:id", requireAuth, async (req, res) => {
+    const existingControlType = await storage.getCategoryControlType(req.params.id);
+    if (!existingControlType) {
+      return res.status(404).json({ error: "Control type not found" });
+    }
+    if (existingControlType.categoryId !== req.params.categoryId) {
+      return res.status(404).json({ error: "Control type not found in this category" });
+    }
+    
+    const deleted = await storage.deleteCategoryControlType(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Control type not found" });
     }
     res.status(204).send();
   });

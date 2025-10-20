@@ -19,6 +19,8 @@ export interface CartItem {
   aluminumBandoPrice: number;
   verticalControl?: VerticalControl;
   verticalBando?: VerticalBando;
+  controlTypeId?: string;
+  controlTypeName?: string;
   pricePerSqm: number;
   totalPrice: number;
   area: number;

@@ -68,6 +68,8 @@ export default function Checkout() {
         aluminumBandoPrice: item.aluminumBandoPrice.toString(),
         verticalControl: item.verticalControl,
         verticalBando: item.verticalBando,
+        controlTypeId: item.controlTypeId,
+        controlTypeName: item.controlTypeName,
         pricePerSqm: item.pricePerSqm.toString(),
         totalPrice: item.totalPrice.toString()
       }))

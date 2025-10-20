@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Edit, Upload, X } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import type { Category, CategoryColor } from "@shared/schema";
+import type { Category, CategoryColor, CategoryControlType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -216,9 +216,14 @@ function CategoryForm({ category, onClose }: {
       </form>
 
       {currentCategory && (
-        <div className="pt-4 border-t">
-          <CategoryColorsManager categoryId={currentCategory.id} />
-        </div>
+        <>
+          <div className="pt-4 border-t">
+            <CategoryColorsManager categoryId={currentCategory.id} />
+          </div>
+          <div className="pt-4 border-t">
+            <CategoryControlTypesManager categoryId={currentCategory.id} />
+          </div>
+        </>
       )}
     </div>
   );
@@ -531,6 +536,304 @@ function ColorForm({
           Cancelar
         </Button>
         <Button type="submit" disabled={mutation.isPending || uploading} data-testid="button-save-color">
+          {mutation.isPending ? "Salvando..." : "Salvar"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function CategoryControlTypesManager({ categoryId }: { categoryId: string }) {
+  const { toast } = useToast();
+  const [editingControlType, setEditingControlType] = useState<CategoryControlType | null>(null);
+  const [showControlTypeForm, setShowControlTypeForm] = useState(false);
+
+  const { data: controlTypes, isLoading, error } = useQuery<CategoryControlType[]>({
+    queryKey: [`/api/categories/${categoryId}/control-types`],
+  });
+
+  useEffect(() => {
+    if (error) {
+      toast({ 
+        title: "Erro ao carregar tipos de acionamento",
+        variant: "destructive"
+      });
+    }
+  }, [error, toast]);
+
+  const deleteControlTypeMutation = useMutation({
+    mutationFn: async (controlTypeId: string) => {
+      await apiRequest('DELETE', `/api/categories/${categoryId}/control-types/${controlTypeId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/categories/${categoryId}/control-types`] });
+      toast({ title: "Tipo de acionamento deletado com sucesso!" });
+    },
+    onError: () => {
+      toast({ 
+        title: "Erro ao deletar tipo de acionamento",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleEditControlType = (controlType: CategoryControlType) => {
+    setEditingControlType(controlType);
+    setShowControlTypeForm(true);
+  };
+
+  const handleDeleteControlType = (controlTypeId: string) => {
+    if (confirm('Tem certeza que deseja deletar este tipo de acionamento?')) {
+      deleteControlTypeMutation.mutate(controlTypeId);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Tipos de Acionamento</h3>
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditingControlType(null);
+            setShowControlTypeForm(true);
+          }}
+          data-testid="button-add-control-type"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Adicionar Tipo
+        </Button>
+      </div>
+
+      {showControlTypeForm && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-3">
+            <CardTitle className="text-base">
+              {editingControlType ? 'Editar Tipo de Acionamento' : 'Novo Tipo de Acionamento'}
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setShowControlTypeForm(false);
+                setEditingControlType(null);
+              }}
+              data-testid="button-close-control-type-form"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <ControlTypeForm
+              categoryId={categoryId}
+              controlType={editingControlType}
+              onClose={() => {
+                setShowControlTypeForm(false);
+                setEditingControlType(null);
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {isLoading ? (
+        <div className="text-sm text-muted-foreground">Carregando tipos de acionamento...</div>
+      ) : controlTypes && controlTypes.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3">
+          {controlTypes.map((controlType) => (
+            <Card key={controlType.id} className="overflow-hidden">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={controlType.image}
+                    alt={controlType.name}
+                    className="w-16 h-16 rounded object-cover border"
+                    data-testid={`img-control-type-${controlType.id}`}
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" fill="%23e5e7eb"/%3E%3Ctext x="32" y="32" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate" data-testid={`text-control-type-name-${controlType.id}`}>
+                      {controlType.name}
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditControlType(controlType)}
+                      data-testid={`button-edit-control-type-${controlType.id}`}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteControlType(controlType.id)}
+                      data-testid={`button-delete-control-type-${controlType.id}`}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-sm text-muted-foreground text-center py-4 border rounded-md">
+          Nenhum tipo de acionamento cadastrado
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ControlTypeForm({ 
+  categoryId, 
+  controlType, 
+  onClose 
+}: { 
+  categoryId: string; 
+  controlType: CategoryControlType | null; 
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [formData, setFormData] = useState({
+    name: controlType?.name || '',
+    image: controlType?.image || '',
+  });
+  const [uploading, setUploading] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async (data: any) => {
+      if (controlType) {
+        return await apiRequest('PUT', `/api/categories/${categoryId}/control-types/${controlType.id}`, data);
+      } else {
+        return await apiRequest('POST', `/api/categories/${categoryId}/control-types`, data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/categories/${categoryId}/control-types`] });
+      toast({ 
+        title: controlType ? "Tipo de acionamento atualizado!" : "Tipo de acionamento criado!",
+      });
+      onClose();
+    },
+    onError: () => {
+      toast({ 
+        title: "Erro ao salvar tipo de acionamento",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    setUploading(true);
+    try {
+      const response = await fetch('/api/upload/control-type-image', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const text = (await response.text()) || response.statusText;
+        throw new Error(`${response.status}: ${text}`);
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, image: data.image }));
+      toast({ title: "Imagem enviada com sucesso!" });
+    } catch (error) {
+      toast({ 
+        title: "Erro ao enviar imagem",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.image) {
+      toast({ 
+        title: "Por favor, faça upload de uma imagem",
+        variant: "destructive"
+      });
+      return;
+    }
+    mutation.mutate(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="control-type-name">Nome do Tipo de Acionamento</Label>
+        <Input
+          id="control-type-name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Ex: Lateral Esquerda"
+          required
+          data-testid="input-control-type-name"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Imagem do Tipo de Acionamento</Label>
+        <div className="flex items-center gap-3">
+          {formData.image && (
+            <img
+              src={formData.image}
+              alt="Preview"
+              className="w-20 h-20 rounded object-cover border"
+              data-testid="img-control-type-preview"
+              onError={(e) => {
+                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"%3E%3Crect width="80" height="80" fill="%23e5e7eb"/%3E%3Ctext x="40" y="40" text-anchor="middle" dominant-baseline="middle" font-size="20" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+              }}
+            />
+          )}
+          <div className="flex-1">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              data-testid="input-control-type-image-file"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              data-testid="button-upload-control-type-image"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {uploading ? "Enviando..." : formData.image ? "Trocar Imagem" : "Upload Imagem"}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-1">
+              Imagem ilustrativa do tipo de acionamento (300x300px)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-2 justify-end">
+        <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel-control-type">
+          Cancelar
+        </Button>
+        <Button type="submit" disabled={mutation.isPending || uploading} data-testid="button-save-control-type">
           {mutation.isPending ? "Salvando..." : "Salvar"}
         </Button>
       </div>

@@ -23,6 +23,14 @@ export const categoryColors = pgTable("category_colors", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const categoryControlTypes = pgTable("category_control_types", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  categoryId: varchar("category_id", { length: 36 }).references(() => categories.id, { onDelete: "cascade" }).notNull(),
+  name: text("name").notNull(),
+  image: text("image").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const products = pgTable("products", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
   name: text("name").notNull(),
@@ -98,6 +106,8 @@ export const orderItems = pgTable("order_items", {
   aluminumBandoPrice: numeric("aluminum_bando_price", { precision: 10, scale: 2 }).default("0"),
   verticalControl: verticalControlEnum("vertical_control"),
   verticalBando: verticalBandoEnum("vertical_bando"),
+  controlTypeId: varchar("control_type_id", { length: 36 }),
+  controlTypeName: text("control_type_name"),
   pricePerSqm: numeric("price_per_sqm", { precision: 10, scale: 2 }).notNull(),
   totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -109,6 +119,11 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
 });
 
 export const insertCategoryColorSchema = createInsertSchema(categoryColors).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCategoryControlTypeSchema = createInsertSchema(categoryControlTypes).omit({
   id: true,
   createdAt: true,
 });
@@ -135,6 +150,9 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 
 export type CategoryColor = typeof categoryColors.$inferSelect;
 export type InsertCategoryColor = z.infer<typeof insertCategoryColorSchema>;
+
+export type CategoryControlType = typeof categoryControlTypes.$inferSelect;
+export type InsertCategoryControlType = z.infer<typeof insertCategoryControlTypeSchema>;
 
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;

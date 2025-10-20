@@ -6,6 +6,7 @@ import * as schema from "@shared/schema";
 import type { 
   Category, InsertCategory,
   CategoryColor, InsertCategoryColor,
+  CategoryControlType, InsertCategoryControlType,
   Product, InsertProduct,
   Page, InsertPage,
   User, InsertUser,
@@ -35,6 +36,13 @@ export interface IStorage {
   createCategoryColor(color: InsertCategoryColor): Promise<CategoryColor>;
   updateCategoryColor(id: string, color: Partial<InsertCategoryColor>): Promise<CategoryColor | undefined>;
   deleteCategoryColor(id: string): Promise<boolean>;
+
+  // Category Control Types
+  getCategoryControlTypes(categoryId: string): Promise<CategoryControlType[]>;
+  getCategoryControlType(id: string): Promise<CategoryControlType | undefined>;
+  createCategoryControlType(controlType: InsertCategoryControlType): Promise<CategoryControlType>;
+  updateCategoryControlType(id: string, controlType: Partial<InsertCategoryControlType>): Promise<CategoryControlType | undefined>;
+  deleteCategoryControlType(id: string): Promise<boolean>;
 
   // Products
   getProducts(): Promise<Product[]>;
@@ -141,6 +149,35 @@ export class DbStorage implements IStorage {
 
   async deleteCategoryColor(id: string): Promise<boolean> {
     const result = await db.delete(schema.categoryColors).where(eq(schema.categoryColors.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Category Control Types
+  async getCategoryControlTypes(categoryId: string): Promise<CategoryControlType[]> {
+    return await db.select().from(schema.categoryControlTypes).where(eq(schema.categoryControlTypes.categoryId, categoryId));
+  }
+
+  async getCategoryControlType(id: string): Promise<CategoryControlType | undefined> {
+    const result = await db.select().from(schema.categoryControlTypes).where(eq(schema.categoryControlTypes.id, id));
+    return result[0];
+  }
+
+  async createCategoryControlType(insertControlType: InsertCategoryControlType): Promise<CategoryControlType> {
+    const id = randomUUID();
+    const result = await db.insert(schema.categoryControlTypes).values({ id, ...insertControlType }).returning();
+    return result[0];
+  }
+
+  async updateCategoryControlType(id: string, controlType: Partial<InsertCategoryControlType>): Promise<CategoryControlType | undefined> {
+    const result = await db.update(schema.categoryControlTypes)
+      .set(controlType)
+      .where(eq(schema.categoryControlTypes.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCategoryControlType(id: string): Promise<boolean> {
+    const result = await db.delete(schema.categoryControlTypes).where(eq(schema.categoryControlTypes.id, id)).returning();
     return result.length > 0;
   }
 

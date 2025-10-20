@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { Product, CategoryColor, Category, Settings } from "@shared/schema";
+import type { Product, CategoryColor, CategoryControlType, Category, Settings } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,13 +17,6 @@ import bandoLeftImg from "@assets/generated_images/Blinds_cord_left_side_a7dc741
 import bandoRightImg from "@assets/generated_images/Blinds_cord_right_side_408c3c17.png";
 import bandoWithAluminumImg from "@assets/generated_images/Window_blind_with_aluminum_valance_29be8e56.png";
 import bandoWithoutAluminumImg from "@assets/generated_images/Window_blind_without_valance_a6bff01c.png";
-
-import verticalLateralEsquerda from "@assets/control_types/lateral-esquerda.png";
-import verticalLateralDireita from "@assets/control_types/lateral-direita.png";
-import verticalCentralEsquerda from "@assets/control_types/central-esquerda.png";
-import verticalCentralDireita from "@assets/control_types/central-direita.png";
-import verticalInvertidoEsquerda from "@assets/control_types/invertido-esquerda.png";
-import verticalInvertidoDireita from "@assets/control_types/invertido-direita.png";
 
 import verticalBandoSemLaterais from "@assets/bando_options/sem-laterais.png";
 import verticalBandoLateralEsquerda from "@assets/bando_options/lateral-esquerda.png";
@@ -48,6 +41,7 @@ export default function ProductConfig() {
   const [aluminumBando, setAluminumBando] = useState<boolean | null>(null);
   const [verticalControl, setVerticalControl] = useState<VerticalControl | null>(null);
   const [verticalBando, setVerticalBando] = useState<VerticalBando | null>(null);
+  const [selectedControlType, setSelectedControlType] = useState<CategoryControlType | null>(null);
   const { toast } = useToast();
   const { addItem } = useCart();
   const [, setLocation] = useLocation();
@@ -66,6 +60,11 @@ export default function ProductConfig() {
 
   const { data: colors, isLoading: colorsLoading } = useQuery<CategoryColor[]>({
     queryKey: product?.categoryId ? [`/api/categories/${product.categoryId}/colors`] : [],
+    enabled: !!product?.categoryId,
+  });
+
+  const { data: controlTypes, isLoading: controlTypesLoading } = useQuery<CategoryControlType[]>({
+    queryKey: product?.categoryId ? [`/api/categories/${product.categoryId}/control-types`] : [],
     enabled: !!product?.categoryId,
   });
 
@@ -96,6 +95,7 @@ export default function ProductConfig() {
   const totalPrice = (area * pricePerSqm) + aluminumBandoPrice;
 
   const hasColors = colors && colors.length > 0;
+  const hasControlTypes = controlTypes && controlTypes.length > 0;
   const productHasBando = product?.hasBando ?? true;
   const isVertical = category?.slug === "vertical";
   
@@ -104,7 +104,9 @@ export default function ProductConfig() {
       ? (verticalControl !== null && (productHasBando ? verticalBando !== null : true))
       : (productHasBando ? (bandoSide !== null && aluminumBando !== null) : true)
     ) && 
-    (!hasColors || selectedColor !== null);
+    (!hasColors || selectedColor !== null) &&
+    (!hasControlTypes || selectedControlType !== null) &&
+    !controlTypesLoading;
 
   const handleAddToCart = () => {
     if (!isValidConfig) return;
@@ -124,6 +126,8 @@ export default function ProductConfig() {
       aluminumBandoPrice: isVertical ? 0 : (productHasBando ? aluminumBandoPrice : 0),
       verticalControl: isVertical ? verticalControl! : undefined,
       verticalBando: isVertical && productHasBando ? verticalBando! : undefined,
+      controlTypeId: selectedControlType?.id,
+      controlTypeName: selectedControlType?.name,
       pricePerSqm: pricePerSqm,
       totalPrice: totalPrice,
       area: area
@@ -141,6 +145,7 @@ export default function ProductConfig() {
     setAluminumBando(null);
     setVerticalControl(null);
     setVerticalBando(null);
+    setSelectedControlType(null);
   };
 
   return (
@@ -241,153 +246,53 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
+                {controlTypes && controlTypes.length > 0 ? (
+                  <div className="space-y-2">
+                    <Label>Tipo de Acionamento</Label>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Escolha o tipo de acionamento para este produto
+                    </p>
+                    {controlTypesLoading ? (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                        Carregando tipos de acionamento...
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {controlTypes.map((controlType) => (
+                          <button
+                            key={controlType.id}
+                            type="button"
+                            onClick={() => setSelectedControlType(controlType)}
+                            className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                              selectedControlType?.id === controlType.id 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border"
+                            }`}
+                            data-testid={`button-control-type-${controlType.id}`}
+                          >
+                            <img 
+                              src={controlType.image} 
+                              alt={controlType.name}
+                              className="w-full h-32 object-contain mb-1"
+                              onError={(e) => {
+                                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23e5e7eb"/%3E%3Ctext x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-size="40" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                              }}
+                            />
+                            <div className="text-center text-xs font-medium">{controlType.name}</div>
+                            {selectedControlType?.id === controlType.id && (
+                              <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
                 {isVertical ? (
                   <>
-                    <div className="space-y-2">
-                      <Label>Acionamento</Label>
-                      <p className="text-xs text-muted-foreground mb-3">
-                        Escolha a posição do acionamento da persiana vertical
-                      </p>
-                      <div className="grid grid-cols-3 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setVerticalControl("lateral-esquerda")}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
-                            verticalControl === "lateral-esquerda" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
-                          }`}
-                          data-testid="button-control-lateral-esquerda"
-                        >
-                          <img 
-                            src={verticalLateralEsquerda} 
-                            alt="Lateral Esquerda"
-                            className="w-full h-32 object-contain mb-1"
-                          />
-                          <div className="text-center text-xs font-medium">Lateral Esquerda</div>
-                          {verticalControl === "lateral-esquerda" && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setVerticalControl("lateral-direita")}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
-                            verticalControl === "lateral-direita" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
-                          }`}
-                          data-testid="button-control-lateral-direita"
-                        >
-                          <img 
-                            src={verticalLateralDireita} 
-                            alt="Lateral Direita"
-                            className="w-full h-32 object-contain mb-1"
-                          />
-                          <div className="text-center text-xs font-medium">Lateral Direita</div>
-                          {verticalControl === "lateral-direita" && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setVerticalControl("central-esquerda")}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
-                            verticalControl === "central-esquerda" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
-                          }`}
-                          data-testid="button-control-central-esquerda"
-                        >
-                          <img 
-                            src={verticalCentralEsquerda} 
-                            alt="Central Esquerda"
-                            className="w-full h-32 object-contain mb-1"
-                          />
-                          <div className="text-center text-xs font-medium">Central Esquerda</div>
-                          {verticalControl === "central-esquerda" && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setVerticalControl("central-direita")}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
-                            verticalControl === "central-direita" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
-                          }`}
-                          data-testid="button-control-central-direita"
-                        >
-                          <img 
-                            src={verticalCentralDireita} 
-                            alt="Central Direita"
-                            className="w-full h-32 object-contain mb-1"
-                          />
-                          <div className="text-center text-xs font-medium">Central Direita</div>
-                          {verticalControl === "central-direita" && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setVerticalControl("invertido-esquerda")}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
-                            verticalControl === "invertido-esquerda" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
-                          }`}
-                          data-testid="button-control-invertido-esquerda"
-                        >
-                          <img 
-                            src={verticalInvertidoEsquerda} 
-                            alt="Invertido Esquerda"
-                            className="w-full h-32 object-contain mb-1"
-                          />
-                          <div className="text-center text-xs font-medium">Invertido Esquerda</div>
-                          {verticalControl === "invertido-esquerda" && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setVerticalControl("invertido-direita")}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
-                            verticalControl === "invertido-direita" 
-                              ? "border-primary bg-primary/5" 
-                              : "border-border"
-                          }`}
-                          data-testid="button-control-invertido-direita"
-                        >
-                          <img 
-                            src={verticalInvertidoDireita} 
-                            alt="Invertido Direita"
-                            className="w-full h-32 object-contain mb-1"
-                          />
-                          <div className="text-center text-xs font-medium">Invertido Direita</div>
-                          {verticalControl === "invertido-direita" && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-                      </div>
-                    </div>
 
                     {productHasBando && (
                       <div className="space-y-2">
