@@ -262,7 +262,7 @@ export default function ProductConfig() {
                           <img 
                             src={verticalLateralEsquerda} 
                             alt="Lateral Esquerda"
-                            className="w-full h-20 object-contain mb-1"
+                            className="w-full h-32 object-contain mb-1"
                           />
                           <div className="text-center text-xs font-medium">Lateral Esquerda</div>
                           {verticalControl === "lateral-esquerda" && (
@@ -285,7 +285,7 @@ export default function ProductConfig() {
                           <img 
                             src={verticalLateralDireita} 
                             alt="Lateral Direita"
-                            className="w-full h-20 object-contain mb-1"
+                            className="w-full h-32 object-contain mb-1"
                           />
                           <div className="text-center text-xs font-medium">Lateral Direita</div>
                           {verticalControl === "lateral-direita" && (
@@ -308,7 +308,7 @@ export default function ProductConfig() {
                           <img 
                             src={verticalCentralEsquerda} 
                             alt="Central Esquerda"
-                            className="w-full h-20 object-contain mb-1"
+                            className="w-full h-32 object-contain mb-1"
                           />
                           <div className="text-center text-xs font-medium">Central Esquerda</div>
                           {verticalControl === "central-esquerda" && (
@@ -331,7 +331,7 @@ export default function ProductConfig() {
                           <img 
                             src={verticalCentralDireita} 
                             alt="Central Direita"
-                            className="w-full h-20 object-contain mb-1"
+                            className="w-full h-32 object-contain mb-1"
                           />
                           <div className="text-center text-xs font-medium">Central Direita</div>
                           {verticalControl === "central-direita" && (
@@ -354,7 +354,7 @@ export default function ProductConfig() {
                           <img 
                             src={verticalInvertidoEsquerda} 
                             alt="Invertido Esquerda"
-                            className="w-full h-20 object-contain mb-1"
+                            className="w-full h-32 object-contain mb-1"
                           />
                           <div className="text-center text-xs font-medium">Invertido Esquerda</div>
                           {verticalControl === "invertido-esquerda" && (
@@ -377,7 +377,7 @@ export default function ProductConfig() {
                           <img 
                             src={verticalInvertidoDireita} 
                             alt="Invertido Direita"
-                            className="w-full h-20 object-contain mb-1"
+                            className="w-full h-32 object-contain mb-1"
                           />
                           <div className="text-center text-xs font-medium">Invertido Direita</div>
                           {verticalControl === "invertido-direita" && (
