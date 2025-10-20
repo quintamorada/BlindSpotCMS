@@ -3,7 +3,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
 import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Edit, Upload, X } from "lucide-react";
+import { Plus, Trash2, Edit, Upload, X, GripVertical } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category, CategoryColor, CategoryControlType } from "@shared/schema";
@@ -23,6 +23,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RequireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 function AdminCategoriesContent() {
   const { toast } = useToast();
@@ -543,14 +560,97 @@ function ColorForm({
   );
 }
 
+function SortableControlTypeItem({
+  controlType,
+  onEdit,
+  onDelete,
+}: {
+  controlType: CategoryControlType;
+  onEdit: (controlType: CategoryControlType) => void;
+  onDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: controlType.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="w-full">
+      <Card className="overflow-visible">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-3">
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing hover-elevate active-elevate-2 rounded p-1"
+              data-testid={`drag-handle-${controlType.id}`}
+            >
+              <GripVertical className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <img
+              src={controlType.image}
+              alt={controlType.name}
+              className="w-16 h-16 rounded object-cover border"
+              data-testid={`img-control-type-${controlType.id}`}
+              onError={(e) => {
+                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" fill="%23e5e7eb"/%3E%3Ctext x="32" y="32" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+              }}
+            />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-sm truncate" data-testid={`text-control-type-name-${controlType.id}`}>
+                {controlType.name}
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onEdit(controlType)}
+                data-testid={`button-edit-control-type-${controlType.id}`}
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onDelete(controlType.id)}
+                data-testid={`button-delete-control-type-${controlType.id}`}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function CategoryControlTypesManager({ categoryId }: { categoryId: string }) {
   const { toast } = useToast();
   const [editingControlType, setEditingControlType] = useState<CategoryControlType | null>(null);
   const [showControlTypeForm, setShowControlTypeForm] = useState(false);
+  const [items, setItems] = useState<CategoryControlType[]>([]);
 
   const { data: controlTypes, isLoading, error } = useQuery<CategoryControlType[]>({
     queryKey: [`/api/categories/${categoryId}/control-types`],
   });
+
+  useEffect(() => {
+    if (controlTypes) {
+      setItems(controlTypes);
+    }
+  }, [controlTypes]);
 
   useEffect(() => {
     if (error) {
@@ -560,6 +660,29 @@ function CategoryControlTypesManager({ categoryId }: { categoryId: string }) {
       });
     }
   }, [error, toast]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const reorderMutation = useMutation({
+    mutationFn: async (updates: Array<{ id: string; displayOrder: number }>) => {
+      await apiRequest('PATCH', `/api/categories/${categoryId}/control-types/reorder`, { updates });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/categories/${categoryId}/control-types`] });
+      toast({ title: "Ordem atualizada com sucesso!" });
+    },
+    onError: () => {
+      toast({ 
+        title: "Erro ao atualizar ordem",
+        variant: "destructive"
+      });
+    }
+  });
 
   const deleteControlTypeMutation = useMutation({
     mutationFn: async (controlTypeId: string) => {
@@ -576,6 +699,30 @@ function CategoryControlTypesManager({ categoryId }: { categoryId: string }) {
       });
     }
   });
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over.id);
+      const previousItems = [...items];
+
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      setItems(newItems);
+
+      const updates = newItems.map((item, index) => ({
+        id: item.id,
+        displayOrder: index,
+      }));
+
+      reorderMutation.mutate(updates, {
+        onError: () => {
+          setItems(previousItems);
+        }
+      });
+    }
+  };
 
   const handleEditControlType = (controlType: CategoryControlType) => {
     setEditingControlType(controlType);
@@ -638,49 +785,28 @@ function CategoryControlTypesManager({ categoryId }: { categoryId: string }) {
 
       {isLoading ? (
         <div className="text-sm text-muted-foreground">Carregando tipos de acionamento...</div>
-      ) : controlTypes && controlTypes.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
-          {controlTypes.map((controlType) => (
-            <Card key={controlType.id} className="overflow-hidden">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-3">
-                  <img
-                    src={controlType.image}
-                    alt={controlType.name}
-                    className="w-16 h-16 rounded object-cover border"
-                    data-testid={`img-control-type-${controlType.id}`}
-                    onError={(e) => {
-                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" fill="%23e5e7eb"/%3E%3Ctext x="32" y="32" text-anchor="middle" dominant-baseline="middle" font-size="16" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
-                    }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate" data-testid={`text-control-type-name-${controlType.id}`}>
-                      {controlType.name}
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditControlType(controlType)}
-                      data-testid={`button-edit-control-type-${controlType.id}`}
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteControlType(controlType.id)}
-                      data-testid={`button-delete-control-type-${controlType.id}`}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      ) : items && items.length > 0 ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={items.map((item) => item.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {items.map((controlType) => (
+                <SortableControlTypeItem
+                  key={controlType.id}
+                  controlType={controlType}
+                  onEdit={handleEditControlType}
+                  onDelete={handleDeleteControlType}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       ) : (
         <div className="text-sm text-muted-foreground text-center py-4 border rounded-md">
           Nenhum tipo de acionamento cadastrado

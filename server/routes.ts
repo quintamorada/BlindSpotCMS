@@ -408,6 +408,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(204).send();
   });
 
+  app.patch("/api/categories/:categoryId/control-types/reorder", requireAuth, async (req, res) => {
+    try {
+      const schema = z.object({
+        updates: z.array(z.object({
+          id: z.string(),
+          displayOrder: z.number()
+        }))
+      });
+      const { updates } = schema.parse(req.body);
+      
+      for (const update of updates) {
+        const controlType = await storage.getCategoryControlType(update.id);
+        if (!controlType || controlType.categoryId !== req.params.categoryId) {
+          return res.status(400).json({ error: "Invalid control type ID for this category" });
+        }
+      }
+      
+      await storage.updateControlTypesOrder(updates);
+      res.status(200).json({ success: true });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Products API
   app.get("/api/products", async (req, res) => {
     const products = await storage.getProducts();

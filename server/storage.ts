@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool, neonConfig } from "@neondatabase/serverless";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import * as schema from "@shared/schema";
 import type { 
@@ -42,6 +42,7 @@ export interface IStorage {
   getCategoryControlType(id: string): Promise<CategoryControlType | undefined>;
   createCategoryControlType(controlType: InsertCategoryControlType): Promise<CategoryControlType>;
   updateCategoryControlType(id: string, controlType: Partial<InsertCategoryControlType>): Promise<CategoryControlType | undefined>;
+  updateControlTypesOrder(updates: Array<{ id: string; displayOrder: number }>): Promise<void>;
   deleteCategoryControlType(id: string): Promise<boolean>;
 
   // Products
@@ -154,7 +155,7 @@ export class DbStorage implements IStorage {
 
   // Category Control Types
   async getCategoryControlTypes(categoryId: string): Promise<CategoryControlType[]> {
-    return await db.select().from(schema.categoryControlTypes).where(eq(schema.categoryControlTypes.categoryId, categoryId));
+    return await db.select().from(schema.categoryControlTypes).where(eq(schema.categoryControlTypes.categoryId, categoryId)).orderBy(asc(schema.categoryControlTypes.displayOrder));
   }
 
   async getCategoryControlType(id: string): Promise<CategoryControlType | undefined> {
@@ -174,6 +175,16 @@ export class DbStorage implements IStorage {
       .where(eq(schema.categoryControlTypes.id, id))
       .returning();
     return result[0];
+  }
+
+  async updateControlTypesOrder(updates: Array<{ id: string; displayOrder: number }>): Promise<void> {
+    await db.transaction(async (tx) => {
+      for (const { id, displayOrder } of updates) {
+        await tx.update(schema.categoryControlTypes)
+          .set({ displayOrder })
+          .where(eq(schema.categoryControlTypes.id, id));
+      }
+    });
   }
 
   async deleteCategoryControlType(id: string): Promise<boolean> {

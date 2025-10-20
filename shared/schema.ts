@@ -1,4 +1,4 @@
-import { pgTable, text, varchar, numeric, boolean, timestamp, jsonb, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, numeric, boolean, timestamp, jsonb, pgEnum, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -28,6 +28,7 @@ export const categoryControlTypes = pgTable("category_control_types", {
   categoryId: varchar("category_id", { length: 36 }).references(() => categories.id, { onDelete: "cascade" }).notNull(),
   name: text("name").notNull(),
   image: text("image").notNull(),
+  displayOrder: integer("display_order").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
