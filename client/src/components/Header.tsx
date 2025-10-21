@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, ShoppingCart, Menu } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useCart } from "@/contexts/CartContext";
@@ -11,6 +11,8 @@ import type { Settings } from "@shared/schema";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [, setLocation] = useLocation();
   const { getTotalItems } = useCart();
   const cartItemsCount = getTotalItems();
   
@@ -19,6 +21,14 @@ export default function Header() {
   });
   
   const siteTitle = settings?.siteTitle || "Persianas Premium";
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      setLocation(`/produtos?q=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm("");
+    }
+  };
   
   return (
     <header className="sticky top-0 z-50 border-b bg-background">
@@ -46,15 +56,17 @@ export default function Header() {
           </nav>
           
           <div className="flex items-center gap-2">
-            <div className="relative hidden lg:block">
+            <form onSubmit={handleSearch} className="relative hidden lg:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 type="search"
                 placeholder="Buscar produtos..." 
                 className="pl-9 w-64"
                 data-testid="input-search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
+            </form>
             
             <Link href="/carrinho">
               <Button size="icon" variant="ghost" className="relative" data-testid="button-cart">

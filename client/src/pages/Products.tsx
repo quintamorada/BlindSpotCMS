@@ -5,8 +5,9 @@ import type { Category, Product } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { useLocation } from "wouter";
+import { useMemo } from "react";
 
 function getThumbUrl(imageUrl: string): string {
   if (imageUrl.includes('-large.webp')) {
@@ -16,7 +17,7 @@ function getThumbUrl(imageUrl: string): string {
 }
 
 export default function Products() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
@@ -25,7 +26,24 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  const activeProducts = products?.filter(p => p.active) || [];
+  // Pega o termo de busca da URL
+  const searchParams = new URLSearchParams(location.split('?')[1]);
+  const searchQuery = searchParams.get('q') || '';
+
+  const activeProducts = useMemo(() => {
+    const filtered = products?.filter(p => p.active) || [];
+    
+    if (!searchQuery) {
+      return filtered;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return filtered.filter(product => 
+      product.name.toLowerCase().includes(query) ||
+      product.description?.toLowerCase().includes(query) ||
+      categories?.find(c => c.id === product.categoryId)?.name.toLowerCase().includes(query)
+    );
+  }, [products, searchQuery, categories]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,11 +52,22 @@ export default function Products() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-              Nossos Produtos
+              {searchQuery ? `Resultados para "${searchQuery}"` : 'Nossos Produtos'}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Descubra nossa linha completa de persianas de alta qualidade
+              {searchQuery ? `${activeProducts.length} produto(s) encontrado(s)` : 'Descubra nossa linha completa de persianas de alta qualidade'}
             </p>
+            {searchQuery && (
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/produtos')}
+                data-testid="button-clear-search"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Limpar busca
+              </Button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -102,7 +131,19 @@ export default function Products() {
 
           {activeProducts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Nenhum produto disponível no momento.</p>
+              <p className="text-muted-foreground">
+                {searchQuery ? `Nenhum produto encontrado para "${searchQuery}".` : 'Nenhum produto disponível no momento.'}
+              </p>
+              {searchQuery && (
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => setLocation('/produtos')}
+                  data-testid="button-clear-search-empty"
+                >
+                  Ver todos os produtos
+                </Button>
+              )}
             </div>
           )}
         </div>
