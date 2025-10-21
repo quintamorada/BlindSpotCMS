@@ -1,3 +1,7 @@
+// IMPORTANT: Load environment variables FIRST, before any other imports
+// This ensures DATABASE_URL is available when other modules are loaded
+import "./load-env";
+
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
@@ -5,16 +9,6 @@ import { Pool } from "@neondatabase/serverless";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
-import dotenv from "dotenv";
-
-// Load .env file only when running locally (not on Replit)
-// Replit uses Secrets which are already available in process.env
-if (!process.env.REPL_ID) {
-  dotenv.config();
-  log("Loading environment variables from .env file (local environment)");
-} else {
-  log("Using Replit Secrets for environment variables");
-}
 
 const app = express();
 app.use(express.json());
