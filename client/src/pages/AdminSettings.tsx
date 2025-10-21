@@ -10,14 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RequireAuth } from "@/lib/auth";
 import { useState, useEffect } from "react";
-import { DollarSign, Save, Mail, Phone } from "lucide-react";
+import { DollarSign, Save, Mail, Phone, Type, Clock } from "lucide-react";
 import type { Settings } from "@shared/schema";
 
 function AdminSettingsContent() {
   const { toast } = useToast();
+  const [siteTitle, setSiteTitle] = useState("");
   const [aluminumBandoPrice, setAluminumBandoPrice] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [businessHoursWeekdays, setBusinessHoursWeekdays] = useState("");
+  const [businessHoursSaturday, setBusinessHoursSaturday] = useState("");
+  const [businessHoursSunday, setBusinessHoursSunday] = useState("");
   
   const { data: settings, isLoading } = useQuery<Settings>({
     queryKey: ['/api/settings'],
@@ -25,6 +29,9 @@ function AdminSettingsContent() {
 
   useEffect(() => {
     if (settings) {
+      if (settings.siteTitle) {
+        setSiteTitle(settings.siteTitle);
+      }
       if (settings.aluminumBandoPrice) {
         setAluminumBandoPrice(settings.aluminumBandoPrice);
       }
@@ -34,11 +41,28 @@ function AdminSettingsContent() {
       if (settings.contactPhone) {
         setContactPhone(settings.contactPhone);
       }
+      if (settings.businessHoursWeekdays) {
+        setBusinessHoursWeekdays(settings.businessHoursWeekdays);
+      }
+      if (settings.businessHoursSaturday) {
+        setBusinessHoursSaturday(settings.businessHoursSaturday);
+      }
+      if (settings.businessHoursSunday) {
+        setBusinessHoursSunday(settings.businessHoursSunday);
+      }
     }
   }, [settings]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { aluminumBandoPrice: string; contactEmail: string; contactPhone: string }) => {
+    mutationFn: async (data: { 
+      siteTitle: string;
+      aluminumBandoPrice: string; 
+      contactEmail: string; 
+      contactPhone: string;
+      businessHoursWeekdays: string;
+      businessHoursSaturday: string;
+      businessHoursSunday: string;
+    }) => {
       await apiRequest('PUT', '/api/settings', data);
     },
     onSuccess: () => {
@@ -70,19 +94,23 @@ function AdminSettingsContent() {
       return;
     }
 
-    if (!contactEmail || !contactPhone) {
+    if (!siteTitle || !contactEmail || !contactPhone) {
       toast({
         title: "Campos obrigatórios",
-        description: "Email e telefone de contato são obrigatórios.",
+        description: "Título do site, email e telefone de contato são obrigatórios.",
         variant: "destructive"
       });
       return;
     }
 
     updateMutation.mutate({ 
+      siteTitle,
       aluminumBandoPrice: price.toFixed(2),
       contactEmail,
-      contactPhone
+      contactPhone,
+      businessHoursWeekdays,
+      businessHoursSaturday,
+      businessHoursSunday
     });
   };
 
@@ -109,6 +137,37 @@ function AdminSettingsContent() {
                 <div className="text-center py-12">Carregando...</div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Type className="h-5 w-5" />
+                        Identidade Visual
+                      </CardTitle>
+                      <CardDescription>
+                        Configure o título e informações visuais do site
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="siteTitle">
+                          Título do Site
+                        </Label>
+                        <Input
+                          id="siteTitle"
+                          type="text"
+                          placeholder="Persianas Premium"
+                          value={siteTitle}
+                          onChange={(e) => setSiteTitle(e.target.value)}
+                          data-testid="input-site-title"
+                          required
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Este título aparecerá no cabeçalho e rodapé do site
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -182,6 +241,61 @@ function AdminSettingsContent() {
                           onChange={(e) => setContactPhone(e.target.value)}
                           data-testid="input-contact-phone"
                           required
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock className="h-5 w-5" />
+                        Horários de Atendimento
+                      </CardTitle>
+                      <CardDescription>
+                        Configure os horários que aparecerão na página de contato
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="businessHoursWeekdays">
+                          Segunda a Sexta
+                        </Label>
+                        <Input
+                          id="businessHoursWeekdays"
+                          type="text"
+                          placeholder="9h às 18h"
+                          value={businessHoursWeekdays}
+                          onChange={(e) => setBusinessHoursWeekdays(e.target.value)}
+                          data-testid="input-hours-weekdays"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="businessHoursSaturday">
+                          Sábado
+                        </Label>
+                        <Input
+                          id="businessHoursSaturday"
+                          type="text"
+                          placeholder="9h às 13h"
+                          value={businessHoursSaturday}
+                          onChange={(e) => setBusinessHoursSaturday(e.target.value)}
+                          data-testid="input-hours-saturday"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="businessHoursSunday">
+                          Domingo
+                        </Label>
+                        <Input
+                          id="businessHoursSunday"
+                          type="text"
+                          placeholder="Fechado"
+                          value={businessHoursSunday}
+                          onChange={(e) => setBusinessHoursSunday(e.target.value)}
+                          data-testid="input-hours-sunday"
                         />
                       </div>
                     </CardContent>

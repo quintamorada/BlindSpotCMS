@@ -92,6 +92,9 @@ export const settings = pgTable("settings", {
   aluminumBandoPrice: numeric("aluminum_bando_price", { precision: 10, scale: 2 }).notNull().default("0"),
   contactEmail: text("contact_email").default("contato@persianas.com.br"),
   contactPhone: text("contact_phone").default("(11) 9999-9999"),
+  businessHoursWeekdays: text("business_hours_weekdays").default("9h às 18h"),
+  businessHoursSaturday: text("business_hours_saturday").default("9h às 13h"),
+  businessHoursSunday: text("business_hours_sunday").default("Fechado"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
