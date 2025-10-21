@@ -89,6 +89,7 @@ export const orders = pgTable("orders", {
 export const settings = pgTable("settings", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
   siteTitle: text("site_title").default("Persianas Premium"),
+  siteDomain: text("site_domain").default("www.persianapratica.com.br"),
   aluminumBandoPrice: numeric("aluminum_bando_price", { precision: 10, scale: 2 }).notNull().default("0"),
   contactEmail: text("contact_email").default("contato@persianas.com.br"),
   contactPhone: text("contact_phone").default("(11) 9999-9999"),

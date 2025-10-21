@@ -22,6 +22,11 @@ import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import CategoryProducts from "@/pages/CategoryProducts";
 import Catalog from "@/pages/Catalog";
+import PolicyWarranty from "@/pages/PolicyWarranty";
+import PolicyReturns from "@/pages/PolicyReturns";
+import PolicyPrivacy from "@/pages/PolicyPrivacy";
+import PolicyPayment from "@/pages/PolicyPayment";
+import PolicyDelivery from "@/pages/PolicyDelivery";
 
 function Router() {
   return (
@@ -35,6 +40,11 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/contato" component={Contact} />
       <Route path="/sobre" component={About} />
+      <Route path="/termos-garantia" component={PolicyWarranty} />
+      <Route path="/politica-troca-devolucao" component={PolicyReturns} />
+      <Route path="/politica-privacidade" component={PolicyPrivacy} />
+      <Route path="/politica-pagamento" component={PolicyPayment} />
+      <Route path="/politica-entrega" component={PolicyDelivery} />
       <Route path="/login" component={Login} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/produtos" component={AdminProductsReal} />

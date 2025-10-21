@@ -64,6 +64,37 @@ export default function Footer() {
           </div>
           
           <div>
+            <h4 className="font-semibold mb-4">Políticas</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/termos-garantia" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-warranty">
+                  Termos de Garantia
+                </Link>
+              </li>
+              <li>
+                <Link href="/politica-troca-devolucao" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-returns">
+                  Política de Troca e Devolução
+                </Link>
+              </li>
+              <li>
+                <Link href="/politica-privacidade" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-privacy">
+                  Política de Privacidade
+                </Link>
+              </li>
+              <li>
+                <Link href="/politica-pagamento" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-payment">
+                  Política de Pagamento
+                </Link>
+              </li>
+              <li>
+                <Link href="/politica-entrega" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-delivery">
+                  Política de Entrega
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
             <h4 className="font-semibold mb-4">Atendimento</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
@@ -79,17 +110,6 @@ export default function Footer() {
                 <span>São Paulo, SP</span>
               </li>
             </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold mb-4">Newsletter</h4>
-            <p className="text-sm text-muted-foreground mb-4">
-              Receba ofertas exclusivas e novidades
-            </p>
-            <div className="flex gap-2">
-              <Input type="email" placeholder="Seu e-mail" data-testid="input-newsletter" />
-              <Button data-testid="button-newsletter">Enviar</Button>
-            </div>
           </div>
         </div>
         
