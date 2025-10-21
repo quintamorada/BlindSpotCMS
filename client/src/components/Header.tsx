@@ -6,11 +6,19 @@ import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useCart } from "@/contexts/CartContext";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import type { Settings } from "@shared/schema";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { getTotalItems } = useCart();
   const cartItemsCount = getTotalItems();
+  
+  const { data: settings } = useQuery<Settings>({
+    queryKey: ['/api/settings'],
+  });
+  
+  const siteTitle = settings?.siteTitle || "Persianas Premium";
   
   return (
     <header className="sticky top-0 z-50 border-b bg-background">
@@ -18,7 +26,7 @@ export default function Header() {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <Link href="/" className="flex items-center gap-2">
             <div className="font-serif text-2xl font-bold text-foreground" data-testid="text-logo">
-              Persianas Premium
+              {siteTitle}
             </div>
           </Link>
           
