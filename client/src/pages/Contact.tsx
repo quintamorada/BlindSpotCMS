@@ -3,10 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, Clock } from "lucide-react";
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useQuery } from "@tanstack/react-query";
+import type { Settings } from "@shared/schema";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -15,6 +17,16 @@ export default function Contact() {
     phone: "",
     message: "",
   });
+
+  const { data: settings } = useQuery<Settings>({
+    queryKey: ['/api/settings'],
+  });
+
+  const contactEmail = settings?.contactEmail || "contato@persianas.com.br";
+  const contactPhone = settings?.contactPhone || "(11) 9999-9999";
+  const hoursWeekdays = settings?.businessHoursWeekdays || "9h às 18h";
+  const hoursSaturday = settings?.businessHoursSaturday || "9h às 13h";
+  const hoursSunday = settings?.businessHoursSunday || "Fechado";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +113,7 @@ export default function Contact() {
                     <Mail className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-semibold">E-mail</p>
-                      <p className="text-muted-foreground">contato@persianas.com.br</p>
+                      <p className="text-muted-foreground" data-testid="text-contact-email">{contactEmail}</p>
                     </div>
                   </div>
 
@@ -109,15 +121,7 @@ export default function Contact() {
                     <Phone className="h-5 w-5 text-primary" />
                     <div>
                       <p className="font-semibold">Telefone</p>
-                      <p className="text-muted-foreground">(11) 1234-5678</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-semibold">Endereço</p>
-                      <p className="text-muted-foreground">Av. Paulista, 1000 - São Paulo, SP</p>
+                      <p className="text-muted-foreground" data-testid="text-contact-phone">{contactPhone}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -125,13 +129,16 @@ export default function Contact() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Horário de Atendimento</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Horário de Atendimento
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <p><strong>Segunda a Sexta:</strong> 9h às 18h</p>
-                    <p><strong>Sábado:</strong> 9h às 13h</p>
-                    <p><strong>Domingo:</strong> Fechado</p>
+                    <p data-testid="text-hours-weekdays"><strong>Segunda a Sexta:</strong> {hoursWeekdays}</p>
+                    <p data-testid="text-hours-saturday"><strong>Sábado:</strong> {hoursSaturday}</p>
+                    <p data-testid="text-hours-sunday"><strong>Domingo:</strong> {hoursSunday}</p>
                   </div>
                 </CardContent>
               </Card>

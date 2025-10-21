@@ -11,6 +11,7 @@ export default function Footer() {
     queryKey: ['/api/settings'],
   });
 
+  const siteTitle = settings?.siteTitle || "Persianas Premium";
   const contactEmail = settings?.contactEmail || "contato@persianas.com.br";
   const contactPhone = settings?.contactPhone || "(11) 9999-9999";
 
@@ -19,7 +20,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="font-serif text-xl font-bold mb-4" data-testid="text-footer-brand">Persianas Premium</h3>
+            <h3 className="font-serif text-xl font-bold mb-4" data-testid="text-footer-brand">{siteTitle}</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Transformando ambientes com qualidade e sofisticação desde 2010.
             </p>
@@ -118,7 +119,7 @@ export default function Footer() {
           </div>
           
           <div className="text-center text-sm text-muted-foreground">
-            © 2024 Persianas Premium. Todos os direitos reservados.
+            © 2024 {siteTitle}. Todos os direitos reservados.
           </div>
         </div>
       </div>
