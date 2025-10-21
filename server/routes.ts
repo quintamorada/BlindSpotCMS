@@ -155,8 +155,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     req.session.userId = user.id;
     req.session.userRole = user.role;
 
-    const { password: _, ...userWithoutPassword } = user;
-    res.json({ user: userWithoutPassword });
+    // Salvar a sessão explicitamente antes de retornar a resposta
+    // Isso garante que a sessão seja persistida no banco antes da próxima requisição
+    req.session.save((err) => {
+      if (err) {
+        console.error('Erro ao salvar sessão:', err);
+        return res.status(500).json({ message: "Erro ao salvar sessão" });
+      }
+
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ user: userWithoutPassword });
+    });
   });
 
   app.post("/api/auth/logout", (req, res) => {
