@@ -115,22 +115,58 @@ set PORT=5035 && npm run dev
 ### Problema
 Após fazer login, você é redirecionado de volta para a tela de login.
 
-### Solução
-Este problema já foi corrigido na versão mais recente. A sessão agora é salva explicitamente antes de retornar a resposta do login.
+### Causas Possíveis e Soluções
 
-Se ainda ocorrer:
+#### 1. Cookie "secure" em ambiente HTTP
 
-1. Verifique se a tabela `session` existe no banco:
+**Problema:** Se `NODE_ENV=production` e você está testando localmente com HTTP (não HTTPS), o navegador não aceita cookies com a flag `secure: true`.
+
+**Solução:**
+```bash
+# Para desenvolvimento local, use NODE_ENV=development
+NODE_ENV=development npm run dev
+
+# OU
+# Para PM2 local, configure no .env:
+NODE_ENV=development
+```
+
+**Verificar no navegador:**
+1. Abra DevTools (F12)
+2. Vá em "Application" > "Cookies"
+3. Veja se o cookie de sessão está sendo criado
+4. Se não estiver, provavelmente é problema de `secure: true` com HTTP
+
+#### 2. Sessão não está sendo salva
+
+**Solução:** Já corrigido - a sessão é salva explicitamente com `req.session.save()` antes de retornar a resposta.
+
+#### 3. Tabela de sessão não existe
+
+**Verificar:**
 ```bash
 psql $DATABASE_URL -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
 ```
 
-2. Limpe as sessões antigas:
+**Criar se necessário:**
+A tabela é criada automaticamente pelo `connect-pg-simple` com a opção `createTableIfMissing: true`.
+
+#### 4. Limpar sessões antigas
+
 ```bash
 psql $DATABASE_URL -c "DELETE FROM session;"
 ```
 
-3. Reinicie o servidor
+#### 5. Reiniciar o servidor
+
+Sempre reinicie após mudanças de configuração:
+```bash
+# Desenvolvimento
+npm run dev
+
+# PM2
+pm2 restart rest-express
+```
 
 ## 🗄️ Erro de conexão com banco de dados
 

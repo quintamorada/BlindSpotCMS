@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
   apps: [
     {
@@ -5,12 +7,13 @@ module.exports = {
       script: "dist/index.js",
       instances: 1,
       exec_mode: "cluster",
-      // As variáveis de ambiente serão carregadas do arquivo .env
-      // Você também pode passar variáveis via linha de comando: pm2 start ecosystem.config.cjs --env production
+      // Carregar variáveis do arquivo .env
+      // O require('dotenv').config() acima carrega o .env antes de passar para o PM2
       env: {
-        NODE_ENV: "production",
-        // PORT será carregada do .env ou você pode definir aqui se necessário
-        // PORT: 5000,
+        NODE_ENV: process.env.NODE_ENV || "production",
+        PORT: process.env.PORT || "5000",
+        DATABASE_URL: process.env.DATABASE_URL,
+        SESSION_SECRET: process.env.SESSION_SECRET,
       },
       env_production: {
         NODE_ENV: "production",

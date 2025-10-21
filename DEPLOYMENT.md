@@ -82,8 +82,10 @@ NODE_ENV=production
 SESSION_SECRET=your-strong-secret-key-here
 ```
 
-**Importante:** O arquivo `ecosystem.config.cjs` **não** sobrescreve mais a variável `PORT` do `.env`. 
-A porta será lida do arquivo `.env` ou você pode passar via linha de comando.
+**Importante:** O arquivo `ecosystem.config.cjs` carrega automaticamente as variáveis do arquivo `.env` usando `dotenv`.
+- Configure suas variáveis no `.env` (incluindo PORT)
+- O PM2 usará essas configurações automaticamente
+- Não é necessário passar variáveis via linha de comando
 
 ### 3. Iniciar com PM2
 

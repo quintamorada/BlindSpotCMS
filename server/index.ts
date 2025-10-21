@@ -36,7 +36,11 @@ app.use(
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // secure: true apenas se estiver em produção E usando HTTPS
+      // Em desenvolvimento local (HTTP), secure deve ser false
+      secure: process.env.NODE_ENV === "production" && !process.env.REPL_ID,
+      // sameSite: 'lax' permite que cookies funcionem com redirects
+      sameSite: 'lax',
     },
   })
 );

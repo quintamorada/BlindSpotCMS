@@ -46,9 +46,10 @@ pm2 startup
 ```
 
 **Importante sobre a Porta:**
-- O PM2 carregará a variável `PORT` do arquivo `.env` automaticamente
-- Se quiser forçar uma porta específica, descomente e edite a linha `PORT` no `ecosystem.config.cjs`
-- Ou passe via linha de comando: `PORT=5035 pm2 start ecosystem.config.cjs`
+- O arquivo `ecosystem.config.cjs` carrega automaticamente as variáveis do `.env`
+- Configure a porta desejada no arquivo `.env` (exemplo: `PORT=5035`)
+- O PM2 usará essa configuração automaticamente
+- Se quiser sobrescrever, edite diretamente a linha `PORT` no `ecosystem.config.cjs`
 
 ## 📝 Comandos PM2
 
