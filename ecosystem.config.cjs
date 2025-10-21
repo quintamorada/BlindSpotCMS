@@ -5,9 +5,12 @@ module.exports = {
       script: "dist/index.js",
       instances: 1,
       exec_mode: "cluster",
+      // As variáveis de ambiente serão carregadas do arquivo .env
+      // Você também pode passar variáveis via linha de comando: pm2 start ecosystem.config.cjs --env production
       env: {
         NODE_ENV: "production",
-        PORT: 5000,
+        // PORT será carregada do .env ou você pode definir aqui se necessário
+        // PORT: 5000,
       },
       env_production: {
         NODE_ENV: "production",

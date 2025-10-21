@@ -77,10 +77,13 @@ Certifique-se de que o arquivo `.env` existe na raiz do projeto com as configura
 
 ```env
 DATABASE_URL=postgresql://user:password@production-host:5432/production_db
-PORT=5000
+PORT=5035
 NODE_ENV=production
 SESSION_SECRET=your-strong-secret-key-here
 ```
+
+**Importante:** O arquivo `ecosystem.config.cjs` **não** sobrescreve mais a variável `PORT` do `.env`. 
+A porta será lida do arquivo `.env` ou você pode passar via linha de comando.
 
 ### 3. Iniciar com PM2
 

@@ -30,6 +30,9 @@ npm install -g pm2
 # 2. Configurar .env para produção
 cp .env.example .env
 # Editar .env com configurações de produção
+# PORT=5035  (ou a porta que desejar)
+# DATABASE_URL=postgresql://...
+# SESSION_SECRET=...
 
 # 3. Build da aplicação
 npm run build
@@ -41,6 +44,11 @@ pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup
 ```
+
+**Importante sobre a Porta:**
+- O PM2 carregará a variável `PORT` do arquivo `.env` automaticamente
+- Se quiser forçar uma porta específica, descomente e edite a linha `PORT` no `ecosystem.config.cjs`
+- Ou passe via linha de comando: `PORT=5035 pm2 start ecosystem.config.cjs`
 
 ## 📝 Comandos PM2
 
