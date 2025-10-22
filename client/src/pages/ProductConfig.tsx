@@ -105,7 +105,7 @@ export default function ProductConfig() {
       : (productHasBando ? (bandoSide !== null && aluminumBando !== null) : true)
     ) && 
     (!hasColors || selectedColor !== null) &&
-    (!hasControlTypes || selectedControlType !== null) &&
+    (isVertical ? (!hasControlTypes || selectedControlType !== null) : true) &&
     !controlTypesLoading;
 
   const handleAddToCart = () => {
@@ -319,7 +319,7 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
-                {controlTypes && controlTypes.length > 0 ? (
+                {isVertical && controlTypes && controlTypes.length > 0 ? (
                   <div className="space-y-2">
                     <Label>Tipo de Acionamento</Label>
                     <p className="text-xs text-muted-foreground mb-3">
