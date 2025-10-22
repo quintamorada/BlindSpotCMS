@@ -26,24 +26,36 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  // Pega o termo de busca da URL
+  // Pega o termo de busca e categoria da URL
   const searchParams = new URLSearchParams(location.split('?')[1]);
   const searchQuery = searchParams.get('q') || '';
+  const categorySlug = searchParams.get('categoria') || '';
 
   const activeProducts = useMemo(() => {
-    const filtered = products?.filter(p => p.active) || [];
+    let filtered = products?.filter(p => p.active) || [];
     
-    if (!searchQuery) {
-      return filtered;
+    // Filtrar por categoria se especificado
+    if (categorySlug) {
+      const category = categories?.find(c => c.slug === categorySlug);
+      if (category) {
+        filtered = filtered.filter(p => p.categoryId === category.id);
+      }
     }
+    
+    // Filtrar por busca se especificado
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(query) ||
+        product.description?.toLowerCase().includes(query) ||
+        categories?.find(c => c.id === product.categoryId)?.name.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [products, searchQuery, categorySlug, categories]);
 
-    const query = searchQuery.toLowerCase();
-    return filtered.filter(product => 
-      product.name.toLowerCase().includes(query) ||
-      product.description?.toLowerCase().includes(query) ||
-      categories?.find(c => c.id === product.categoryId)?.name.toLowerCase().includes(query)
-    );
-  }, [products, searchQuery, categories]);
+  const selectedCategory = categories?.find(c => c.slug === categorySlug);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,12 +64,16 @@ export default function Products() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-              {searchQuery ? `Resultados para "${searchQuery}"` : 'Nossos Produtos'}
+              {searchQuery ? `Resultados para "${searchQuery}"` : 
+               selectedCategory ? selectedCategory.name : 
+               'Nossos Produtos'}
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              {searchQuery ? `${activeProducts.length} produto(s) encontrado(s)` : 'Descubra nossa linha completa de persianas de alta qualidade'}
+              {searchQuery ? `${activeProducts.length} produto(s) encontrado(s)` : 
+               selectedCategory ? `${activeProducts.length} produto(s) na categoria ${selectedCategory.name}` :
+               'Descubra nossa linha completa de persianas de alta qualidade'}
             </p>
-            {searchQuery && (
+            {(searchQuery || categorySlug) && (
               <Button 
                 variant="outline" 
                 className="mt-4"
@@ -65,7 +81,7 @@ export default function Products() {
                 data-testid="button-clear-search"
               >
                 <X className="h-4 w-4 mr-2" />
-                Limpar busca
+                {searchQuery ? 'Limpar busca' : 'Ver todos os produtos'}
               </Button>
             )}
           </div>

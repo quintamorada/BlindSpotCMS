@@ -47,6 +47,7 @@ export default function Home() {
       id: "1",
       name: "Persiana Blackout Premium",
       category: "Blackout",
+      categorySlug: "blackout",
       price: 299.90,
       image: img3,
       featured: true
@@ -55,6 +56,7 @@ export default function Home() {
       id: "2",
       name: "Persiana Rolô Linho",
       category: "Rolô",
+      categorySlug: "rolo",
       price: 249.90,
       image: img2
     },
@@ -62,6 +64,7 @@ export default function Home() {
       id: "3",
       name: "Persiana Vertical PVC",
       category: "Vertical",
+      categorySlug: "vertical",
       price: 349.90,
       image: img5
     },
@@ -69,6 +72,7 @@ export default function Home() {
       id: "4",
       name: "Persiana Horizontal Alumínio",
       category: "Horizontal",
+      categorySlug: "horizontal",
       price: 199.90,
       image: img4,
       featured: true
@@ -77,6 +81,7 @@ export default function Home() {
       id: "5",
       name: "Persiana Blackout Total",
       category: "Blackout",
+      categorySlug: "blackout",
       price: 399.90,
       image: img7
     },
@@ -84,6 +89,7 @@ export default function Home() {
       id: "6",
       name: "Persiana Rolô Screen",
       category: "Rolô",
+      categorySlug: "rolo",
       price: 279.90,
       image: img6
     },
@@ -91,6 +97,7 @@ export default function Home() {
       id: "7",
       name: "Persiana Vertical Tecido",
       category: "Vertical",
+      categorySlug: "vertical",
       price: 429.90,
       image: img1
     },
@@ -98,6 +105,7 @@ export default function Home() {
       id: "8",
       name: "Persiana Horizontal Madeira",
       category: "Horizontal",
+      categorySlug: "horizontal",
       price: 499.90,
       image: img4
     }
