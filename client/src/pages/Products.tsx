@@ -138,7 +138,7 @@ export default function Products() {
                     onClick={() => setLocation(`/produto/${product.slug}`)}
                     data-testid={`button-details-${product.id}`}
                   >
-                    Configurar e Comprar
+                    Comprar
                   </Button>
                 </div>
               </Card>

@@ -19,24 +19,28 @@ export default function Home() {
     {
       id: "1",
       name: "Blackout",
+      slug: "blackout",
       description: "Bloqueio total de luz",
       image: img3
     },
     {
       id: "2",
       name: "Rolô",
+      slug: "rolo",
       description: "Praticidade e elegância",
       image: img2
     },
     {
       id: "3",
       name: "Vertical",
+      slug: "vertical",
       description: "Ideal para grandes janelas",
       image: img5
     },
     {
       id: "4",
       name: "Horizontal",
+      slug: "horizontal",
       description: "Clássicas e versáteis",
       image: img4
     }
