@@ -11,6 +11,11 @@ import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 
 const app = express();
+
+// Trust proxy - IMPORTANTE para HTTPS/SSL em produção
+// Isso permite que o Express confie no proxy reverso (nginx, etc)
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -23,6 +28,10 @@ app.use('/uploads', express.static('uploads'));
 const PgSession = connectPgSimple(session);
 const sessionPool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+// Detecta se está em produção (não Replit)
+const isProduction = process.env.NODE_ENV === "production";
+const isReplit = !!process.env.REPL_ID;
+
 app.use(
   session({
     store: new PgSession({
@@ -33,14 +42,17 @@ app.use(
     secret: process.env.SESSION_SECRET || "your-secret-key-change-in-production",
     resave: false,
     saveUninitialized: false,
+    proxy: isProduction && !isReplit, // true em produção com proxy reverso
     cookie: {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
-      // secure: true apenas se estiver em produção E usando HTTPS
-      // Em desenvolvimento local (HTTP), secure deve ser false
-      secure: process.env.NODE_ENV === "production" && !process.env.REPL_ID,
+      // secure: true em produção (HTTPS), false em dev e Replit
+      secure: isProduction && !isReplit,
       // sameSite: 'lax' permite que cookies funcionem com redirects
+      // 'none' só é necessário se estiver fazendo cross-site requests
       sameSite: 'lax',
+      // Domínio do cookie - deixe undefined para usar o domínio atual
+      domain: undefined,
     },
   })
 );
