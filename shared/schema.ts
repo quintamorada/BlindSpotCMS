@@ -106,6 +106,7 @@ export const orderItems = pgTable("order_items", {
   productName: text("product_name").notNull(),
   width: numeric("width", { precision: 10, scale: 2 }).notNull(),
   height: numeric("height", { precision: 10, scale: 2 }).notNull(),
+  commandHeight: numeric("command_height", { precision: 10, scale: 2 }).notNull().default("1.5"),
   bandoSide: bandoSideEnum("bando_side").notNull(),
   colorId: varchar("color_id", { length: 36 }),
   colorName: text("color_name"),

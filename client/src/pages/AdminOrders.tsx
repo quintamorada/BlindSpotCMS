@@ -217,6 +217,13 @@ function AdminOrdersContent() {
                               </span>
                             </div>
                             
+                            <div>
+                              <span className="text-muted-foreground">Altura do Comando:</span>{" "}
+                              <span data-testid={`text-item-command-height-${index}`}>
+                                {parseFloat(item.commandHeight || "1.5").toFixed(2)}m
+                              </span>
+                            </div>
+                            
                             {item.verticalControl ? (
                               <>
                                 <div>

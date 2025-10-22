@@ -63,6 +63,10 @@ export default function Cart() {
                           <span className="font-medium text-foreground">Medidas:</span> {item.width}m × {item.height}m = {item.area.toFixed(2)}m²
                         </div>
                         
+                        <div data-testid={`text-item-command-height-${index}`}>
+                          <span className="font-medium text-foreground">Altura do Comando:</span> {item.commandHeight.toFixed(2)}m
+                        </div>
+                        
                         {item.controlTypeName && (
                           <div data-testid={`text-item-control-type-${index}`}>
                             <span className="font-medium text-foreground">Tipo de Acionamento:</span> {item.controlTypeName}

@@ -60,6 +60,7 @@ export default function Checkout() {
         productName: item.productName,
         width: item.width.toString(),
         height: item.height.toString(),
+        commandHeight: item.commandHeight.toString(),
         bandoSide: item.bandoSide,
         colorId: item.colorId,
         colorName: item.colorName,
@@ -171,6 +172,10 @@ export default function Checkout() {
                         <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
                           <div>
                             <span className="font-medium text-foreground">Medidas:</span> {item.width}m × {item.height}m ({item.area.toFixed(2)}m²)
+                          </div>
+                          
+                          <div>
+                            <span className="font-medium text-foreground">Altura do Comando:</span> {item.commandHeight.toFixed(2)}m
                           </div>
                           
                           {item.controlTypeName && (
