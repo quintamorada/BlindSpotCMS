@@ -10,6 +10,7 @@ export interface CartItem {
   productSlug: string;
   width: number;
   height: number;
+  commandHeight: number;
   bandoSide: "left" | "right";
   colorId?: string;
   colorName?: string;
@@ -47,6 +48,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       ...item,
       aluminumBando: item.aluminumBando ?? false,
       aluminumBandoPrice: item.aluminumBandoPrice ?? 0,
+      commandHeight: item.commandHeight ?? 1.5,
     }));
   });
 

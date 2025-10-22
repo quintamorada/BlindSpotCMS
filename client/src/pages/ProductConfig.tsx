@@ -6,10 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { Ruler, Check, AlertCircle, ShoppingCart } from "lucide-react";
+import { Ruler, Check, AlertCircle, ShoppingCart, ArrowUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCart, type VerticalControl, type VerticalBando } from "@/contexts/CartContext";
@@ -36,6 +37,7 @@ export default function ProductConfig() {
 
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
+  const [commandHeight, setCommandHeight] = useState<number>(1.5);
   const [bandoSide, setBandoSide] = useState<"left" | "right" | null>(null);
   const [selectedColor, setSelectedColor] = useState<CategoryColor | null>(null);
   const [aluminumBando, setAluminumBando] = useState<boolean | null>(null);
@@ -129,6 +131,7 @@ export default function ProductConfig() {
       productSlug: product.slug,
       width: widthNum,
       height: heightNum,
+      commandHeight: commandHeight,
       bandoSide: isVertical ? "left" : (productHasBando ? bandoSide! : "left"),
       colorId: selectedColor?.id,
       colorName: selectedColor?.name,
@@ -152,6 +155,7 @@ export default function ProductConfig() {
 
     setWidth("");
     setHeight("");
+    setCommandHeight(1.5);
     setBandoSide(null);
     setSelectedColor(null);
     setAluminumBando(null);
@@ -317,6 +321,51 @@ export default function ProductConfig() {
                       data-testid="input-height"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-4 p-5 rounded-lg bg-gradient-to-br from-muted/40 via-muted/20 to-transparent border border-border/50">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2 text-base font-semibold">
+                      <ArrowUpDown className="h-5 w-5 text-primary" />
+                      Altura do Comando
+                    </Label>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 border border-primary/20">
+                      <span className="text-2xl font-bold text-primary" data-testid="text-command-height">
+                        {commandHeight.toFixed(2)}m
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Slider
+                      value={[commandHeight]}
+                      onValueChange={(value) => setCommandHeight(value[0])}
+                      min={0.5}
+                      max={2.5}
+                      step={0.1}
+                      className="w-full"
+                      data-testid="slider-command-height"
+                    />
+                    
+                    <div className="flex justify-between text-xs text-muted-foreground px-1">
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">Mínimo</span>
+                        <span className="text-foreground/70">0,50m</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="font-medium">Padrão</span>
+                        <span className="text-foreground/70">1,50m</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="font-medium">Máximo</span>
+                        <span className="text-foreground/70">2,50m</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Ajuste a altura do ponto de comando da sua persiana. A altura padrão é 1,50m, ideal para a maioria das instalações.
+                  </p>
                 </div>
 
                 {isVertical && controlTypes && controlTypes.length > 0 ? (
