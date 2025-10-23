@@ -27,11 +27,20 @@ const upload = multer({
 
 async function applyWatermark(imageBuffer: Buffer, watermarkPath: string): Promise<Buffer> {
   try {
-    const watermarkFullPath = path.join(process.cwd(), 'public', watermarkPath);
+    let watermarkFullPath: string;
+    const normalizedPath = watermarkPath.startsWith('/') ? watermarkPath.slice(1) : watermarkPath;
+    
+    if (watermarkPath.startsWith('/uploads/')) {
+      watermarkFullPath = path.join(process.cwd(), normalizedPath);
+    } else if (watermarkPath.startsWith('/images/')) {
+      watermarkFullPath = path.join(process.cwd(), 'public', normalizedPath);
+    } else {
+      watermarkFullPath = path.join(process.cwd(), 'public', normalizedPath);
+    }
     
     const watermarkExists = await fs.access(watermarkFullPath).then(() => true).catch(() => false);
     if (!watermarkExists) {
-      console.warn('Watermark not found, returning original image');
+      console.warn(`Watermark not found at ${watermarkFullPath}, returning original image`);
       return imageBuffer;
     }
 
@@ -58,6 +67,7 @@ async function applyWatermark(imageBuffer: Buffer, watermarkPath: string): Promi
       }])
       .toBuffer();
 
+    console.log(`Successfully applied watermark from ${watermarkFullPath}`);
     return watermarkedImage;
   } catch (error) {
     console.error('Error applying watermark:', error);

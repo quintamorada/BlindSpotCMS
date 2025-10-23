@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RequireAuth } from "@/lib/auth";
 import { useState, useEffect } from "react";
-import { DollarSign, Save, Mail, Phone, Type, Clock } from "lucide-react";
+import { DollarSign, Save, Mail, Phone, Type, Clock, Image as ImageIcon, Upload } from "lucide-react";
 import type { Settings } from "@shared/schema";
 
 function AdminSettingsContent() {
@@ -22,6 +22,8 @@ function AdminSettingsContent() {
   const [businessHoursWeekdays, setBusinessHoursWeekdays] = useState("");
   const [businessHoursSaturday, setBusinessHoursSaturday] = useState("");
   const [businessHoursSunday, setBusinessHoursSunday] = useState("");
+  const [watermarkImage, setWatermarkImage] = useState("");
+  const [isUploadingWatermark, setIsUploadingWatermark] = useState(false);
   
   const { data: settings, isLoading } = useQuery<Settings>({
     queryKey: ['/api/settings'],
@@ -50,8 +52,47 @@ function AdminSettingsContent() {
       if (settings.businessHoursSunday) {
         setBusinessHoursSunday(settings.businessHoursSunday);
       }
+      if (settings.watermarkImage) {
+        setWatermarkImage(settings.watermarkImage);
+      }
     }
   }, [settings]);
+
+  const handleWatermarkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingWatermark(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch('/api/upload/watermark-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      setWatermarkImage(data.image);
+      
+      toast({
+        title: "Marca d'água enviada com sucesso!",
+        description: "A marca d'água foi atualizada. Clique em 'Salvar Configurações' para aplicar.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao fazer upload",
+        description: "Não foi possível fazer o upload da marca d'água.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingWatermark(false);
+    }
+  };
 
   const updateMutation = useMutation({
     mutationFn: async (data: { 
@@ -62,6 +103,7 @@ function AdminSettingsContent() {
       businessHoursWeekdays: string;
       businessHoursSaturday: string;
       businessHoursSunday: string;
+      watermarkImage: string;
     }) => {
       await apiRequest('PUT', '/api/settings', data);
     },
@@ -110,7 +152,8 @@ function AdminSettingsContent() {
       contactPhone,
       businessHoursWeekdays,
       businessHoursSaturday,
-      businessHoursSunday
+      businessHoursSunday,
+      watermarkImage
     });
   };
 
@@ -164,6 +207,68 @@ function AdminSettingsContent() {
                         <p className="text-sm text-muted-foreground">
                           Este título aparecerá no cabeçalho e rodapé do site
                         </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <ImageIcon className="h-5 w-5" />
+                        Marca d'Água
+                      </CardTitle>
+                      <CardDescription>
+                        Configure a marca d'água que será aplicada nas imagens dos produtos
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        {watermarkImage && (
+                          <div className="border rounded-lg p-4 bg-muted/30">
+                            <p className="text-sm font-medium mb-2">Marca d'água atual:</p>
+                            <div className="flex items-center justify-center bg-card p-6 rounded-md border">
+                              <img 
+                                src={watermarkImage} 
+                                alt="Marca d'água" 
+                                className="max-w-xs max-h-32 object-contain"
+                                data-testid="img-current-watermark"
+                              />
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="watermarkUpload">
+                            Enviar Nova Marca d'Água
+                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              id="watermarkUpload"
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp"
+                              onChange={handleWatermarkUpload}
+                              disabled={isUploadingWatermark}
+                              data-testid="input-watermark-upload"
+                              className="cursor-pointer"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              disabled={isUploadingWatermark}
+                              onClick={() => document.getElementById('watermarkUpload')?.click()}
+                              data-testid="button-upload-watermark"
+                            >
+                              <Upload className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {isUploadingWatermark 
+                              ? 'Enviando marca d\'água...' 
+                              : 'Envie uma imagem PNG ou JPG. A marca d\'água será aplicada automaticamente em todas as imagens de produtos.'
+                            }
+                          </p>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
