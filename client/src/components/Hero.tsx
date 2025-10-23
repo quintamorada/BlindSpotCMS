@@ -39,7 +39,7 @@ export default function Hero() {
             data-testid="button-hero-quote"
             onClick={() => setLocation("/contato")}
           >
-            Solicitar Orçamento
+            Entrar em contato
           </Button>
         </div>
       </div>
