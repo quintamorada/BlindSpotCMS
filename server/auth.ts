@@ -2,6 +2,12 @@ import bcrypt from "bcryptjs";
 import { storage } from "./storage";
 import type { User } from "@shared/schema";
 
+declare module 'express-session' {
+  interface SessionData {
+    customerId?: string;
+  }
+}
+
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }

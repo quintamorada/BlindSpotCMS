@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const userRoleEnum = pgEnum("user_role", ["admin", "editor"]);
+export const addressTypeEnum = pgEnum("address_type", ["billing", "shipping"]);
 
 export const categories = pgTable("categories", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
@@ -70,6 +71,35 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const customers = pgTable("customers", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  phone: text("phone"),
+  cpf: text("cpf"),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const customerAddresses = pgTable("customer_addresses", {
+  id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  customerId: varchar("customer_id", { length: 36 }).references(() => customers.id, { onDelete: "cascade" }).notNull(),
+  type: addressTypeEnum("type").notNull().default("shipping"),
+  name: text("name").notNull(),
+  street: text("street").notNull(),
+  number: text("number").notNull(),
+  complement: text("complement"),
+  neighborhood: text("neighborhood").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const bandoSideEnum = pgEnum("bando_side", ["left", "right"]);
 export const orderStatusEnum = pgEnum("order_status", ["pending", "confirmed", "in_production", "delivered", "cancelled"]);
 export const verticalControlEnum = pgEnum("vertical_control", ["lateral-esquerda", "lateral-direita", "central-esquerda", "central-direita", "invertido-esquerda", "invertido-direita"]);
@@ -77,9 +107,12 @@ export const verticalBandoEnum = pgEnum("vertical_bando", ["sem-laterais", "late
 
 export const orders = pgTable("orders", {
   id: varchar("id", { length: 36 }).primaryKey().notNull(),
+  customerId: varchar("customer_id", { length: 36 }).references(() => customers.id),
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email").notNull(),
   customerPhone: text("customer_phone").notNull(),
+  shippingAddressId: varchar("shipping_address_id", { length: 36 }),
+  shippingAddress: jsonb("shipping_address"),
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: orderStatusEnum("status").default("pending").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -203,3 +236,21 @@ export type InsertOrderItemForCreate = z.infer<typeof insertOrderItemSchemaForCr
 
 export type Settings = typeof settings.$inferSelect;
 export type InsertSettings = z.infer<typeof insertSettingsSchema>;
+
+export const insertCustomerSchema = createInsertSchema(customers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCustomerAddressSchema = createInsertSchema(customerAddresses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type Customer = typeof customers.$inferSelect;
+export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
+
+export type CustomerAddress = typeof customerAddresses.$inferSelect;
+export type InsertCustomerAddress = z.infer<typeof insertCustomerAddressSchema>;

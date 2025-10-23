@@ -1,19 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, ShoppingCart, Menu } from "lucide-react";
+import { Search, ShoppingCart, Menu, User } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useCart } from "@/contexts/CartContext";
+import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import type { Settings } from "@shared/schema";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [, setLocation] = useLocation();
   const { getTotalItems } = useCart();
+  const { customer, isAuthenticated, logout } = useCustomerAuth();
   const cartItemsCount = getTotalItems();
   
   const { data: settings } = useQuery<Settings>({
@@ -67,6 +77,45 @@ export default function Header() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </form>
+            
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost" data-testid="button-account">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel data-testid="text-customer-name">{customer?.name}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/minha-conta" data-testid="link-my-account">
+                      Minha Conta
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/minha-conta/pedidos" data-testid="link-my-orders">
+                      Meus Pedidos
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/minha-conta/enderecos" data-testid="link-my-addresses">
+                      Endereços
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => logout()} data-testid="button-logout">
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link href="/cliente/login">
+                <Button variant="ghost" size="sm" data-testid="button-login">
+                  Entrar
+                </Button>
+              </Link>
+            )}
             
             <Link href="/carrinho">
               <Button size="icon" variant="ghost" className="relative" data-testid="button-cart">

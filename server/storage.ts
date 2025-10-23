@@ -10,6 +10,8 @@ import type {
   Product, InsertProduct,
   Page, InsertPage,
   User, InsertUser,
+  Customer, InsertCustomer,
+  CustomerAddress, InsertCustomerAddress,
   Order, InsertOrder,
   OrderItem, InsertOrderItem,
   Settings, InsertSettings
@@ -71,9 +73,26 @@ export interface IStorage {
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
 
+  // Customers
+  getCustomers(): Promise<Customer[]>;
+  getCustomer(id: string): Promise<Customer | undefined>;
+  getCustomerByEmail(email: string): Promise<Customer | undefined>;
+  createCustomer(customer: InsertCustomer): Promise<Customer>;
+  updateCustomer(id: string, customer: Partial<InsertCustomer>): Promise<Customer | undefined>;
+  deleteCustomer(id: string): Promise<boolean>;
+
+  // Customer Addresses
+  getCustomerAddresses(customerId: string): Promise<CustomerAddress[]>;
+  getCustomerAddress(id: string): Promise<CustomerAddress | undefined>;
+  createCustomerAddress(address: InsertCustomerAddress): Promise<CustomerAddress>;
+  updateCustomerAddress(id: string, address: Partial<InsertCustomerAddress>): Promise<CustomerAddress | undefined>;
+  deleteCustomerAddress(id: string): Promise<boolean>;
+  setDefaultAddress(customerId: string, addressId: string): Promise<void>;
+
   // Orders
   getOrders(): Promise<Order[]>;
   getOrder(id: string): Promise<Order | undefined>;
+  getOrdersByCustomer(customerId: string): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
   deleteOrder(id: string): Promise<boolean>;
@@ -303,6 +322,81 @@ export class DbStorage implements IStorage {
     return result.length > 0;
   }
 
+  // Customers
+  async getCustomers(): Promise<Customer[]> {
+    return await db.select().from(schema.customers);
+  }
+
+  async getCustomer(id: string): Promise<Customer | undefined> {
+    const result = await db.select().from(schema.customers).where(eq(schema.customers.id, id));
+    return result[0];
+  }
+
+  async getCustomerByEmail(email: string): Promise<Customer | undefined> {
+    const result = await db.select().from(schema.customers).where(eq(schema.customers.email, email));
+    return result[0];
+  }
+
+  async createCustomer(insertCustomer: InsertCustomer): Promise<Customer> {
+    const id = randomUUID();
+    const result = await db.insert(schema.customers).values({ id, ...insertCustomer }).returning();
+    return result[0];
+  }
+
+  async updateCustomer(id: string, customer: Partial<InsertCustomer>): Promise<Customer | undefined> {
+    const result = await db.update(schema.customers)
+      .set({ ...customer, updatedAt: new Date() })
+      .where(eq(schema.customers.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCustomer(id: string): Promise<boolean> {
+    const result = await db.delete(schema.customers).where(eq(schema.customers.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Customer Addresses
+  async getCustomerAddresses(customerId: string): Promise<CustomerAddress[]> {
+    return await db.select().from(schema.customerAddresses).where(eq(schema.customerAddresses.customerId, customerId));
+  }
+
+  async getCustomerAddress(id: string): Promise<CustomerAddress | undefined> {
+    const result = await db.select().from(schema.customerAddresses).where(eq(schema.customerAddresses.id, id));
+    return result[0];
+  }
+
+  async createCustomerAddress(insertAddress: InsertCustomerAddress): Promise<CustomerAddress> {
+    const id = randomUUID();
+    const result = await db.insert(schema.customerAddresses).values({ id, ...insertAddress }).returning();
+    return result[0];
+  }
+
+  async updateCustomerAddress(id: string, address: Partial<InsertCustomerAddress>): Promise<CustomerAddress | undefined> {
+    const result = await db.update(schema.customerAddresses)
+      .set({ ...address, updatedAt: new Date() })
+      .where(eq(schema.customerAddresses.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteCustomerAddress(id: string): Promise<boolean> {
+    const result = await db.delete(schema.customerAddresses).where(eq(schema.customerAddresses.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async setDefaultAddress(customerId: string, addressId: string): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx.update(schema.customerAddresses)
+        .set({ isDefault: false })
+        .where(eq(schema.customerAddresses.customerId, customerId));
+      
+      await tx.update(schema.customerAddresses)
+        .set({ isDefault: true })
+        .where(eq(schema.customerAddresses.id, addressId));
+    });
+  }
+
   // Orders
   async getOrders(): Promise<(Order & { items: OrderItem[] })[]> {
     const orders = await db.select().from(schema.orders);
@@ -318,6 +412,10 @@ export class DbStorage implements IStorage {
   async getOrder(id: string): Promise<Order | undefined> {
     const result = await db.select().from(schema.orders).where(eq(schema.orders.id, id));
     return result[0];
+  }
+
+  async getOrdersByCustomer(customerId: string): Promise<Order[]> {
+    return await db.select().from(schema.orders).where(eq(schema.orders.customerId, customerId));
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {

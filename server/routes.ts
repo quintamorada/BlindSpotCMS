@@ -1,9 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCategorySchema, insertCategoryColorSchema, insertCategoryControlTypeSchema, insertProductSchema, insertPageSchema, insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate, insertSettingsSchema } from "@shared/schema";
+import { insertCategorySchema, insertCategoryColorSchema, insertCategoryControlTypeSchema, insertProductSchema, insertPageSchema, insertUserSchema, insertCustomerSchema, insertCustomerAddressSchema, insertOrderSchema, insertOrderItemSchema, insertOrderItemSchemaForCreate, insertSettingsSchema } from "@shared/schema";
 import { z } from "zod";
-import { authenticateUser, hashPassword } from "./auth";
+import { authenticateUser, hashPassword, verifyPassword } from "./auth";
 import { requireAuth, requireAdmin } from "./middleware";
 import multer from "multer";
 import sharp from "sharp";
@@ -766,6 +766,280 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.status(500).json({ error: "Internal server error" });
     }
+  });
+
+  // Customer Authentication API
+  app.post("/api/customer/register", async (req, res) => {
+    try {
+      const { name, email, password, phone, cpf } = insertCustomerSchema.parse(req.body);
+      
+      const existingCustomer = await storage.getCustomerByEmail(email);
+      if (existingCustomer) {
+        return res.status(400).json({ error: "Email já cadastrado" });
+      }
+
+      const hashedPassword = await hashPassword(password);
+      const customer = await storage.createCustomer({
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        cpf,
+        active: true
+      });
+
+      const { password: _, ...customerWithoutPassword } = customer;
+      
+      if (req.session) {
+        req.session.customerId = customer.id;
+      }
+
+      res.status(201).json(customerWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/customer/login", async (req, res) => {
+    try {
+      const { email, password } = z.object({
+        email: z.string().email(),
+        password: z.string()
+      }).parse(req.body);
+
+      const customer = await storage.getCustomerByEmail(email);
+      if (!customer) {
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      const isValidPassword = await verifyPassword(password, customer.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      if (!customer.active) {
+        return res.status(401).json({ error: "Conta desativada" });
+      }
+
+      if (req.session) {
+        req.session.customerId = customer.id;
+      }
+
+      const { password: _, ...customerWithoutPassword } = customer;
+      res.json(customerWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/customer/logout", (req, res) => {
+    if (req.session) {
+      req.session.customerId = undefined;
+    }
+    res.status(204).send();
+  });
+
+  app.get("/api/customer/me", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const customer = await storage.getCustomer(req.session.customerId);
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+
+    const { password: _, ...customerWithoutPassword } = customer;
+    res.json(customerWithoutPassword);
+  });
+
+  app.put("/api/customer/me", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const data = insertCustomerSchema.partial().omit({ password: true }).parse(req.body);
+      const customer = await storage.updateCustomer(req.session.customerId, data);
+      
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      const { password: _, ...customerWithoutPassword } = customer;
+      res.json(customerWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/customer/me/password", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const { currentPassword, newPassword } = z.object({
+        currentPassword: z.string(),
+        newPassword: z.string().min(6)
+      }).parse(req.body);
+
+      const customer = await storage.getCustomer(req.session.customerId);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      const isValidPassword = await verifyPassword(currentPassword, customer.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Senha atual incorreta" });
+      }
+
+      const hashedPassword = await hashPassword(newPassword);
+      await storage.updateCustomer(req.session.customerId, { password: hashedPassword });
+
+      res.json({ message: "Senha atualizada com sucesso" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Customer Addresses API
+  app.get("/api/customer/addresses", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const addresses = await storage.getCustomerAddresses(req.session.customerId);
+    res.json(addresses);
+  });
+
+  app.post("/api/customer/addresses", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const data = insertCustomerAddressSchema.parse({
+        ...req.body,
+        customerId: req.session.customerId
+      });
+      
+      const address = await storage.createCustomerAddress(data);
+      
+      if (data.isDefault) {
+        await storage.setDefaultAddress(req.session.customerId, address.id);
+      }
+      
+      res.status(201).json(address);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/customer/addresses/:id", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    try {
+      const existingAddress = await storage.getCustomerAddress(req.params.id);
+      if (!existingAddress || existingAddress.customerId !== req.session.customerId) {
+        return res.status(404).json({ error: "Address not found" });
+      }
+
+      const data = insertCustomerAddressSchema.partial().parse(req.body);
+      const address = await storage.updateCustomerAddress(req.params.id, data);
+      
+      if (data.isDefault) {
+        await storage.setDefaultAddress(req.session.customerId, req.params.id);
+      }
+      
+      res.json(address);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: error.errors });
+      }
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/customer/addresses/:id", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const existingAddress = await storage.getCustomerAddress(req.params.id);
+    if (!existingAddress || existingAddress.customerId !== req.session.customerId) {
+      return res.status(404).json({ error: "Address not found" });
+    }
+
+    const deleted = await storage.deleteCustomerAddress(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: "Address not found" });
+    }
+    
+    res.status(204).send();
+  });
+
+  app.post("/api/customer/addresses/:id/set-default", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const address = await storage.getCustomerAddress(req.params.id);
+    if (!address || address.customerId !== req.session.customerId) {
+      return res.status(404).json({ error: "Address not found" });
+    }
+
+    await storage.setDefaultAddress(req.session.customerId, req.params.id);
+    res.json({ message: "Endereço padrão atualizado" });
+  });
+
+  // Customer Orders API
+  app.get("/api/customer/orders", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const orders = await storage.getOrdersByCustomer(req.session.customerId);
+    
+    const ordersWithItems = await Promise.all(
+      orders.map(async (order) => {
+        const items = await storage.getOrderItems(order.id);
+        return { ...order, items };
+      })
+    );
+    
+    res.json(ordersWithItems);
+  });
+
+  app.get("/api/customer/orders/:id", async (req, res) => {
+    if (!req.session?.customerId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const order = await storage.getOrder(req.params.id);
+    if (!order || order.customerId !== req.session.customerId) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const items = await storage.getOrderItems(order.id);
+    res.json({ ...order, items });
   });
 
   const httpServer = createServer(app);

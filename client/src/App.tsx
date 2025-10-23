@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
+import { CustomerAuthProvider } from "@/contexts/CustomerAuthContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
 import NotFound from "@/pages/not-found";
@@ -29,6 +30,11 @@ import PolicyReturns from "@/pages/PolicyReturns";
 import PolicyPrivacy from "@/pages/PolicyPrivacy";
 import PolicyPayment from "@/pages/PolicyPayment";
 import PolicyDelivery from "@/pages/PolicyDelivery";
+import CustomerLogin from "@/pages/CustomerLogin";
+import CustomerRegister from "@/pages/CustomerRegister";
+import MyAccount from "@/pages/MyAccount";
+import MyOrders from "@/pages/MyOrders";
+import MyAddresses from "@/pages/MyAddresses";
 
 function Router() {
   return (
@@ -49,6 +55,11 @@ function Router() {
       <Route path="/politica-privacidade" component={PolicyPrivacy} />
       <Route path="/politica-pagamento" component={PolicyPayment} />
       <Route path="/politica-entrega" component={PolicyDelivery} />
+      <Route path="/cliente/login" component={CustomerLogin} />
+      <Route path="/cliente/registro" component={CustomerRegister} />
+      <Route path="/minha-conta" component={MyAccount} />
+      <Route path="/minha-conta/pedidos" component={MyOrders} />
+      <Route path="/minha-conta/enderecos" component={MyAddresses} />
       <Route path="/login" component={Login} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/produtos" component={AdminProductsReal} />
@@ -66,13 +77,15 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-          <CookieConsent />
-        </TooltipProvider>
-      </CartProvider>
+      <CustomerAuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+            <CookieConsent />
+          </TooltipProvider>
+        </CartProvider>
+      </CustomerAuthProvider>
     </QueryClientProvider>
   );
 }
