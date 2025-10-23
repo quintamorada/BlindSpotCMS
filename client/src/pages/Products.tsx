@@ -26,8 +26,8 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  // Pega o termo de busca e categoria da URL
-  const searchParams = new URLSearchParams(location.split('?')[1]);
+  // Pega o termo de busca e categoria da URL usando window.location.search
+  const searchParams = new URLSearchParams(window.location.search);
   const searchQuery = searchParams.get('q') || '';
   const categorySlug = searchParams.get('categoria') || '';
 
