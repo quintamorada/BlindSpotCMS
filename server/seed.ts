@@ -28,28 +28,28 @@ export async function seedDatabase() {
       name: "Blackout",
       slug: "blackout",
       description: "Persianas com bloqueio total de luz para ambientes que necessitam escurecimento completo",
-      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop"
+      image: "/images/categories/blackout.png"
     });
 
     const rolo = await storage.createCategory({
       name: "Rolô",
       slug: "rolo",
       description: "Persianas práticas e elegantes com sistema de rolagem",
-      image: "https://images.unsplash.com/photo-1631889993959-41b4e9c6e3c5?w=800&h=600&fit=crop"
+      image: "/images/categories/rolo.png"
     });
 
     const vertical = await storage.createCategory({
       name: "Vertical",
       slug: "vertical",
       description: "Ideais para janelas grandes e portas de vidro",
-      image: "https://images.unsplash.com/photo-1615875605825-5eb9bb5d52ac?w=800&h=600&fit=crop"
+      image: "/images/categories/vertical.png"
     });
 
     const horizontal = await storage.createCategory({
       name: "Horizontal",
       slug: "horizontal",
       description: "Clássicas e versáteis para qualquer ambiente",
-      image: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=800&h=800&fit=crop&q=80"
+      image: "/images/categories/horizontal.png"
     });
 
     // Create products

@@ -25,6 +25,9 @@ app.use('/assets', express.static('attached_assets'));
 // Serve uploaded images
 app.use('/uploads', express.static('uploads'));
 
+// Serve public images (category images, etc)
+app.use('/images', express.static('public/images'));
+
 const PgSession = connectPgSimple(session);
 const sessionPool = new Pool({ connectionString: process.env.DATABASE_URL });
 
