@@ -122,7 +122,7 @@ export default function CategoryProducts() {
                       </div>
                       <Link href={`/produto/${product.slug}`}>
                         <Button data-testid={`button-configure-${product.id}`}>
-                          Configurar
+                          Personalizar
                         </Button>
                       </Link>
                     </div>

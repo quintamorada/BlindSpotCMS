@@ -137,7 +137,7 @@ export default function Products() {
                       onClick={() => setLocation(`/produto/${product.slug}`)}
                       data-testid={`button-configure-${product.id}`}
                     >
-                      Configurar
+                      Personalizar
                     </Button>
                   </div>
                 </div>

@@ -112,7 +112,7 @@ export default function Catalog() {
                       </div>
                       <Link href={`/produto/${product.slug}`}>
                         <Button data-testid={`button-configure-${product.id}`}>
-                          Configurar
+                          Personalizar
                         </Button>
                       </Link>
                     </div>
