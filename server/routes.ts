@@ -25,6 +25,46 @@ const upload = multer({
   }
 });
 
+async function applyWatermark(imageBuffer: Buffer, watermarkPath: string): Promise<Buffer> {
+  try {
+    const watermarkFullPath = path.join(process.cwd(), 'public', watermarkPath);
+    
+    const watermarkExists = await fs.access(watermarkFullPath).then(() => true).catch(() => false);
+    if (!watermarkExists) {
+      console.warn('Watermark not found, returning original image');
+      return imageBuffer;
+    }
+
+    const image = sharp(imageBuffer);
+    const metadata = await image.metadata();
+    const imageWidth = metadata.width || 1200;
+    const imageHeight = metadata.height || 1200;
+
+    const watermarkSize = Math.floor(Math.min(imageWidth, imageHeight) * 0.25);
+
+    const watermarkBuffer = await sharp(watermarkFullPath)
+      .resize(watermarkSize, Math.floor(watermarkSize * 0.5), {
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .png()
+      .toBuffer();
+
+    const watermarkedImage = await image
+      .composite([{
+        input: watermarkBuffer,
+        gravity: 'southeast',
+        blend: 'over'
+      }])
+      .toBuffer();
+
+    return watermarkedImage;
+  } catch (error) {
+    console.error('Error applying watermark:', error);
+    return imageBuffer;
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Color Image Upload API
   app.post("/api/upload/color-image", requireAuth, upload.single('image'), async (req, res) => {
@@ -114,6 +154,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Watermark Image Upload API
+  app.post("/api/upload/watermark-image", requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
+      }
+
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'watermarks');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const filename = `watermark-${Date.now()}.png`;
+      const filepath = path.join(uploadsDir, filename);
+      
+      await sharp(file.buffer)
+        .resize(400, 200, {
+          fit: 'inside',
+          withoutEnlargement: true
+        })
+        .png()
+        .toFile(filepath);
+
+      res.json({ image: `/uploads/watermarks/${filename}` });
+    } catch (error) {
+      console.error('Error uploading watermark image:', error);
+      res.status(500).json({ error: "Erro ao fazer upload da marca d'água" });
+    }
+  });
+
   // Image Upload API - Multiple images
   app.post("/api/upload/product-images", requireAuth, upload.array('images', 10), async (req, res) => {
     try {
@@ -123,6 +193,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
       }
 
+      const settings = await storage.getSettings();
+      const watermarkPath = settings?.watermarkImage || '/images/watermarks/default-watermark.png';
+
       const uploadsDir = path.join(process.cwd(), 'uploads', 'products');
       await fs.mkdir(uploadsDir, { recursive: true });
 
@@ -130,26 +203,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         files.map(async (file) => {
           const baseFilename = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
           
-          // Criar versão grande (para página de detalhes)
-          const largeFilename = `${baseFilename}-large.webp`;
-          const largeFilepath = path.join(uploadsDir, largeFilename);
-          
-          await sharp(file.buffer)
+          const largeResized = await sharp(file.buffer)
             .resize(1200, 1200, {
               fit: 'inside',
               withoutEnlargement: true
             })
+            .toBuffer();
+
+          const largeWithWatermark = await applyWatermark(largeResized, watermarkPath);
+          
+          const largeFilename = `${baseFilename}-large.webp`;
+          const largeFilepath = path.join(uploadsDir, largeFilename);
+          
+          await sharp(largeWithWatermark)
             .webp({ quality: 90 })
             .toFile(largeFilepath);
 
-          // Criar versão thumbnail (para home/listagens)
-          const thumbFilename = `${baseFilename}-thumb.webp`;
-          const thumbFilepath = path.join(uploadsDir, thumbFilename);
-          
-          await sharp(file.buffer)
+          const thumbResized = await sharp(file.buffer)
             .resize(400, 400, {
               fit: 'cover'
             })
+            .toBuffer();
+
+          const thumbWithWatermark = await applyWatermark(thumbResized, watermarkPath);
+          
+          const thumbFilename = `${baseFilename}-thumb.webp`;
+          const thumbFilepath = path.join(uploadsDir, thumbFilename);
+          
+          await sharp(thumbWithWatermark)
             .webp({ quality: 80 })
             .toFile(thumbFilepath);
 
