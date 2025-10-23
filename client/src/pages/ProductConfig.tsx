@@ -220,7 +220,7 @@ export default function ProductConfig() {
                       </AlertDescription>
                     </Alert>
                   ) : (
-                    <div className="flex gap-4">
+                    <div className="flex gap-6 items-start">
                       <div className="grid grid-cols-2 gap-3">
                         {colors.map((color) => (
                           <button
@@ -255,7 +255,7 @@ export default function ProductConfig() {
                           </button>
                         ))}
                       </div>
-                      <div className="flex-1 min-h-[240px] border-2 rounded-lg flex items-center justify-center bg-muted/20" style={{ maxWidth: '240px' }}>
+                      <div className="ml-auto w-[240px] h-[240px] border-2 rounded-lg flex items-center justify-center bg-muted/20">
                         {selectedColor ? (
                           <div className="w-full h-full p-3">
                             <div className="w-full h-full rounded-md overflow-hidden border">
