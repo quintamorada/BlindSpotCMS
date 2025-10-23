@@ -202,30 +202,6 @@ export default function ProductConfig() {
                 </div>
               )}
 
-              {selectedColor && (
-                <Card className="p-4">
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-sm">Cor Selecionada</h3>
-                    <div className="aspect-square overflow-hidden rounded-lg border-2 border-primary">
-                      <img 
-                        src={selectedColor.image} 
-                        alt={selectedColor.name}
-                        className="w-full h-full object-cover"
-                        data-testid="img-selected-color-preview"
-                      />
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold" data-testid="text-selected-color-name">
-                        {selectedColor.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground" data-testid="text-selected-color-code">
-                        {selectedColor.code}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )}
-
               <Card className="p-3">
                 <div className="space-y-2">
                   <Label>Cor da Persiana</Label>
@@ -244,44 +220,59 @@ export default function ProductConfig() {
                       </AlertDescription>
                     </Alert>
                   ) : (
-                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
-                      {colors.map((color) => (
-                        <button
-                          key={color.id}
-                          type="button"
-                          onClick={() => setSelectedColor(color)}
-                          className={`relative border-2 rounded-lg p-1.5 transition-all hover-elevate ${
-                            selectedColor?.id === color.id
-                              ? "border-primary bg-primary/5"
-                              : "border-border"
-                          }`}
-                          data-testid={`button-color-${color.id}`}
-                        >
-                          <div className="w-12 h-12 mb-1 rounded-md overflow-hidden border mx-auto">
-                            <img
-                              src={color.image}
-                              alt={color.name}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23e5e7eb"/%3E%3Ctext x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
-                              }}
-                            />
+                    <div className="flex gap-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        {colors.map((color) => (
+                          <button
+                            key={color.id}
+                            type="button"
+                            onClick={() => setSelectedColor(color)}
+                            className="flex flex-col items-center transition-all"
+                            data-testid={`button-color-${color.id}`}
+                          >
+                            <div className={`w-16 h-16 rounded-md overflow-hidden border-2 transition-all hover-elevate ${
+                              selectedColor?.id === color.id
+                                ? "border-primary"
+                                : "border-border"
+                            }`}>
+                              <img
+                                src={color.image}
+                                alt={color.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23e5e7eb"/%3E%3Ctext x="50" y="50" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                                }}
+                              />
+                            </div>
+                            <div className="text-center mt-1">
+                              <div className="font-medium text-[10px] leading-tight" data-testid={`text-color-name-${color.id}`}>
+                                {color.name}
+                              </div>
+                              <div className="text-[9px] text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
+                                {color.code}
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex-1 min-h-[240px] border-2 rounded-lg flex items-center justify-center bg-muted/20" style={{ maxWidth: '240px' }}>
+                        {selectedColor ? (
+                          <div className="w-full h-full p-3">
+                            <div className="w-full h-full rounded-md overflow-hidden border">
+                              <img 
+                                src={selectedColor.image} 
+                                alt={selectedColor.name}
+                                className="w-full h-full object-cover"
+                                data-testid="img-selected-color-preview"
+                              />
+                            </div>
                           </div>
-                          <div className="text-center">
-                            <div className="font-medium text-[10px] leading-tight" data-testid={`text-color-name-${color.id}`}>
-                              {color.name}
-                            </div>
-                            <div className="text-[9px] text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
-                              {color.code}
-                            </div>
+                        ) : (
+                          <div className="text-center text-sm text-muted-foreground px-4">
+                            Selecione uma cor para visualizar
                           </div>
-                          {selectedColor?.id === color.id && (
-                            <div className="absolute top-0.5 right-0.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                              <Check className="h-3 w-3" />
-                            </div>
-                          )}
-                        </button>
-                      ))}
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
