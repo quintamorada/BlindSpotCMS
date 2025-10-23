@@ -55,18 +55,20 @@ export default function CategoryProducts() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 py-12 bg-muted/30">
+      <div className="bg-muted/50 border-b">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4" data-testid="text-category-name">
+            {category.name}
+          </h1>
+          {category.description && (
+            <p className="text-lg text-muted-foreground max-w-3xl" data-testid="text-category-description">
+              {category.description}
+            </p>
+          )}
+        </div>
+      </div>
+      <main className="flex-1 py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="mb-8">
-            <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4" data-testid="text-category-name">
-              {category.name}
-            </h1>
-            {category.description && (
-              <p className="text-lg text-muted-foreground max-w-3xl" data-testid="text-category-description">
-                {category.description}
-              </p>
-            )}
-          </div>
 
           {productsLoading ? (
             <div className="text-center py-12">
