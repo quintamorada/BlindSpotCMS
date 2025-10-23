@@ -129,8 +129,10 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <Award className="h-8 w-8 text-[hsl(35,65%,55%)]" />
               <div>
-                <div className="font-semibold text-sm">Garantia 5 Anos</div>
-                <div className="text-xs text-muted-foreground">Em todos os produtos</div>
+                <div className="font-semibold text-sm">Garantia 1 Ano</div>
+                <div className="text-xs text-muted-foreground">
+                  Do fabricante - <Link href="/termos-garantia" onClick={scrollToTop} className="underline hover:text-foreground transition-colors" data-testid="link-footer-warranty">ver políticas</Link>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-3">
