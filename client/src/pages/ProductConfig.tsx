@@ -220,20 +220,20 @@ export default function ProductConfig() {
                       </AlertDescription>
                     </Alert>
                   ) : (
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                    <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2">
                       {colors.map((color) => (
                         <button
                           key={color.id}
                           type="button"
                           onClick={() => setSelectedColor(color)}
-                          className={`relative border-2 rounded-lg p-2 transition-all hover-elevate ${
+                          className={`relative border-2 rounded-lg p-1.5 transition-all hover-elevate ${
                             selectedColor?.id === color.id
                               ? "border-primary bg-primary/5"
                               : "border-border"
                           }`}
                           data-testid={`button-color-${color.id}`}
                         >
-                          <div className="w-16 h-16 mb-1 rounded-md overflow-hidden border mx-auto">
+                          <div className="w-12 h-12 mb-1 rounded-md overflow-hidden border mx-auto">
                             <img
                               src={color.image}
                               alt={color.name}
@@ -244,15 +244,15 @@ export default function ProductConfig() {
                             />
                           </div>
                           <div className="text-center">
-                            <div className="font-medium text-xs" data-testid={`text-color-name-${color.id}`}>
+                            <div className="font-medium text-[10px] leading-tight" data-testid={`text-color-name-${color.id}`}>
                               {color.name}
                             </div>
-                            <div className="text-xs text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
+                            <div className="text-[9px] text-muted-foreground" data-testid={`text-color-code-${color.id}`}>
                               {color.code}
                             </div>
                           </div>
                           {selectedColor?.id === color.id && (
-                            <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-1">
+                            <div className="absolute top-0.5 right-0.5 bg-primary text-primary-foreground rounded-full p-0.5">
                               <Check className="h-3 w-3" />
                             </div>
                           )}
@@ -379,7 +379,7 @@ export default function ProductConfig() {
                         Carregando tipos de acionamento...
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
                         {controlTypes.map((controlType) => (
                           <button
                             key={controlType.id}
@@ -395,7 +395,7 @@ export default function ProductConfig() {
                             <img 
                               src={controlType.image} 
                               alt={controlType.name}
-                              className="w-full h-32 object-contain mb-1"
+                              className="w-full h-20 object-contain mb-1"
                               onError={(e) => {
                                 e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect width="200" height="200" fill="%23e5e7eb"/%3E%3Ctext x="100" y="100" text-anchor="middle" dominant-baseline="middle" font-size="40" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
                               }}
@@ -421,7 +421,7 @@ export default function ProductConfig() {
                         <p className="text-xs text-muted-foreground mb-3">
                           Escolha o tipo de bandô para a persiana vertical
                         </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <button
                             type="button"
                             onClick={() => setVerticalBando("sem-laterais")}
@@ -435,9 +435,9 @@ export default function ProductConfig() {
                             <img 
                               src={verticalBandoSemLaterais} 
                               alt="Sem Laterais"
-                              className="w-full h-20 object-contain mb-1"
+                              className="w-full h-16 object-contain mb-1"
                             />
-                            <div className="text-center text-xs font-medium">Sem Laterais</div>
+                            <div className="text-center text-[10px] font-medium leading-tight">Sem Laterais</div>
                             {verticalBando === "sem-laterais" && (
                               <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
                                 <Check className="h-3 w-3" />
@@ -458,9 +458,9 @@ export default function ProductConfig() {
                             <img 
                               src={verticalBandoLateralEsquerda} 
                               alt="Lateral Esquerda"
-                              className="w-full h-20 object-contain mb-1"
+                              className="w-full h-16 object-contain mb-1"
                             />
-                            <div className="text-center text-xs font-medium">Lateral Esquerda</div>
+                            <div className="text-center text-[10px] font-medium leading-tight">Lateral Esquerda</div>
                             {verticalBando === "lateral-esquerda" && (
                               <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
                                 <Check className="h-3 w-3" />
@@ -481,9 +481,9 @@ export default function ProductConfig() {
                             <img 
                               src={verticalBandoLateralDireita} 
                               alt="Lateral Direita"
-                              className="w-full h-20 object-contain mb-1"
+                              className="w-full h-16 object-contain mb-1"
                             />
-                            <div className="text-center text-xs font-medium">Lateral Direita</div>
+                            <div className="text-center text-[10px] font-medium leading-tight">Lateral Direita</div>
                             {verticalBando === "lateral-direita" && (
                               <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
                                 <Check className="h-3 w-3" />
@@ -504,9 +504,9 @@ export default function ProductConfig() {
                             <img 
                               src={verticalBandoDuasLaterais} 
                               alt="Duas Laterais"
-                              className="w-full h-20 object-contain mb-1"
+                              className="w-full h-16 object-contain mb-1"
                             />
-                            <div className="text-center text-xs font-medium">Duas Laterais</div>
+                            <div className="text-center text-[10px] font-medium leading-tight">Duas Laterais</div>
                             {verticalBando === "duas-laterais" && (
                               <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
                                 <Check className="h-3 w-3" />
@@ -528,7 +528,7 @@ export default function ProductConfig() {
                         <button
                           type="button"
                           onClick={() => setBandoSide("left")}
-                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
                             bandoSide === "left" 
                               ? "border-primary bg-primary/5" 
                               : "border-border"
@@ -538,9 +538,9 @@ export default function ProductConfig() {
                           <img 
                             src={bandoLeftImg} 
                             alt="Bandô Esquerdo"
-                            className="w-full h-32 object-contain mb-2"
+                            className="w-full h-20 object-contain mb-1"
                           />
-                          <div className="text-center font-medium">Esquerdo</div>
+                          <div className="text-center font-medium text-sm">Esquerdo</div>
                           {bandoSide === "left" && (
                             <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
                               <Check className="h-4 w-4" />
@@ -551,7 +551,7 @@ export default function ProductConfig() {
                         <button
                           type="button"
                           onClick={() => setBandoSide("right")}
-                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
                             bandoSide === "right" 
                               ? "border-primary bg-primary/5" 
                               : "border-border"
@@ -561,9 +561,9 @@ export default function ProductConfig() {
                           <img 
                             src={bandoRightImg} 
                             alt="Bandô Direito"
-                            className="w-full h-32 object-contain mb-2"
+                            className="w-full h-20 object-contain mb-1"
                           />
-                          <div className="text-center font-medium">Direito</div>
+                          <div className="text-center font-medium text-sm">Direito</div>
                           {bandoSide === "right" && (
                             <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
                               <Check className="h-4 w-4" />
@@ -583,7 +583,7 @@ export default function ProductConfig() {
                         <button
                           type="button"
                           onClick={() => setAluminumBando(true)}
-                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
                             aluminumBando === true 
                               ? "border-primary bg-primary/5" 
                               : "border-border"
@@ -593,9 +593,9 @@ export default function ProductConfig() {
                           <img 
                             src={bandoWithAluminumImg} 
                             alt="Com Bandô de Alumínio"
-                            className="w-full h-32 object-contain mb-2"
+                            className="w-full h-20 object-contain mb-1"
                           />
-                          <div className="text-center font-medium">Com Bandô</div>
+                          <div className="text-center font-medium text-sm">Com Bandô</div>
                           {aluminumBando === true && (
                             <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
                               <Check className="h-4 w-4" />
@@ -606,7 +606,7 @@ export default function ProductConfig() {
                         <button
                           type="button"
                           onClick={() => setAluminumBando(false)}
-                          className={`relative border-2 rounded-lg p-4 transition-all hover-elevate ${
+                          className={`relative border-2 rounded-lg p-3 transition-all hover-elevate ${
                             aluminumBando === false 
                               ? "border-primary bg-primary/5" 
                               : "border-border"
@@ -616,9 +616,9 @@ export default function ProductConfig() {
                           <img 
                             src={bandoWithoutAluminumImg} 
                             alt="Sem Bandô de Alumínio"
-                            className="w-full h-32 object-contain mb-2"
+                            className="w-full h-20 object-contain mb-1"
                           />
-                          <div className="text-center font-medium">Sem Bandô</div>
+                          <div className="text-center font-medium text-sm">Sem Bandô</div>
                           {aluminumBando === false && (
                             <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
                               <Check className="h-4 w-4" />
