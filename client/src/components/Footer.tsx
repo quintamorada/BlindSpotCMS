@@ -136,8 +136,8 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <Truck className="h-8 w-8 text-[hsl(35,65%,55%)]" />
               <div>
-                <div className="font-semibold text-sm">Instalação Grátis</div>
-                <div className="text-xs text-muted-foreground">Orçamento sem custo</div>
+                <div className="font-semibold text-sm">Instalação Disponível</div>
+                <div className="text-xs text-muted-foreground">Região Metropolitana de SP</div>
               </div>
             </div>
           </div>
