@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import ScrollToTop from "@/components/ScrollToTop";
+import CookieConsent from "@/components/CookieConsent";
 import NotFound from "@/pages/not-found";
 import HomeReal from "@/pages/HomeReal";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -69,6 +70,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <CookieConsent />
         </TooltipProvider>
       </CartProvider>
     </QueryClientProvider>
