@@ -141,7 +141,6 @@ export default function HomeReal() {
                     <div className="p-4 pt-0">
                       <Button 
                         className="w-full" 
-                        variant="outline" 
                         onClick={() => setLocation(`/produto/${product.slug}`)}
                         data-testid={`button-details-${product.id}`}
                       >
