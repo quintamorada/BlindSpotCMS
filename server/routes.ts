@@ -85,6 +85,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Category Image Upload API
+  app.post("/api/upload/category-image", requireAuth, upload.single('image'), async (req, res) => {
+    try {
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
+      }
+
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'categories');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
+      const filepath = path.join(uploadsDir, filename);
+      
+      await sharp(file.buffer)
+        .resize(800, 800, {
+          fit: 'cover'
+        })
+        .webp({ quality: 90 })
+        .toFile(filepath);
+
+      res.json({ image: `/uploads/categories/${filename}` });
+    } catch (error) {
+      console.error('Error uploading category image:', error);
+      res.status(500).json({ error: "Erro ao fazer upload da imagem" });
+    }
+  });
+
   // Image Upload API - Multiple images
   app.post("/api/upload/product-images", requireAuth, upload.array('images', 10), async (req, res) => {
     try {
