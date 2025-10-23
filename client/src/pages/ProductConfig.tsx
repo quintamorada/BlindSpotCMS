@@ -37,7 +37,7 @@ export default function ProductConfig() {
 
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
-  const [commandHeight, setCommandHeight] = useState<number>(1.5);
+  const [commandHeight, setCommandHeight] = useState<number>(1.2);
   const [bandoSide, setBandoSide] = useState<"left" | "right" | null>(null);
   const [selectedColor, setSelectedColor] = useState<CategoryColor | null>(null);
   const [aluminumBando, setAluminumBando] = useState<boolean | null>(null);
@@ -155,7 +155,7 @@ export default function ProductConfig() {
 
     setWidth("");
     setHeight("");
-    setCommandHeight(1.5);
+    setCommandHeight(1.2);
     setBandoSide(null);
     setSelectedColor(null);
     setAluminumBando(null);
@@ -354,7 +354,7 @@ export default function ProductConfig() {
                       </div>
                       <div className="flex flex-col items-center">
                         <span className="font-medium">Padrão</span>
-                        <span className="text-foreground/70">1,50m</span>
+                        <span className="text-foreground/70">1,20m</span>
                       </div>
                       <div className="flex flex-col items-end">
                         <span className="font-medium">Máximo</span>
@@ -364,7 +364,7 @@ export default function ProductConfig() {
                   </div>
                   
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Ajuste a altura do ponto de comando da sua persiana. A altura padrão é 1,50m, ideal para a maioria das instalações.
+                    Ajuste a altura do ponto de comando da sua persiana. A altura padrão é 1,20m, ideal para a maioria das instalações.
                   </p>
                 </div>
 
