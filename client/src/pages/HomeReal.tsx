@@ -145,7 +145,7 @@ export default function HomeReal() {
                         onClick={() => setLocation(`/produto/${product.slug}`)}
                         data-testid={`button-details-${product.id}`}
                       >
-                        Comprar
+                        Personalizar
                       </Button>
                     </div>
                   </Card>
