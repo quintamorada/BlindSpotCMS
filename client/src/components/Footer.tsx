@@ -15,6 +15,10 @@ export default function Footer() {
   const contactEmail = settings?.contactEmail || "contato@persianas.com.br";
   const contactPhone = settings?.contactPhone || "(11) 9999-9999";
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <footer className="bg-card border-t">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -41,22 +45,22 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Produtos</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/categoria/blackout" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-blackout">
+                <Link href="/categoria/blackout" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-blackout">
                   Persianas Blackout
                 </Link>
               </li>
               <li>
-                <Link href="/categoria/rolo" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-rolo">
+                <Link href="/categoria/rolo" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-rolo">
                   Persianas Rolô
                 </Link>
               </li>
               <li>
-                <Link href="/categoria/vertical" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-vertical">
+                <Link href="/categoria/vertical" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-vertical">
                   Persianas Vertical
                 </Link>
               </li>
               <li>
-                <Link href="/categoria/horizontal" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-horizontal">
+                <Link href="/categoria/horizontal" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-category-horizontal">
                   Persianas Horizontal
                 </Link>
               </li>
@@ -67,27 +71,27 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Políticas</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/termos-garantia" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-warranty">
+                <Link href="/termos-garantia" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-warranty">
                   Termos de Garantia
                 </Link>
               </li>
               <li>
-                <Link href="/politica-troca-devolucao" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-returns">
+                <Link href="/politica-troca-devolucao" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-returns">
                   Política de Troca e Devolução
                 </Link>
               </li>
               <li>
-                <Link href="/politica-privacidade" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-privacy">
+                <Link href="/politica-privacidade" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-privacy">
                   Política de Privacidade
                 </Link>
               </li>
               <li>
-                <Link href="/politica-pagamento" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-payment">
+                <Link href="/politica-pagamento" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-payment">
                   Política de Pagamento
                 </Link>
               </li>
               <li>
-                <Link href="/politica-entrega" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-delivery">
+                <Link href="/politica-entrega" onClick={scrollToTop} className="text-muted-foreground hover:text-foreground transition-colors" data-testid="link-policy-delivery">
                   Política de Entrega
                 </Link>
               </li>
