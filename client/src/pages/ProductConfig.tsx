@@ -167,10 +167,10 @@ export default function ProductConfig() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 py-8 bg-muted/30">
+      <main className="flex-1 py-4 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-4">
               <Card className="overflow-hidden">
                 <div className="aspect-square overflow-hidden">
                   {product.images && product.images[0] ? (
@@ -202,10 +202,10 @@ export default function ProductConfig() {
                 </div>
               )}
 
-              <Card className="p-4">
+              <Card className="p-3">
                 <div className="space-y-2">
-                  <Label>Cor da Persiana</Label>
-                  <p className="text-xs text-muted-foreground mb-3">
+                  <Label className="text-sm">Cor da Persiana</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
                     Escolha a cor desejada para sua persiana
                   </p>
                   {colorsLoading ? (
@@ -264,27 +264,27 @@ export default function ProductConfig() {
               </Card>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2" data-testid="text-product-name">
+                <h1 className="font-serif text-2xl md:text-3xl font-bold mb-1" data-testid="text-product-name">
                   {product.name}
                 </h1>
                 {product.featured && (
-                  <Badge className="bg-[hsl(35,65%,55%)] text-white mb-4">
+                  <Badge className="bg-[hsl(35,65%,55%)] text-white mb-2">
                     Produto em Destaque
                   </Badge>
                 )}
                 {product.description && (
-                  <p className="text-muted-foreground mt-4" data-testid="text-description">
+                  <p className="text-sm text-muted-foreground mt-2" data-testid="text-description">
                     {product.description}
                   </p>
                 )}
               </div>
 
-              <Card className="p-6 space-y-6">
+              <Card className="p-4 space-y-4">
                 <div>
-                  <h2 className="text-xl font-bold mb-1">Configure sua Persiana</h2>
-                  <p className="text-sm text-muted-foreground">Personalize as medidas e escolha o lado do bandô</p>
+                  <h2 className="text-lg font-bold mb-0.5">Configure sua Persiana</h2>
+                  <p className="text-xs text-muted-foreground">Personalize as medidas e escolha o lado do bandô</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -323,20 +323,20 @@ export default function ProductConfig() {
                   </div>
                 </div>
 
-                <div className="space-y-4 p-5 rounded-lg bg-gradient-to-br from-muted/40 via-muted/20 to-transparent border border-border/50">
+                <div className="space-y-2 p-3 rounded-lg bg-gradient-to-br from-muted/40 via-muted/20 to-transparent border border-border/50">
                   <div className="flex items-center justify-between">
-                    <Label className="flex items-center gap-2 text-base font-semibold">
-                      <ArrowUpDown className="h-5 w-5 text-primary" />
+                    <Label className="flex items-center gap-1.5 text-sm font-semibold">
+                      <ArrowUpDown className="h-4 w-4 text-primary" />
                       Altura do Comando
                     </Label>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary/10 border border-primary/20">
-                      <span className="text-2xl font-bold text-primary" data-testid="text-command-height">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
+                      <span className="text-lg font-bold text-primary" data-testid="text-command-height">
                         {commandHeight.toFixed(2)}m
                       </span>
                     </div>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <Slider
                       value={[commandHeight]}
                       onValueChange={(value) => setCommandHeight(value[0])}
@@ -347,31 +347,22 @@ export default function ProductConfig() {
                       data-testid="slider-command-height"
                     />
                     
-                    <div className="flex justify-between text-xs text-muted-foreground px-1">
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">Mínimo</span>
-                        <span className="text-foreground/70">0,50m</span>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <span className="font-medium">Padrão</span>
-                        <span className="text-foreground/70">1,20m</span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="font-medium">Máximo</span>
-                        <span className="text-foreground/70">2,50m</span>
-                      </div>
+                    <div className="flex justify-between text-[10px] text-muted-foreground px-1">
+                      <span className="text-foreground/70">0,50m</span>
+                      <span className="text-foreground/70">1,20m</span>
+                      <span className="text-foreground/70">2,50m</span>
                     </div>
                   </div>
                   
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Ajuste a altura do ponto de comando da sua persiana. A altura padrão é 1,20m, ideal para a maioria das instalações.
+                  <p className="text-[10px] text-muted-foreground leading-tight">
+                    Ajuste a altura do ponto de comando da sua persiana. Padrão: 1,20m.
                   </p>
                 </div>
 
                 {isVertical && controlTypes && controlTypes.length > 0 ? (
                   <div className="space-y-2">
-                    <Label>Tipo de Acionamento</Label>
-                    <p className="text-xs text-muted-foreground mb-3">
+                    <Label className="text-sm">Tipo de Acionamento</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
                       Escolha o tipo de acionamento para este produto
                     </p>
                     {controlTypesLoading ? (
@@ -417,8 +408,8 @@ export default function ProductConfig() {
                   <>
                     {productHasBando && (
                       <div className="space-y-2">
-                        <Label>Bandô</Label>
-                        <p className="text-xs text-muted-foreground mb-3">
+                        <Label className="text-sm">Bandô</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
                           Escolha o tipo de bandô para a persiana vertical
                         </p>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -520,8 +511,8 @@ export default function ProductConfig() {
                 ) : productHasBando && (
                   <>
                     <div className="space-y-2">
-                      <Label>Lado do comando</Label>
-                      <p className="text-xs text-muted-foreground mb-3">
+                      <Label className="text-sm">Lado do comando</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
                         Clique na imagem para selecionar o lado onde ficará o comando
                       </p>
                       <div className="grid grid-cols-2 gap-4">
@@ -574,8 +565,8 @@ export default function ProductConfig() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Bandô de Alumínio</Label>
-                      <p className="text-xs text-muted-foreground mb-3">
+                      <Label className="text-sm">Bandô de Alumínio</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
                         Escolha se deseja adicionar bandô de alumínio
                         {aluminumBandoPrice > 0 && ` (+R$ ${aluminumBandoPrice.toFixed(2)})`}
                       </p>
@@ -631,23 +622,23 @@ export default function ProductConfig() {
                 )}
 
                 {area > 0 && (
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+                    <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Área total:</span>
                       <span className="font-medium" data-testid="text-area">
                         {area.toFixed(2)} m²
                       </span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Preço por m²:</span>
                       <span className="font-medium">
                         R$ {pricePerSqm.toFixed(2)}
                       </span>
                     </div>
-                    <div className="border-t pt-2 mt-2">
+                    <div className="border-t pt-1.5 mt-1.5">
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-lg">Total:</span>
-                        <span className="font-bold text-2xl text-[hsl(35,65%,55%)]" data-testid="text-total">
+                        <span className="font-bold text-base">Total:</span>
+                        <span className="font-bold text-xl text-[hsl(35,65%,55%)]" data-testid="text-total">
                           R$ {totalPrice.toFixed(2)}
                         </span>
                       </div>
