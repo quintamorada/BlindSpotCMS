@@ -325,39 +325,89 @@ function ProductForm({ product, categories, onClose }: {
               ))}
             </div>
           )}
-          
-          <div className="border-2 border-dashed rounded-lg p-6 text-center">
-            <input
-              type="file"
-              id="image-upload"
-              multiple
-              accept="image/jpeg,image/jpg,image/png,image/webp"
-              onChange={handleImageUpload}
-              className="hidden"
-              disabled={uploading}
-              data-testid="input-image-upload"
-            />
-            <label htmlFor="image-upload" className="cursor-pointer">
-              <div className="flex flex-col items-center gap-2">
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
-                    <p className="text-sm text-muted-foreground">Fazendo upload...</p>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-10 w-10 text-muted-foreground" />
-                    <p className="text-sm font-medium">Clique para fazer upload</p>
-                    <p className="text-xs text-muted-foreground">
-                      PNG, JPG ou WebP (máx. 5MB por imagem)
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Você pode selecionar múltiplas imagens
-                    </p>
-                  </>
-                )}
+
+          <div className="space-y-3">
+            <div>
+              <Label className="text-sm text-muted-foreground mb-2 block">Imagens Pré-Definidas de Produtos</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { url: '/images/products/blackout-premium.png', label: 'Blackout Premium' },
+                  { url: '/images/products/blackout-total.png', label: 'Blackout Total' },
+                  { url: '/images/products/rolo-linho.png', label: 'Rolô Linho' },
+                  { url: '/images/products/rolo-screen.png', label: 'Rolô Screen' },
+                  { url: '/images/products/vertical-pvc.png', label: 'Vertical PVC' },
+                  { url: '/images/products/vertical-tecido.png', label: 'Vertical Tecido' },
+                  { url: '/images/products/horizontal-aluminio.png', label: 'Horizontal Alumínio' },
+                  { url: '/images/products/horizontal-madeira.png', label: 'Horizontal Madeira' },
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => {
+                      if (!formData.images.includes(preset.url)) {
+                        setFormData(prev => ({ ...prev, images: [...prev.images, preset.url] }));
+                      }
+                    }}
+                    className={`relative aspect-square rounded border-2 overflow-hidden transition-all hover-elevate ${
+                      formData.images.includes(preset.url) ? 'border-primary ring-2 ring-primary' : 'border-muted'
+                    }`}
+                    data-testid={`button-preset-${preset.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    <img
+                      src={preset.url}
+                      alt={preset.label}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs py-1 px-1 text-center leading-tight">
+                      {preset.label}
+                    </div>
+                  </button>
+                ))}
               </div>
-            </label>
+              <p className="text-xs text-muted-foreground mt-2">
+                Clique nas imagens para adicioná-las ao produto
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">ou</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          
+            <div className="border-2 border-dashed rounded-lg p-6 text-center">
+              <input
+                type="file"
+                id="image-upload"
+                multiple
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={uploading}
+                data-testid="input-image-upload"
+              />
+              <label htmlFor="image-upload" className="cursor-pointer">
+                <div className="flex flex-col items-center gap-2">
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
+                      <p className="text-sm text-muted-foreground">Fazendo upload...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-10 w-10 text-muted-foreground" />
+                      <p className="text-sm font-medium">Fazer Upload de Imagens Personalizadas</p>
+                      <p className="text-xs text-muted-foreground">
+                        PNG, JPG ou WebP (máx. 5MB por imagem)
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Você pode selecionar múltiplas imagens
+                      </p>
+                    </>
+                  )}
+                </div>
+              </label>
+            </div>
           </div>
         </div>
       </div>

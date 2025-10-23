@@ -96,6 +96,7 @@ export const settings = pgTable("settings", {
   businessHoursWeekdays: text("business_hours_weekdays").default("9h às 18h"),
   businessHoursSaturday: text("business_hours_saturday").default("9h às 13h"),
   businessHoursSunday: text("business_hours_sunday").default("Fechado"),
+  watermarkImage: text("watermark_image").default("/images/watermarks/default-watermark.png"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
