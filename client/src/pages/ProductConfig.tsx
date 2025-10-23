@@ -202,6 +202,30 @@ export default function ProductConfig() {
                 </div>
               )}
 
+              {selectedColor && (
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-sm">Cor Selecionada</h3>
+                    <div className="aspect-square overflow-hidden rounded-lg border-2 border-primary">
+                      <img 
+                        src={selectedColor.image} 
+                        alt={selectedColor.name}
+                        className="w-full h-full object-cover"
+                        data-testid="img-selected-color-preview"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <div className="font-semibold" data-testid="text-selected-color-name">
+                        {selectedColor.name}
+                      </div>
+                      <div className="text-sm text-muted-foreground" data-testid="text-selected-color-code">
+                        {selectedColor.code}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
               <Card className="p-3">
                 <div className="space-y-2">
                   <Label>Cor da Persiana</Label>
