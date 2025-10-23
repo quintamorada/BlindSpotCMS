@@ -19,8 +19,8 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  // Pega o termo de busca e categoria da URL usando window.location.search
-  const searchParams = new URLSearchParams(window.location.search);
+  // Pega o termo de busca e categoria da URL - agora reativo com location
+  const searchParams = useMemo(() => new URLSearchParams(window.location.search), [location]);
   const searchQuery = searchParams.get('q') || '';
   const categorySlug = searchParams.get('categoria') || '';
 
