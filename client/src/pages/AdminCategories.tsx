@@ -152,6 +152,7 @@ function CategoryForm({ category, onClose }: {
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(category);
   const [formData, setFormData] = useState({
     name: category?.name || '',
@@ -159,6 +160,14 @@ function CategoryForm({ category, onClose }: {
     description: category?.description || '',
     image: category?.image || '',
   });
+  const [uploading, setUploading] = useState(false);
+
+  const presetImages = [
+    { url: '/images/categories/blackout.png', label: 'Blackout' },
+    { url: '/images/categories/rolo.png', label: 'Rolô' },
+    { url: '/images/categories/vertical.png', label: 'Vertical' },
+    { url: '/images/categories/horizontal.png', label: 'Horizontal' },
+  ];
 
   const mutation = useMutation<Category, Error, any>({
     mutationFn: async (data: any) => {
@@ -181,6 +190,39 @@ function CategoryForm({ category, onClose }: {
       }
     },
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const uploadFormData = new FormData();
+    uploadFormData.append('image', file);
+
+    setUploading(true);
+    try {
+      const response = await fetch('/api/upload/category-image', {
+        method: 'POST',
+        body: uploadFormData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const text = (await response.text()) || response.statusText;
+        throw new Error(`${response.status}: ${text}`);
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, image: data.image }));
+      toast({ title: "Imagem enviada com sucesso!" });
+    } catch (error) {
+      toast({ 
+        title: "Erro ao enviar imagem",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -222,11 +264,88 @@ function CategoryForm({ category, onClose }: {
           />
         </div>
 
+        <div className="space-y-2">
+          <Label>Imagem da Categoria</Label>
+          
+          {formData.image && (
+            <div className="mb-3">
+              <img
+                src={formData.image}
+                alt="Preview"
+                className="w-32 h-32 rounded object-cover border"
+                data-testid="img-category-preview"
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"%3E%3Crect width="128" height="128" fill="%23e5e7eb"/%3E%3Ctext x="64" y="64" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                }}
+              />
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <div>
+              <Label className="text-sm text-muted-foreground mb-2 block">Imagens Pré-Definidas</Label>
+              <div className="grid grid-cols-4 gap-2">
+                {presetImages.map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, image: preset.url }))}
+                    className={`relative aspect-square rounded border-2 overflow-hidden transition-all hover-elevate ${
+                      formData.image === preset.url ? 'border-primary ring-2 ring-primary' : 'border-muted'
+                    }`}
+                    data-testid={`button-preset-${preset.label.toLowerCase()}`}
+                  >
+                    <img
+                      src={preset.url}
+                      alt={preset.label}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs py-1 text-center">
+                      {preset.label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-px bg-border" />
+              <span className="text-xs text-muted-foreground">ou</span>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+                data-testid="input-category-image-file"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full"
+                data-testid="button-upload-category-image"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                {uploading ? "Enviando..." : "Fazer Upload de Imagem Personalizada"}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-1">
+                Imagem quadrada (800x800px) para melhor resultado
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel">
             Cancelar
           </Button>
-          <Button type="submit" disabled={mutation.isPending} data-testid="button-save">
+          <Button type="submit" disabled={mutation.isPending || uploading} data-testid="button-save">
             {mutation.isPending ? "Salvando..." : "Salvar"}
           </Button>
         </div>
