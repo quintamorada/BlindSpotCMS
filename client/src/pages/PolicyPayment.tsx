@@ -28,7 +28,7 @@ export default function PolicyPayment() {
             className="text-3xl md:text-4xl font-serif font-bold mb-6"
             data-testid="text-page-title"
           >
-            💳 Política de Pagamento
+            Política de Pagamento
           </h1>
 
           <p className="text-muted-foreground mb-8">
@@ -55,7 +55,7 @@ export default function PolicyPayment() {
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">
-                📆 Condições de Parcelamento
+                Condições de Parcelamento
               </h2>
               <p className="text-muted-foreground">
                 Compras com cartão de crédito podem ser parceladas em até{" "}
@@ -152,7 +152,7 @@ export default function PolicyPayment() {
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">
-                🛠️ Dificuldades com o Pagamento
+                Dificuldades com o Pagamento
               </h2>
               <p className="text-muted-foreground">
                 Caso enfrente qualquer problema durante o processo de pagamento,

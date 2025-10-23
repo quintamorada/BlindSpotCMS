@@ -27,7 +27,7 @@ export default function PolicyPrivacy() {
             className="text-3xl md:text-4xl font-serif font-bold mb-6"
             data-testid="text-page-title"
           >
-            🔒 Política de Privacidade
+            Política de Privacidade
           </h1>
 
           <p className="text-muted-foreground mb-8">
@@ -46,7 +46,7 @@ export default function PolicyPrivacy() {
 
           <div className="space-y-8">
             <section>
-              <h2 className="text-2xl font-semibold mb-4">📘 Aplicabilidade</h2>
+              <h2 className="text-2xl font-semibold mb-4">Aplicabilidade</h2>
               <p className="text-muted-foreground mb-3">
                 Esta Política de Privacidade abrange todas as atividades de
                 tratamento de dados pessoais realizadas pela {siteTitle},
@@ -64,7 +64,7 @@ export default function PolicyPrivacy() {
 
             <section>
               <h2 className="text-2xl font-semibold mb-4">
-                📚 Termos e Definições
+                Termos e Definições
               </h2>
               <div className="space-y-3 text-muted-foreground">
                 <p>

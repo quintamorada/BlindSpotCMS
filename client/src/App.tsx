@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
+import ScrollToTop from "@/components/ScrollToTop";
 import NotFound from "@/pages/not-found";
 import HomeReal from "@/pages/HomeReal";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -30,8 +31,10 @@ import PolicyDelivery from "@/pages/PolicyDelivery";
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={HomeReal} />
+    <>
+      <ScrollToTop />
+      <Switch>
+        <Route path="/" component={HomeReal} />
       <Route path="/catalogo" component={Catalog} />
       <Route path="/categoria/:slug" component={CategoryProducts} />
       <Route path="/produtos" component={Products} />
@@ -54,7 +57,8 @@ function Router() {
       <Route path="/admin/pedidos" component={AdminOrders} />
       <Route path="/admin/configuracoes" component={AdminSettings} />
       <Route component={NotFound} />
-    </Switch>
+      </Switch>
+    </>
   );
 }
 

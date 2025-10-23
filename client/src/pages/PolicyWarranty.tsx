@@ -30,7 +30,7 @@ export default function PolicyWarranty() {
             className="text-3xl md:text-4xl font-serif font-bold mb-6"
             data-testid="text-page-title"
           >
-            🛡️ Termo de Garantia
+            Termo de Garantia
           </h1>
 
           <p className="text-muted-foreground mb-8">
@@ -111,7 +111,7 @@ export default function PolicyWarranty() {
               </p>
               <ul className="space-y-2 text-muted-foreground ml-4">
                 <li>
-                  📞 WhatsApp:{" "}
+                  WhatsApp:{" "}
                   <a
                     href={`https://wa.me/${contactPhone.replace(/\D/g, "")}`}
                     className="text-[hsl(35,65%,55%)] hover:underline"
@@ -121,7 +121,7 @@ export default function PolicyWarranty() {
                   </a>
                 </li>
                 <li>
-                  🌐 Site:{" "}
+                  Site:{" "}
                   <a
                     href={`https://${siteDomain}`}
                     className="text-[hsl(35,65%,55%)] hover:underline"
@@ -131,7 +131,7 @@ export default function PolicyWarranty() {
                   </a>
                 </li>
                 <li>
-                  📧 E-mail:{" "}
+                  E-mail:{" "}
                   <a
                     href={`mailto:${contactEmail}`}
                     className="text-[hsl(35,65%,55%)] hover:underline"

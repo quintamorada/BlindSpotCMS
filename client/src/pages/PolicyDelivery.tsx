@@ -12,7 +12,7 @@ export default function PolicyDelivery() {
             className="text-3xl md:text-4xl font-serif font-bold mb-6"
             data-testid="text-page-title"
           >
-            🚚 Política de Entrega
+            Política de Entrega
           </h1>
 
           <div className="space-y-8">
