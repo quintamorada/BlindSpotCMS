@@ -77,6 +77,7 @@ export interface IStorage {
   getCustomers(): Promise<Customer[]>;
   getCustomer(id: string): Promise<Customer | undefined>;
   getCustomerByEmail(email: string): Promise<Customer | undefined>;
+  getCustomerByGoogleId(googleId: string): Promise<Customer | undefined>;
   createCustomer(customer: InsertCustomer): Promise<Customer>;
   updateCustomer(id: string, customer: Partial<InsertCustomer>): Promise<Customer | undefined>;
   deleteCustomer(id: string): Promise<boolean>;
@@ -334,6 +335,11 @@ export class DbStorage implements IStorage {
 
   async getCustomerByEmail(email: string): Promise<Customer | undefined> {
     const result = await db.select().from(schema.customers).where(eq(schema.customers.email, email));
+    return result[0];
+  }
+
+  async getCustomerByGoogleId(googleId: string): Promise<Customer | undefined> {
+    const result = await db.select().from(schema.customers).where(eq(schema.customers.googleId, googleId));
     return result[0];
   }
 

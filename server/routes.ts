@@ -778,6 +778,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Email já cadastrado" });
       }
 
+      if (!password) {
+        return res.status(400).json({ error: "Senha é obrigatória" });
+      }
+
       const hashedPassword = await hashPassword(password);
       const customer = await storage.createCustomer({
         name,
@@ -811,7 +815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }).parse(req.body);
 
       const customer = await storage.getCustomerByEmail(email);
-      if (!customer) {
+      if (!customer || !customer.password) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
@@ -896,6 +900,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const customer = await storage.getCustomer(req.session.customerId);
       if (!customer) {
         return res.status(404).json({ error: "Customer not found" });
+      }
+
+      if (!customer.password) {
+        return res.status(400).json({ error: "Conta vinculada ao Google não possui senha" });
       }
 
       const isValidPassword = await verifyPassword(currentPassword, customer.password);
@@ -1040,6 +1048,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const items = await storage.getOrderItems(order.id);
     res.json({ ...order, items });
+  });
+
+  // Google OAuth Routes
+  app.get("/auth/google", (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri = `${req.protocol}://${req.get('host')}/auth/google/callback`;
+    
+    const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    googleAuthUrl.searchParams.set("client_id", clientId!);
+    googleAuthUrl.searchParams.set("redirect_uri", redirectUri);
+    googleAuthUrl.searchParams.set("response_type", "code");
+    googleAuthUrl.searchParams.set("scope", "openid email profile");
+    googleAuthUrl.searchParams.set("access_type", "offline");
+    
+    res.redirect(googleAuthUrl.toString());
+  });
+
+  app.get("/auth/google/callback", async (req, res) => {
+    try {
+      const code = req.query.code as string;
+      
+      if (!code) {
+        return res.redirect("/?error=auth_failed");
+      }
+
+      const clientId = process.env.GOOGLE_CLIENT_ID!;
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
+      const redirectUri = `${req.protocol}://${req.get('host')}/auth/google/callback`;
+
+      const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: "authorization_code"
+        })
+      });
+
+      const tokens = await tokenResponse.json();
+      
+      if (!tokens.access_token) {
+        return res.redirect("/?error=auth_failed");
+      }
+
+      const userInfoResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+        headers: { Authorization: `Bearer ${tokens.access_token}` }
+      });
+
+      const googleUser = await userInfoResponse.json();
+      
+      let customer = await storage.getCustomerByGoogleId(googleUser.id);
+      
+      if (!customer) {
+        const existingCustomer = await storage.getCustomerByEmail(googleUser.email);
+        
+        if (existingCustomer) {
+          customer = await storage.updateCustomer(existingCustomer.id, {
+            googleId: googleUser.id
+          });
+        } else {
+          customer = await storage.createCustomer({
+            name: googleUser.name,
+            email: googleUser.email,
+            googleId: googleUser.id,
+            active: true
+          });
+        }
+      }
+
+      if (req.session && customer) {
+        req.session.customerId = customer.id;
+      }
+
+      res.redirect("/");
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      res.redirect("/?error=auth_failed");
+    }
   });
 
   const httpServer = createServer(app);
