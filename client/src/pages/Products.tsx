@@ -20,7 +20,10 @@ export default function Products() {
   });
 
   // Pega o termo de busca e categoria da URL - agora reativo com location
-  const searchParams = useMemo(() => new URLSearchParams(window.location.search), [location]);
+  const searchParams = useMemo(() => {
+    const search = location.split('?')[1] || '';
+    return new URLSearchParams(search);
+  }, [location]);
   const searchQuery = searchParams.get('q') || '';
   const categorySlug = searchParams.get('categoria') || '';
 
