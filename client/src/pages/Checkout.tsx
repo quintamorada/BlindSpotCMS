@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { fetchAddressByCep } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingCart, MapPin } from "lucide-react";
 
@@ -36,7 +37,7 @@ const guestCheckoutSchema = z.object({
   customerName: z.string().min(3, "Nome completo é obrigatório"),
   customerEmail: z.string().email("Email inválido"),
   customerPhone: z.string().min(10, "Telefone é obrigatório"),
-  street: z.string().min(3, "Rua é obrigatória"),
+  street: z.string().min(3, "Logradouro é obrigatório"),
   number: z.string().min(1, "Número é obrigatório"),
   complement: z.string().optional(),
   neighborhood: z.string().min(3, "Bairro é obrigatório"),
@@ -169,6 +170,27 @@ export default function Checkout() {
         variant: "destructive",
         title: "Erro ao cadastrar",
         description: error.message || "Não foi possível completar o cadastro",
+      });
+    }
+  };
+
+  const handleCepBlur = async (cep: string) => {
+    const addressData = await fetchAddressByCep(cep);
+    if (addressData) {
+      guestForm.setValue('street', addressData.logradouro);
+      guestForm.setValue('neighborhood', addressData.bairro);
+      guestForm.setValue('city', addressData.localidade);
+      guestForm.setValue('state', addressData.uf);
+      
+      toast({
+        title: "Endereço encontrado",
+        description: "Dados do CEP preenchidos automaticamente",
+      });
+    } else if (cep.replace(/\D/g, '').length === 8) {
+      toast({
+        variant: "destructive",
+        title: "CEP não encontrado",
+        description: "Verifique o CEP informado",
       });
     }
   };
@@ -371,7 +393,14 @@ export default function Checkout() {
                                       <FormItem>
                                         <FormLabel>CEP</FormLabel>
                                         <FormControl>
-                                          <Input data-testid="input-zip" {...field} />
+                                          <Input 
+                                            data-testid="input-zip" 
+                                            {...field}
+                                            onBlur={(e) => {
+                                              field.onBlur();
+                                              handleCepBlur(e.target.value);
+                                            }}
+                                          />
                                         </FormControl>
                                         <FormMessage />
                                       </FormItem>
@@ -425,7 +454,7 @@ export default function Checkout() {
                                     name="street"
                                     render={({ field }) => (
                                       <FormItem>
-                                        <FormLabel>Rua</FormLabel>
+                                        <FormLabel>Logradouro</FormLabel>
                                         <FormControl>
                                           <Input data-testid="input-street" {...field} />
                                         </FormControl>

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomerAuth } from "@/contexts/CustomerAuthContext";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { fetchAddressByCep } from "@/lib/utils";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Trash2, Plus, MapPin } from "lucide-react";
@@ -46,7 +47,7 @@ interface Address {
 
 const addressSchema = z.object({
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
-  street: z.string().min(3, "Rua é obrigatória"),
+  street: z.string().min(3, "Logradouro é obrigatório"),
   number: z.string().min(1, "Número é obrigatório"),
   complement: z.string().optional(),
   neighborhood: z.string().min(3, "Bairro é obrigatório"),
@@ -212,6 +213,27 @@ export default function MyAddresses() {
     },
   });
 
+  const handleCepBlur = async (cep: string) => {
+    const addressData = await fetchAddressByCep(cep);
+    if (addressData) {
+      form.setValue('street', addressData.logradouro);
+      form.setValue('neighborhood', addressData.bairro);
+      form.setValue('city', addressData.localidade);
+      form.setValue('state', addressData.uf);
+      
+      toast({
+        title: "Endereço encontrado",
+        description: "Dados do CEP preenchidos automaticamente",
+      });
+    } else if (cep.replace(/\D/g, '').length === 8) {
+      toast({
+        variant: "destructive",
+        title: "CEP não encontrado",
+        description: "Verifique o CEP informado",
+      });
+    }
+  };
+
   const onSubmit = (data: AddressFormData) => {
     if (editingAddress) {
       updateAddressMutation.mutate({ id: editingAddress.id, data });
@@ -289,7 +311,15 @@ export default function MyAddresses() {
                           <FormItem>
                             <FormLabel>CEP</FormLabel>
                             <FormControl>
-                              <Input placeholder="00000-000" data-testid="input-zip" {...field} />
+                              <Input 
+                                placeholder="00000-000" 
+                                data-testid="input-zip" 
+                                {...field} 
+                                onBlur={(e) => {
+                                  field.onBlur();
+                                  handleCepBlur(e.target.value);
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -301,7 +331,7 @@ export default function MyAddresses() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Estado</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger data-testid="select-state">
                                   <SelectValue placeholder="Selecione" />
@@ -352,7 +382,7 @@ export default function MyAddresses() {
                           name="street"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Rua</FormLabel>
+                              <FormLabel>Logradouro</FormLabel>
                               <FormControl>
                                 <Input data-testid="input-street" {...field} />
                               </FormControl>
