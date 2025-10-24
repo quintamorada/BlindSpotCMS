@@ -1053,7 +1053,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Google OAuth Routes
   app.get("/auth/google", (req, res) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth/google/callback`;
+    const redirectUri = "https://persianapratica.com.br/auth/google/callback";
     
     const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     googleAuthUrl.searchParams.set("client_id", clientId!);
@@ -1075,7 +1075,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const clientId = process.env.GOOGLE_CLIENT_ID!;
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
-      const redirectUri = `${req.protocol}://${req.get('host')}/auth/google/callback`;
+      const redirectUri = "https://persianapratica.com.br/auth/google/callback";
 
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
