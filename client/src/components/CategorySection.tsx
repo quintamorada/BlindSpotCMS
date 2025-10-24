@@ -29,7 +29,7 @@ export default function CategorySection({ categories }: CategorySectionProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category) => {
             return (
-              <Link key={category.id} href="/produtos">
+              <Link key={category.id} href={`/produtos?categoria=${category.slug}`}>
                 <Card 
                   className="group overflow-hidden hover-elevate cursor-pointer"
                   data-testid={`card-category-${category.id}`}
