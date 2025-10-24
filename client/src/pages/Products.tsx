@@ -69,32 +69,62 @@ export default function Products() {
       )}
       <main className="flex-1 py-12">
         <div className="max-w-7xl mx-auto px-4">
-          {!selectedCategory && (
+          {!selectedCategory && !searchQuery && (
             <div className="text-center mb-12">
               <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
-                {searchQuery ? `Resultados para "${searchQuery}"` : 'Nossos Produtos'}
+                Nossos Produtos
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                {searchQuery ? `${activeProducts.length} produto(s) encontrado(s)` : 
-                 'Descubra nossa linha completa de persianas de alta qualidade'}
+                Descubra nossa linha completa de persianas de alta qualidade
               </p>
-              {searchQuery && (
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setLocation('/produtos')}
-                  data-testid="button-clear-search"
+            </div>
+          )}
+
+          {searchQuery && (
+            <div className="text-center mb-12">
+              <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4">
+                Resultados para "{searchQuery}"
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                {activeProducts.length} produto(s) encontrado(s)
+              </p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/produtos')}
+                data-testid="button-clear-search"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Limpar busca
+              </Button>
+            </div>
+          )}
+
+          {categories && categories.length > 0 && !searchQuery && (
+            <div className="mb-8 flex flex-wrap gap-2">
+              <Button
+                variant={!categorySlug ? "default" : "outline"}
+                onClick={() => setLocation('/produtos')}
+                data-testid="button-filter-all"
+              >
+                Todas as Categorias
+              </Button>
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={categorySlug === category.slug ? "default" : "outline"}
+                  onClick={() => setLocation(`/produtos?categoria=${category.slug}`)}
+                  data-testid={`button-filter-${category.slug}`}
                 >
-                  <X className="h-4 w-4 mr-2" />
-                  Limpar busca
+                  {category.name}
                 </Button>
-              )}
+              ))}
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {activeProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover-elevate" data-testid={`card-product-${product.id}`}>
+              <Card key={product.id} className="overflow-hidden hover-elevate flex flex-col" data-testid={`card-product-${product.id}`}>
                 <div className="aspect-square overflow-hidden bg-muted">
                   {product.images && product.images[0] ? (
                     <img
@@ -109,9 +139,9 @@ export default function Products() {
                     </div>
                   )}
                 </div>
-                <div className="p-4">
+                <div className="p-4 flex-grow flex flex-col">
                   <div className="mb-3">
-                    <h3 className="font-semibold text-lg mb-1" data-testid={`text-name-${product.id}`}>
+                    <h3 className="font-semibold text-lg mb-1 line-clamp-2" data-testid={`text-name-${product.id}`}>
                       {product.name}
                     </h3>
                     {product.featured && (
@@ -125,8 +155,8 @@ export default function Products() {
                       {product.description}
                     </p>
                   )}
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="mt-auto">
+                    <div className="mb-4">
                       <div className="text-sm text-muted-foreground">A partir de</div>
                       <div className="text-xl font-bold text-primary" data-testid={`text-price-${product.id}`}>
                         R$ {parseFloat(product.price).toFixed(2)}
@@ -134,6 +164,7 @@ export default function Products() {
                       <div className="text-xs text-muted-foreground">por m²</div>
                     </div>
                     <Button 
+                      className="w-full"
                       onClick={() => setLocation(`/produto/${product.slug}`)}
                       data-testid={`button-configure-${product.id}`}
                     >
