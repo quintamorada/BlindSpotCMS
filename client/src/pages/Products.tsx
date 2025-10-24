@@ -7,10 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useLocation } from "wouter";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 export default function Products() {
   const [location, setLocation] = useLocation();
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>('');
+  
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
@@ -19,20 +21,19 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  // Pega o termo de busca e categoria da URL - agora reativo com location
+  // Pega apenas o termo de busca da URL
   const searchParams = useMemo(() => {
     const search = location.split('?')[1] || '';
     return new URLSearchParams(search);
   }, [location]);
   const searchQuery = searchParams.get('q') || '';
-  const categorySlug = searchParams.get('categoria') || '';
 
   const activeProducts = useMemo(() => {
     let filtered = products?.filter(p => p.active) || [];
     
-    // Filtrar por categoria se especificado
-    if (categorySlug) {
-      const category = categories?.find(c => c.slug === categorySlug);
+    // Filtrar por categoria se especificado (usando estado local)
+    if (selectedCategorySlug) {
+      const category = categories?.find(c => c.slug === selectedCategorySlug);
       if (category) {
         filtered = filtered.filter(p => p.categoryId === category.id);
       }
@@ -49,9 +50,9 @@ export default function Products() {
     }
     
     return filtered;
-  }, [products, searchQuery, categorySlug, categories]);
+  }, [products, searchQuery, selectedCategorySlug, categories]);
 
-  const selectedCategory = categories?.find(c => c.slug === categorySlug);
+  const selectedCategory = categories?.find(c => c.slug === selectedCategorySlug);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,8 +107,8 @@ export default function Products() {
           {categories && categories.length > 0 && !searchQuery && (
             <div className="mb-8 flex flex-wrap gap-2">
               <Button
-                variant={!categorySlug ? "default" : "outline"}
-                onClick={() => setLocation('/produtos')}
+                variant={!selectedCategorySlug ? "default" : "outline"}
+                onClick={() => setSelectedCategorySlug('')}
                 data-testid="button-filter-all"
               >
                 Todas as Categorias
@@ -115,8 +116,8 @@ export default function Products() {
               {categories.map((category) => (
                 <Button
                   key={category.id}
-                  variant={categorySlug === category.slug ? "default" : "outline"}
-                  onClick={() => setLocation(`/produtos?categoria=${category.slug}`)}
+                  variant={selectedCategorySlug === category.slug ? "default" : "outline"}
+                  onClick={() => setSelectedCategorySlug(category.slug)}
                   data-testid={`button-filter-${category.slug}`}
                 >
                   {category.name}

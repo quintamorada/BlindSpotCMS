@@ -28,11 +28,8 @@ export default function CategorySection({ categories }: CategorySectionProps) {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category) => {
-            const categorySlug = category.slug || category.name.toLowerCase().replace(/\s+/g, '-');
-            const categoryLink = `/produtos?categoria=${categorySlug}`;
-            
             return (
-              <Link key={category.id} href={categoryLink}>
+              <Link key={category.id} href="/produtos">
                 <Card 
                   className="group overflow-hidden hover-elevate cursor-pointer"
                   data-testid={`card-category-${category.id}`}
