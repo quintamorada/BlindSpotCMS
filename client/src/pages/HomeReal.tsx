@@ -100,7 +100,7 @@ export default function HomeReal() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {featuredProducts.map((product) => (
-                  <Card key={product.id} className="group overflow-hidden hover-elevate" data-testid={`card-product-${product.id}`}>
+                  <Card key={product.id} className="group overflow-hidden hover-elevate flex flex-col" data-testid={`card-product-${product.id}`}>
                     <div className="relative aspect-[4/3] overflow-hidden">
                       {product.images && product.images[0] && (
                         <img 
@@ -126,11 +126,11 @@ export default function HomeReal() {
                       </div>
                     </div>
                     
-                    <div className="p-4">
+                    <div className="p-4 flex-grow">
                       <div className="text-xs text-muted-foreground mb-1" data-testid={`text-category-${product.id}`}>
                         {categories?.find(c => c.id === product.categoryId)?.name || 'Sem categoria'}
                       </div>
-                      <h3 className="font-semibold text-lg mb-2" data-testid={`text-name-${product.id}`}>
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2" data-testid={`text-name-${product.id}`}>
                         {product.name}
                       </h3>
                       <div className="text-xl font-bold text-[hsl(35,65%,55%)]" data-testid={`text-price-${product.id}`}>
