@@ -1053,7 +1053,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Google OAuth Routes
   app.get("/auth/google", (req, res) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    const redirectUri = "https://persianapratica.com.br/auth/google/callback";
+    const host = req.get('host') || 'persianapratica.com.br';
+    const redirectUri = `https://${host}/auth/google/callback`;
+    
+    console.log('[Google OAuth] Redirect URI:', redirectUri);
+    console.log('[Google OAuth] Client ID:', clientId);
     
     const googleAuthUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     googleAuthUrl.searchParams.set("client_id", clientId!);
@@ -1070,12 +1074,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const code = req.query.code as string;
       
       if (!code) {
+        console.error('[Google OAuth] No code received');
         return res.redirect("/?error=auth_failed");
       }
 
       const clientId = process.env.GOOGLE_CLIENT_ID!;
       const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
-      const redirectUri = "https://persianapratica.com.br/auth/google/callback";
+      const host = req.get('host') || 'persianapratica.com.br';
+      const redirectUri = `https://${host}/auth/google/callback`;
+      
+      console.log('[Google OAuth Callback] Redirect URI:', redirectUri);
 
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
