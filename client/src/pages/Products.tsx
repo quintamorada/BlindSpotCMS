@@ -7,10 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useLocation } from "wouter";
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 export default function Products() {
   const [location, setLocation] = useLocation();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   
   const { data: categories } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
@@ -20,38 +22,38 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  // Pega os parâmetros da URL
-  const searchParams = useMemo(() => {
-    const search = location.split('?')[1] || '';
-    return new URLSearchParams(search);
-  }, [location]);
-  
-  const searchQuery = searchParams.get('q') || '';
-  const categorySlug = searchParams.get('categoria') || '';
+  // Inicializar o filtro com base nos parâmetros da URL (apenas uma vez ao carregar)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const categorySlug = params.get('categoria');
+    const query = params.get('q');
+    
+    if (query) {
+      setSearchQuery(query);
+    }
+    
+    if (categorySlug && categories) {
+      const category = categories.find(c => c.slug === categorySlug);
+      if (category) {
+        setSelectedCategoryId(category.id);
+      }
+    }
+  }, [categories]);
 
   const activeProducts = useMemo(() => {
-    if (!products || !categories) {
+    if (!products) {
       return [];
     }
     
     let filtered = products.filter(p => p.active);
     
     // Filtrar por categoria se especificado
-    if (categorySlug) {
-      const category = categories.find(c => c.slug === categorySlug);
-      console.log('Filtering by category:', {
-        categorySlug,
-        category,
-        totalProducts: filtered.length
-      });
-      if (category) {
-        filtered = filtered.filter(p => p.categoryId === category.id);
-        console.log('Filtered products:', filtered.length);
-      }
+    if (selectedCategoryId) {
+      filtered = filtered.filter(p => p.categoryId === selectedCategoryId);
     }
     
     // Filtrar por busca se especificado
-    if (searchQuery) {
+    if (searchQuery && categories) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(product => 
         product.name.toLowerCase().includes(query) ||
@@ -61,9 +63,9 @@ export default function Products() {
     }
     
     return filtered;
-  }, [products, searchQuery, categorySlug, categories]);
+  }, [products, selectedCategoryId, searchQuery, categories]);
 
-  const selectedCategory = categories?.find(c => c.slug === categorySlug);
+  const selectedCategory = categories?.find(c => c.id === selectedCategoryId);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,7 +108,10 @@ export default function Products() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/produtos')}
+                onClick={() => {
+                  setSearchQuery('');
+                  setLocation('/produtos');
+                }}
                 data-testid="button-clear-search"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -118,8 +123,11 @@ export default function Products() {
           {categories && categories.length > 0 && !searchQuery && (
             <div className="mb-8 flex flex-wrap gap-2">
               <Button
-                variant={!categorySlug ? "default" : "outline"}
-                onClick={() => setLocation('/produtos')}
+                variant={!selectedCategoryId ? "default" : "outline"}
+                onClick={() => {
+                  setSelectedCategoryId(null);
+                  setLocation('/produtos');
+                }}
                 data-testid="button-filter-all"
               >
                 Todas as Categorias
@@ -127,8 +135,11 @@ export default function Products() {
               {categories.map((category) => (
                 <Button
                   key={category.id}
-                  variant={categorySlug === category.slug ? "default" : "outline"}
-                  onClick={() => setLocation(`/produtos?categoria=${category.slug}`)}
+                  variant={selectedCategoryId === category.id ? "default" : "outline"}
+                  onClick={() => {
+                    setSelectedCategoryId(category.id);
+                    setLocation(`/produtos?categoria=${category.slug}`);
+                  }}
                   data-testid={`button-filter-${category.slug}`}
                 >
                   {category.name}
@@ -200,7 +211,10 @@ export default function Products() {
                 <Button 
                   variant="outline" 
                   className="mt-4"
-                  onClick={() => setLocation('/produtos')}
+                  onClick={() => {
+                    setSearchQuery('');
+                    setLocation('/produtos');
+                  }}
                   data-testid="button-clear-search-empty"
                 >
                   Ver todos os produtos
