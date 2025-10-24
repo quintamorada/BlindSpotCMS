@@ -21,26 +21,19 @@ export default function Products() {
     queryKey: ['/api/products'],
   });
 
-  // Pega apenas o termo de busca da URL
+  // Pega os parâmetros da URL
   const searchParams = useMemo(() => {
     const search = location.split('?')[1] || '';
     return new URLSearchParams(search);
   }, [location]);
-  const searchQuery = searchParams.get('q') || '';
   
-  // Inicializa o filtro com categoria da URL (se houver) e depois limpa a URL
+  const searchQuery = searchParams.get('q') || '';
+  const categoryFromUrl = searchParams.get('categoria') || '';
+  
+  // Sincroniza o estado com a URL
   useEffect(() => {
-    const categoryFromUrl = searchParams.get('categoria');
-    if (categoryFromUrl) {
-      setSelectedCategorySlug(categoryFromUrl);
-      // Limpa a URL mantendo apenas a busca (se houver)
-      if (searchQuery) {
-        setLocation(`/produtos?q=${searchQuery}`, { replace: true });
-      } else {
-        setLocation('/produtos', { replace: true });
-      }
-    }
-  }, []); // Executa apenas na montagem inicial
+    setSelectedCategorySlug(categoryFromUrl);
+  }, [categoryFromUrl]);
 
   const activeProducts = useMemo(() => {
     let filtered = products?.filter(p => p.active) || [];
@@ -122,7 +115,7 @@ export default function Products() {
             <div className="mb-8 flex flex-wrap gap-2">
               <Button
                 variant={!selectedCategorySlug ? "default" : "outline"}
-                onClick={() => setSelectedCategorySlug('')}
+                onClick={() => setLocation('/produtos')}
                 data-testid="button-filter-all"
               >
                 Todas as Categorias
@@ -131,7 +124,7 @@ export default function Products() {
                 <Button
                   key={category.id}
                   variant={selectedCategorySlug === category.slug ? "default" : "outline"}
-                  onClick={() => setSelectedCategorySlug(category.slug)}
+                  onClick={() => setLocation(`/produtos?categoria=${category.slug}`)}
                   data-testid={`button-filter-${category.slug}`}
                 >
                   {category.name}
