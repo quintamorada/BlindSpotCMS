@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { useLocation } from "wouter";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 export default function Products() {
   const [location, setLocation] = useLocation();
@@ -27,6 +27,20 @@ export default function Products() {
     return new URLSearchParams(search);
   }, [location]);
   const searchQuery = searchParams.get('q') || '';
+  
+  // Inicializa o filtro com categoria da URL (se houver) e depois limpa a URL
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get('categoria');
+    if (categoryFromUrl) {
+      setSelectedCategorySlug(categoryFromUrl);
+      // Limpa a URL mantendo apenas a busca (se houver)
+      if (searchQuery) {
+        setLocation(`/produtos?q=${searchQuery}`, { replace: true });
+      } else {
+        setLocation('/produtos', { replace: true });
+      }
+    }
+  }, []); // Executa apenas na montagem inicial
 
   const activeProducts = useMemo(() => {
     let filtered = products?.filter(p => p.active) || [];
