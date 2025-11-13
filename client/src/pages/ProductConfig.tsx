@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
@@ -101,7 +102,17 @@ export default function ProductConfig() {
   const productHasBando = product?.hasBando ?? true;
   const isVertical = category?.slug === "vertical";
   
+  // Gerar opções de largura para todas as persianas (0.50m a 2.20m em incrementos de 1cm)
+  const widthOptions = Array.from({ length: 171 }, (_, i) => {
+    const value = 0.50 + (i * 0.01);
+    return {
+      value: value.toFixed(2),
+      label: `${value.toFixed(2)} (${Math.round(value * 100)} cm)`
+    };
+  });
+  
   const isValidConfig = widthNum > 0 && heightNum > 0 && 
+    widthNum <= 2.20 && heightNum <= 4.00 &&
     (isVertical 
       ? (productHasBando ? verticalBando !== null : true)
       : (productHasBando ? (bandoSide !== null && aluminumBando !== null) : true)
@@ -306,35 +317,49 @@ export default function ProductConfig() {
                   <div className="space-y-2">
                     <Label htmlFor="width">
                       <Ruler className="inline h-4 w-4 mr-1" />
-                      Largura (metros)
+                      Largura
                     </Label>
-                    <Input
-                      id="width"
-                      type="number"
-                      step="0.01"
-                      min="0.1"
-                      placeholder="Ex: 1.50"
-                      value={width}
-                      onChange={(e) => setWidth(e.target.value)}
-                      data-testid="input-width"
-                    />
+                    <Select value={width} onValueChange={setWidth}>
+                      <SelectTrigger id="width" data-testid="select-width">
+                        <SelectValue placeholder="Selecione a largura" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {widthOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {widthNum > 2.20 && (
+                      <p className="text-xs text-destructive">
+                        A largura máxima é 2,20m
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="height">
                       <Ruler className="inline h-4 w-4 mr-1" />
                       Altura (metros)
+                      <span className="text-xs text-muted-foreground ml-1">(máx: 4,00m)</span>
                     </Label>
                     <Input
                       id="height"
                       type="number"
                       step="0.01"
                       min="0.1"
+                      max="4.00"
                       placeholder="Ex: 2.00"
                       value={height}
                       onChange={(e) => setHeight(e.target.value)}
                       data-testid="input-height"
                     />
+                    {heightNum > 4.00 && (
+                      <p className="text-xs text-destructive">
+                        A altura máxima é 4,00m
+                      </p>
+                    )}
                   </div>
                 </div>
 
