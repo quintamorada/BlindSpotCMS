@@ -111,6 +111,15 @@ export default function ProductConfig() {
     };
   });
   
+  // Gerar opções de altura para todas as persianas (0.50m a 4.00m em incrementos de 1cm)
+  const heightOptions = Array.from({ length: 351 }, (_, i) => {
+    const value = 0.50 + (i * 0.01);
+    return {
+      value: value.toFixed(2),
+      label: `${value.toFixed(2)} (${Math.round(value * 100)} cm)`
+    };
+  });
+  
   const isValidConfig = widthNum > 0 && heightNum > 0 && 
     widthNum <= 2.20 && heightNum <= 4.00 &&
     (isVertical 
@@ -341,20 +350,20 @@ export default function ProductConfig() {
                   <div className="space-y-2">
                     <Label htmlFor="height">
                       <Ruler className="inline h-4 w-4 mr-1" />
-                      Altura (metros)
-                      <span className="text-xs text-muted-foreground ml-1">(máx: 4,00m)</span>
+                      Altura
                     </Label>
-                    <Input
-                      id="height"
-                      type="number"
-                      step="0.01"
-                      min="0.1"
-                      max="4.00"
-                      placeholder="Ex: 2.00"
-                      value={height}
-                      onChange={(e) => setHeight(e.target.value)}
-                      data-testid="input-height"
-                    />
+                    <Select value={height} onValueChange={setHeight}>
+                      <SelectTrigger id="height" data-testid="select-height">
+                        <SelectValue placeholder="Selecione a altura" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {heightOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {heightNum > 4.00 && (
                       <p className="text-xs text-destructive">
                         A altura máxima é 4,00m
