@@ -3,7 +3,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
 import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Edit, Upload, X, GripVertical } from "lucide-react";
+import { Plus, Trash2, Edit, Upload, X, GripVertical, FileText } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category, CategoryColor, CategoryControlType } from "@shared/schema";
@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RequireAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DndContext,
   closestCenter,
@@ -147,20 +148,29 @@ function AdminCategoriesContent() {
   );
 }
 
+import type { TabFaqItem, TabDetailItem } from "@shared/schema";
+
 function CategoryForm({ category, onClose }: { 
   category: Category | null; 
   onClose: () => void;
 }) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const manualFileInputRef = useRef<HTMLInputElement>(null);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(category);
   const [formData, setFormData] = useState({
     name: category?.name || '',
     slug: category?.slug || '',
     description: category?.description || '',
     image: category?.image || '',
+    tabDescription: (category as any)?.tabDescription || '',
+    tabDetails: (category as any)?.tabDetails || [],
+    tabInstallation: (category as any)?.tabInstallation || '',
+    tabManualFile: (category as any)?.tabManualFile || '',
+    tabFaq: (category as any)?.tabFaq || [],
   });
   const [uploading, setUploading] = useState(false);
+  const [uploadingManual, setUploadingManual] = useState(false);
 
   const presetImages = [
     { url: '/images/categories/blackout.png', label: 'Blackout' },
@@ -224,143 +234,288 @@ function CategoryForm({ category, onClose }: {
     }
   };
 
+  const handleManualUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast({ 
+        title: "Formato inválido",
+        description: "Por favor, envie um arquivo PDF",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+
+    setUploadingManual(true);
+    try {
+      const response = await fetch('/api/upload/manual', {
+        method: 'POST',
+        body: uploadFormData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const text = (await response.text()) || response.statusText;
+        throw new Error(`${response.status}: ${text}`);
+      }
+
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, tabManualFile: data.file }));
+      toast({ title: "Manual enviado com sucesso!" });
+    } catch (error) {
+      toast({ 
+        title: "Erro ao enviar manual",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingManual(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     mutation.mutate(formData);
   };
 
   return (
-    <div className="space-y-6 max-h-[80vh] overflow-y-auto">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Nome</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-            data-testid="input-category-name"
-          />
-        </div>
+    <div className="space-y-4 max-h-[80vh] overflow-y-auto">
+      <form onSubmit={handleSubmit}>
+        <Tabs defaultValue="basic" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="basic" data-testid="tab-basic">Básico</TabsTrigger>
+            <TabsTrigger value="content" data-testid="tab-content">Conteúdo das Tabs</TabsTrigger>
+            <TabsTrigger value="relations" disabled={!currentCategory} data-testid="tab-relations">
+              Cores & Controles
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="space-y-2">
-          <Label htmlFor="slug">Slug (URL)</Label>
-          <Input
-            id="slug"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            required
-            data-testid="input-category-slug"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description">Descrição</Label>
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            data-testid="input-category-description"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Imagem da Categoria</Label>
-          
-          {formData.image && (
-            <div className="mb-3">
-              <img
-                src={formData.image}
-                alt="Preview"
-                className="w-32 h-32 rounded object-cover border"
-                data-testid="img-category-preview"
-                onError={(e) => {
-                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"%3E%3Crect width="128" height="128" fill="%23e5e7eb"/%3E%3Ctext x="64" y="64" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
-                }}
+          <TabsContent value="basic" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                data-testid="input-category-name"
               />
             </div>
-          )}
 
-          <div className="space-y-3">
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Imagens Pré-Definidas</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {presetImages.map((preset) => (
-                  <button
-                    key={preset.url}
+            <div className="space-y-2">
+              <Label htmlFor="slug">Slug (URL)</Label>
+              <Input
+                id="slug"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                required
+                data-testid="input-category-slug"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descrição Curta</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                data-testid="input-category-description"
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Imagem da Categoria</Label>
+              
+              {formData.image && (
+                <div className="mb-3">
+                  <img
+                    src={formData.image}
+                    alt="Preview"
+                    className="w-32 h-32 rounded object-cover border"
+                    data-testid="img-category-preview"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"%3E%3Crect width="128" height="128" fill="%23e5e7eb"/%3E%3Ctext x="64" y="64" text-anchor="middle" dominant-baseline="middle" font-size="24" fill="%239ca3af"%3E?%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-sm text-muted-foreground mb-2 block">Imagens Pré-Definidas</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {presetImages.map((preset) => (
+                      <button
+                        key={preset.url}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, image: preset.url }))}
+                        className={`relative aspect-square rounded border-2 overflow-hidden transition-all hover-elevate ${
+                          formData.image === preset.url ? 'border-primary ring-2 ring-primary' : 'border-muted'
+                        }`}
+                        data-testid={`button-preset-${preset.label.toLowerCase()}`}
+                      >
+                        <img
+                          src={preset.url}
+                          alt={preset.label}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs py-1 text-center">
+                          {preset.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-xs text-muted-foreground">ou</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    data-testid="input-category-image-file"
+                  />
+                  <Button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, image: preset.url }))}
-                    className={`relative aspect-square rounded border-2 overflow-hidden transition-all hover-elevate ${
-                      formData.image === preset.url ? 'border-primary ring-2 ring-primary' : 'border-muted'
-                    }`}
-                    data-testid={`button-preset-${preset.label.toLowerCase()}`}
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="w-full"
+                    data-testid="button-upload-category-image"
                   >
-                    <img
-                      src={preset.url}
-                      alt={preset.label}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-xs py-1 text-center">
-                      {preset.label}
-                    </div>
-                  </button>
-                ))}
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploading ? "Enviando..." : "Fazer Upload de Imagem Personalizada"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Imagem quadrada (800x800px) para melhor resultado
+                  </p>
+                </div>
               </div>
             </div>
+          </TabsContent>
 
-            <div className="flex items-center gap-2">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-xs text-muted-foreground">ou</span>
-              <div className="flex-1 h-px bg-border" />
+          <TabsContent value="content" className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="tab-description">Descrição (Tab Descrição)</Label>
+              <Textarea
+                id="tab-description"
+                value={formData.tabDescription}
+                onChange={(e) => setFormData({ ...formData, tabDescription: e.target.value })}
+                placeholder="Descrição completa que aparecerá na tab de descrição do produto..."
+                rows={6}
+                data-testid="input-tab-description"
+              />
             </div>
 
-            <div>
+            <div className="space-y-2">
+              <Label>Detalhes Técnicos (Tab Detalhes)</Label>
+              <p className="text-sm text-muted-foreground">Especificações técnicas que aparecerão em formato de tabela</p>
+              <DetailsTableManager
+                items={formData.tabDetails as TabDetailItem[]}
+                onChange={(items) => setFormData({ ...formData, tabDetails: items })}
+                disabled={mutation.isPending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tab-installation">Instruções de Instalação (Tab Instalação)</Label>
+              <Textarea
+                id="tab-installation"
+                value={formData.tabInstallation}
+                onChange={(e) => setFormData({ ...formData, tabInstallation: e.target.value })}
+                placeholder="Instruções de como instalar este tipo de persiana..."
+                rows={6}
+                data-testid="input-tab-installation"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Manual (Tab Manual)</Label>
+              <p className="text-sm text-muted-foreground">Arquivo PDF do manual de instalação</p>
+              
+              {formData.tabManualFile && (
+                <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
+                  <FileText className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm flex-1">{formData.tabManualFile.split('/').pop()}</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setFormData({ ...formData, tabManualFile: '' })}
+                    data-testid="button-remove-manual"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+
               <input
-                ref={fileInputRef}
+                ref={manualFileInputRef}
                 type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
+                accept="application/pdf"
+                onChange={handleManualUpload}
                 className="hidden"
-                data-testid="input-category-image-file"
+                data-testid="input-manual-file"
               />
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                onClick={() => manualFileInputRef.current?.click()}
+                disabled={uploadingManual}
                 className="w-full"
-                data-testid="button-upload-category-image"
+                data-testid="button-upload-manual"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                {uploading ? "Enviando..." : "Fazer Upload de Imagem Personalizada"}
+                {uploadingManual ? "Enviando..." : formData.tabManualFile ? "Trocar Manual" : "Fazer Upload do Manual (PDF)"}
               </Button>
-              <p className="text-xs text-muted-foreground mt-1">
-                Imagem quadrada (800x800px) para melhor resultado
-              </p>
             </div>
-          </div>
-        </div>
 
-        <div className="flex gap-2 justify-end">
+            <div className="space-y-2">
+              <Label>Perguntas Frequentes (Tab Dúvidas)</Label>
+              <p className="text-sm text-muted-foreground">FAQ que aparecerá em formato de accordion</p>
+              <FaqManager
+                items={formData.tabFaq as TabFaqItem[]}
+                onChange={(items) => setFormData({ ...formData, tabFaq: items })}
+                disabled={mutation.isPending}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="relations" className="space-y-4 mt-4">
+            {currentCategory ? (
+              <>
+                <CategoryColorsManager categoryId={currentCategory.id} />
+                <div className="pt-4" />
+                <CategoryControlTypesManager categoryId={currentCategory.id} />
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Salve a categoria primeiro para gerenciar cores e tipos de controle
+              </p>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex gap-2 justify-end pt-4 border-t mt-6">
           <Button type="button" variant="outline" onClick={onClose} data-testid="button-cancel">
             Cancelar
           </Button>
-          <Button type="submit" disabled={mutation.isPending || uploading} data-testid="button-save">
+          <Button type="submit" disabled={mutation.isPending || uploading || uploadingManual} data-testid="button-save">
             {mutation.isPending ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       </form>
-
-      {currentCategory && (
-        <>
-          <div className="pt-4 border-t">
-            <CategoryColorsManager categoryId={currentCategory.id} />
-          </div>
-          <div className="pt-4 border-t">
-            <CategoryControlTypesManager categoryId={currentCategory.id} />
-          </div>
-        </>
-      )}
     </div>
   );
 }
@@ -1083,6 +1238,296 @@ function ControlTypeForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+// Componente para gerenciar Detalhes Técnicos (tabela de especificações)
+function DetailsTableManager({ 
+  items, 
+  onChange, 
+  disabled 
+}: { 
+  items: TabDetailItem[]; 
+  onChange: (items: TabDetailItem[]) => void;
+  disabled?: boolean;
+}) {
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState({ label: '', value: '' });
+
+  const handleAdd = () => {
+    if (!formData.label || !formData.value) return;
+    onChange([...items, formData]);
+    setFormData({ label: '', value: '' });
+  };
+
+  const handleEdit = (index: number) => {
+    setEditingIndex(index);
+    setFormData(items[index]);
+  };
+
+  const handleUpdate = () => {
+    if (editingIndex === null || !formData.label || !formData.value) return;
+    const updated = [...items];
+    updated[editingIndex] = formData;
+    onChange(updated);
+    setEditingIndex(null);
+    setFormData({ label: '', value: '' });
+  };
+
+  const handleDelete = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  const handleCancel = () => {
+    setEditingIndex(null);
+    setFormData({ label: '', value: '' });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2">
+          <Input
+            placeholder="Label (ex: Composição)"
+            value={formData.label}
+            onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+            disabled={disabled}
+            data-testid="input-detail-label"
+          />
+          <Input
+            placeholder="Valor (ex: 100% Poliéster)"
+            value={formData.value}
+            onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+            disabled={disabled}
+            data-testid="input-detail-value"
+          />
+        </div>
+        <div className="flex gap-2">
+          {editingIndex === null ? (
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAdd}
+              disabled={disabled || !formData.label || !formData.value}
+              data-testid="button-add-detail"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Adicionar
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleUpdate}
+                disabled={disabled || !formData.label || !formData.value}
+                data-testid="button-update-detail"
+              >
+                Atualizar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={disabled}
+                data-testid="button-cancel-detail"
+              >
+                Cancelar
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {items.length > 0 && (
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted">
+              <tr>
+                <th className="text-left p-2 font-medium">Especificação</th>
+                <th className="text-left p-2 font-medium">Valor</th>
+                <th className="w-24 p-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index} className="border-t" data-testid={`detail-row-${index}`}>
+                  <td className="p-2">{item.label}</td>
+                  <td className="p-2">{item.value}</td>
+                  <td className="p-2">
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleEdit(index)}
+                        disabled={disabled}
+                        className="h-7 w-7"
+                        data-testid={`button-edit-detail-${index}`}
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDelete(index)}
+                        disabled={disabled}
+                        className="h-7 w-7"
+                        data-testid={`button-delete-detail-${index}`}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Componente para gerenciar FAQ (Dúvidas)
+function FaqManager({ 
+  items, 
+  onChange, 
+  disabled 
+}: { 
+  items: TabFaqItem[]; 
+  onChange: (items: TabFaqItem[]) => void;
+  disabled?: boolean;
+}) {
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState({ question: '', answer: '' });
+
+  const handleAdd = () => {
+    if (!formData.question || !formData.answer) return;
+    onChange([...items, formData]);
+    setFormData({ question: '', answer: '' });
+  };
+
+  const handleEdit = (index: number) => {
+    setEditingIndex(index);
+    setFormData(items[index]);
+  };
+
+  const handleUpdate = () => {
+    if (editingIndex === null || !formData.question || !formData.answer) return;
+    const updated = [...items];
+    updated[editingIndex] = formData;
+    onChange(updated);
+    setEditingIndex(null);
+    setFormData({ question: '', answer: '' });
+  };
+
+  const handleDelete = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  const handleCancel = () => {
+    setEditingIndex(null);
+    setFormData({ question: '', answer: '' });
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        <Input
+          placeholder="Pergunta (ex: Consigo instalar sozinha?)"
+          value={formData.question}
+          onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+          disabled={disabled}
+          data-testid="input-faq-question"
+        />
+        <Textarea
+          placeholder="Resposta..."
+          value={formData.answer}
+          onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+          disabled={disabled}
+          rows={3}
+          data-testid="input-faq-answer"
+        />
+        <div className="flex gap-2">
+          {editingIndex === null ? (
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAdd}
+              disabled={disabled || !formData.question || !formData.answer}
+              data-testid="button-add-faq"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Adicionar Pergunta
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleUpdate}
+                disabled={disabled || !formData.question || !formData.answer}
+                data-testid="button-update-faq"
+              >
+                Atualizar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={disabled}
+                data-testid="button-cancel-faq"
+              >
+                Cancelar
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {items.length > 0 && (
+        <div className="space-y-2">
+          {items.map((item, index) => (
+            <Card key={index} data-testid={`faq-item-${index}`}>
+              <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0 p-3">
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{item.question}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{item.answer}</p>
+                </div>
+                <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleEdit(index)}
+                    disabled={disabled}
+                    className="h-7 w-7"
+                    data-testid={`button-edit-faq-${index}`}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(index)}
+                    disabled={disabled}
+                    className="h-7 w-7"
+                    data-testid={`button-delete-faq-${index}`}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

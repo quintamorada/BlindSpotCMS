@@ -1,17 +1,19 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useQuery } from "@tanstack/react-query";
-import type { Product, CategoryColor, CategoryControlType, Category, Settings } from "@shared/schema";
+import type { Product, CategoryColor, CategoryControlType, Category, Settings, TabDetailItem, TabFaqItem } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useState } from "react";
 import { useRoute, useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { Ruler, Check, AlertCircle, ShoppingCart, ArrowUpDown } from "lucide-react";
+import { Ruler, Check, AlertCircle, ShoppingCart, ArrowUpDown, FileText, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCart, type VerticalControl, type VerticalBando } from "@/contexts/CartContext";
@@ -720,6 +722,117 @@ export default function ProductConfig() {
               </Card>
             </div>
           </div>
+
+          {/* Tabs de Informações do Produto */}
+          {category && (
+            <div className="container mx-auto px-4 pb-12">
+              <Tabs defaultValue="description" className="w-full">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
+                  <TabsTrigger value="description" data-testid="tab-description">Descrição</TabsTrigger>
+                  <TabsTrigger value="details" data-testid="tab-details">Detalhes</TabsTrigger>
+                  <TabsTrigger value="installation" data-testid="tab-installation">Instalação</TabsTrigger>
+                  <TabsTrigger value="manual" data-testid="tab-manual">Manual</TabsTrigger>
+                  <TabsTrigger value="faq" data-testid="tab-faq">Dúvidas</TabsTrigger>
+                </TabsList>
+
+                <Card className="p-6">
+                  <TabsContent value="description" className="mt-0" data-testid="content-description">
+                    {(category as any).tabDescription ? (
+                      <div className="prose prose-sm max-w-none">
+                        <p className="whitespace-pre-wrap">{(category as any).tabDescription}</p>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Nenhuma descrição disponível para esta categoria.
+                      </p>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="details" className="mt-0" data-testid="content-details">
+                    {(category as any).tabDetails && ((category as any).tabDetails as TabDetailItem[]).length > 0 ? (
+                      <div className="border rounded-lg overflow-hidden">
+                        <table className="w-full">
+                          <thead className="bg-muted">
+                            <tr>
+                              <th className="text-left p-3 font-medium">Especificação</th>
+                              <th className="text-left p-3 font-medium">Valor</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {((category as any).tabDetails as TabDetailItem[]).map((item, index) => (
+                              <tr key={index} className="border-t" data-testid={`detail-row-${index}`}>
+                                <td className="p-3 font-medium">{item.label}</td>
+                                <td className="p-3 text-muted-foreground">{item.value}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Nenhuma especificação técnica disponível para esta categoria.
+                      </p>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="installation" className="mt-0" data-testid="content-installation">
+                    {(category as any).tabInstallation ? (
+                      <div className="prose prose-sm max-w-none">
+                        <p className="whitespace-pre-wrap">{(category as any).tabInstallation}</p>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Nenhuma instrução de instalação disponível para esta categoria.
+                      </p>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="manual" className="mt-0" data-testid="content-manual">
+                    {(category as any).tabManualFile ? (
+                      <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                        <FileText className="h-16 w-16 text-muted-foreground" />
+                        <p className="text-lg font-medium">Manual de Instalação</p>
+                        <p className="text-sm text-muted-foreground">
+                          Baixe o manual completo em formato PDF
+                        </p>
+                        <Button asChild size="lg" data-testid="button-download-manual">
+                          <a href={(category as any).tabManualFile} download target="_blank" rel="noopener noreferrer">
+                            <Download className="mr-2 h-4 w-4" />
+                            Baixar Manual (PDF)
+                          </a>
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Nenhum manual disponível para esta categoria.
+                      </p>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="faq" className="mt-0" data-testid="content-faq">
+                    {(category as any).tabFaq && ((category as any).tabFaq as TabFaqItem[]).length > 0 ? (
+                      <Accordion type="single" collapsible className="w-full">
+                        {((category as any).tabFaq as TabFaqItem[]).map((item, index) => (
+                          <AccordionItem key={index} value={`item-${index}`} data-testid={`faq-item-${index}`}>
+                            <AccordionTrigger className="text-left">
+                              {item.question}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <p className="text-muted-foreground whitespace-pre-wrap">{item.answer}</p>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Nenhuma dúvida frequente disponível para esta categoria.
+                      </p>
+                    )}
+                  </TabsContent>
+                </Card>
+              </Tabs>
+            </div>
+          )}
         </div>
       </main>
       <Footer />

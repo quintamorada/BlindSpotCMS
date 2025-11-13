@@ -25,6 +25,20 @@ const upload = multer({
   }
 });
 
+const manualUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB max for PDFs
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas arquivos PDF são permitidos'));
+    }
+  },
+});
+
 async function applyWatermark(imageBuffer: Buffer, watermarkPath: string): Promise<Buffer> {
   try {
     let watermarkFullPath: string;
@@ -255,6 +269,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error uploading images:', error);
       res.status(500).json({ error: "Erro ao fazer upload das imagens" });
+    }
+  });
+
+  // Manual PDF Upload API
+  app.post("/api/upload/manual", requireAuth, manualUpload.single('file'), async (req, res) => {
+    try {
+      const file = req.file;
+      
+      if (!file) {
+        return res.status(400).json({ error: "Nenhum arquivo foi enviado" });
+      }
+
+      // Verify PDF signature (basic check)
+      const pdfSignature = file.buffer.slice(0, 4).toString();
+      if (!pdfSignature.startsWith('%PDF')) {
+        return res.status(400).json({ error: "Arquivo inválido. Apenas PDFs são permitidos." });
+      }
+
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'manuals');
+      await fs.mkdir(uploadsDir, { recursive: true });
+
+      const filename = `manual-${Date.now()}-${Math.random().toString(36).substring(7)}.pdf`;
+      const filepath = path.join(uploadsDir, filename);
+      
+      await fs.writeFile(filepath, file.buffer);
+
+      res.json({ file: `/uploads/manuals/${filename}` });
+    } catch (error) {
+      console.error('Error uploading manual:', error);
+      res.status(500).json({ error: "Erro ao fazer upload do manual" });
     }
   });
 

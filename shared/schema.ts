@@ -16,6 +16,7 @@ export const categories = pgTable("categories", {
   tabDetails: jsonb("tab_details"),
   tabInstallation: text("tab_installation"),
   tabManualFile: text("tab_manual_file"),
+  tabFaq: jsonb("tab_faq"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -161,10 +162,30 @@ export const orderItems = pgTable("order_items", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Schemas para conteúdo das tabs
+export const tabDetailItemSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+export const tabFaqItemSchema = z.object({
+  question: z.string(),
+  answer: z.string(),
+});
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
+}).extend({
+  tabDescription: z.string().optional(),
+  tabDetails: z.array(tabDetailItemSchema).optional(),
+  tabInstallation: z.string().optional(),
+  tabManualFile: z.string().optional(),
+  tabFaq: z.array(tabFaqItemSchema).optional(),
 });
+
+export type TabDetailItem = z.infer<typeof tabDetailItemSchema>;
+export type TabFaqItem = z.infer<typeof tabFaqItemSchema>;
 
 export const insertCategoryColorSchema = createInsertSchema(categoryColors).omit({
   id: true,
