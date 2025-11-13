@@ -12,6 +12,10 @@ export const categories = pgTable("categories", {
   description: text("description"),
   image: text("image"),
   controlTypes: jsonb("control_types"),
+  tabDescription: text("tab_description"),
+  tabDetails: jsonb("tab_details"),
+  tabInstallation: text("tab_installation"),
+  tabManualFile: text("tab_manual_file"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
