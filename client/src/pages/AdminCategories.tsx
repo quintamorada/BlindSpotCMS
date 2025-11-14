@@ -4,6 +4,7 @@ import AdminHeader from "@/components/AdminHeader";
 import DataTable from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Edit, Upload, X, GripVertical, FileText } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { Category, CategoryColor, CategoryControlType } from "@shared/schema";
@@ -419,22 +420,17 @@ function CategoryForm({ category, onClose }: {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="tab-details">Detalhes Técnicos (Tab Detalhes)</Label>
+              <Label>Detalhes Técnicos (Tab Detalhes)</Label>
               <p className="text-sm text-muted-foreground">
-                Cole ou digite o conteúdo formatado com HTML. Você pode incluir parágrafos, tabelas, listas, etc.
+                Use os botões para formatar o texto. Você pode copiar e colar conteúdo de Word, Google Docs, etc.
               </p>
-              <Textarea
-                id="tab-details"
-                value={formData.tabDetails as string}
-                onChange={(e) => setFormData({ ...formData, tabDetails: e.target.value })}
+              <RichTextEditor
+                content={formData.tabDetails as string}
+                onChange={(content) => setFormData({ ...formData, tabDetails: content })}
                 disabled={mutation.isPending}
-                rows={8}
-                placeholder="Exemplo: <p>Texto formatado</p> ou <table><tr><td>Coluna 1</td><td>Coluna 2</td></tr></table>"
-                className="font-mono text-sm"
-                data-testid="textarea-tab-details"
               />
               <p className="text-xs text-muted-foreground">
-                💡 Dica: Você pode criar tabelas em HTML ou copiar de editores como Word/Google Docs
+                💡 Dica: Clique no ícone de tabela para inserir uma tabela 3x3, ou cole tabelas do Excel/Word
               </p>
             </div>
 
