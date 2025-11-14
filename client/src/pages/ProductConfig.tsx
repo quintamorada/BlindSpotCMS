@@ -727,16 +727,46 @@ export default function ProductConfig() {
           {category && (
             <div className="container mx-auto px-4 pb-12">
               <Tabs defaultValue="description" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-6">
-                  <TabsTrigger value="description" data-testid="tab-description">Descrição</TabsTrigger>
-                  <TabsTrigger value="details" data-testid="tab-details">Detalhes</TabsTrigger>
-                  <TabsTrigger value="installation" data-testid="tab-installation">Instalação</TabsTrigger>
-                  <TabsTrigger value="manual" data-testid="tab-manual">Manual</TabsTrigger>
-                  <TabsTrigger value="faq" data-testid="tab-faq">Dúvidas</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 p-1.5 rounded-xl border border-primary/20 shadow-lg backdrop-blur-sm h-auto">
+                  <TabsTrigger 
+                    value="description" 
+                    data-testid="tab-description"
+                    className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl data-[state=active]:scale-105 hover:scale-102 transition-all duration-300 rounded-lg font-medium text-xs sm:text-sm py-2.5"
+                  >
+                    Descrição
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="details" 
+                    data-testid="tab-details"
+                    className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl data-[state=active]:scale-105 hover:scale-102 transition-all duration-300 rounded-lg font-medium text-xs sm:text-sm py-2.5"
+                  >
+                    Detalhes
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="installation" 
+                    data-testid="tab-installation"
+                    className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl data-[state=active]:scale-105 hover:scale-102 transition-all duration-300 rounded-lg font-medium text-xs sm:text-sm py-2.5"
+                  >
+                    Instalação
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="manual" 
+                    data-testid="tab-manual"
+                    className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl data-[state=active]:scale-105 hover:scale-102 transition-all duration-300 rounded-lg font-medium text-xs sm:text-sm py-2.5"
+                  >
+                    Manual
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="faq" 
+                    data-testid="tab-faq"
+                    className="data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl data-[state=active]:scale-105 hover:scale-102 transition-all duration-300 rounded-lg font-medium text-xs sm:text-sm py-2.5 col-span-2 sm:col-span-1"
+                  >
+                    Dúvidas
+                  </TabsTrigger>
                 </TabsList>
 
-                <Card className="p-6">
-                  <TabsContent value="description" className="mt-0" data-testid="content-description">
+                <Card className="p-4 sm:p-6 shadow-xl border-primary/10 bg-gradient-to-br from-card via-card to-muted/20">
+                  <TabsContent value="description" className="mt-0 animate-in fade-in-50 duration-300" data-testid="content-description">
                     {(category as any).tabDescription ? (
                       <div className="prose prose-sm max-w-none">
                         <p className="whitespace-pre-wrap">{(category as any).tabDescription}</p>
@@ -748,7 +778,7 @@ export default function ProductConfig() {
                     )}
                   </TabsContent>
 
-                  <TabsContent value="details" className="mt-0" data-testid="content-details">
+                  <TabsContent value="details" className="mt-0 animate-in fade-in-50 duration-300" data-testid="content-details">
                     {(category as any).tabDetails && ((category as any).tabDetails as TabDetailItem[]).length > 0 ? (
                       <div className="border rounded-lg overflow-hidden">
                         <table className="w-full">
@@ -775,7 +805,7 @@ export default function ProductConfig() {
                     )}
                   </TabsContent>
 
-                  <TabsContent value="installation" className="mt-0" data-testid="content-installation">
+                  <TabsContent value="installation" className="mt-0 animate-in fade-in-50 duration-300" data-testid="content-installation">
                     {(category as any).tabInstallation ? (
                       <div className="prose prose-sm max-w-none">
                         <p className="whitespace-pre-wrap">{(category as any).tabInstallation}</p>
@@ -787,7 +817,7 @@ export default function ProductConfig() {
                     )}
                   </TabsContent>
 
-                  <TabsContent value="manual" className="mt-0" data-testid="content-manual">
+                  <TabsContent value="manual" className="mt-0 animate-in fade-in-50 duration-300" data-testid="content-manual">
                     {(category as any).tabManualFile ? (
                       <div className="flex flex-col items-center justify-center py-8 space-y-4">
                         <FileText className="h-16 w-16 text-muted-foreground" />
@@ -809,7 +839,7 @@ export default function ProductConfig() {
                     )}
                   </TabsContent>
 
-                  <TabsContent value="faq" className="mt-0" data-testid="content-faq">
+                  <TabsContent value="faq" className="mt-0 animate-in fade-in-50 duration-300" data-testid="content-faq">
                     {(category as any).tabFaq && ((category as any).tabFaq as TabFaqItem[]).length > 0 ? (
                       <Accordion type="single" collapsible className="w-full">
                         {((category as any).tabFaq as TabFaqItem[]).map((item, index) => (
