@@ -779,25 +779,11 @@ export default function ProductConfig() {
                   </TabsContent>
 
                   <TabsContent value="details" className="mt-0 animate-in fade-in-50 duration-300" data-testid="content-details">
-                    {(category as any).tabDetails && ((category as any).tabDetails as TabDetailItem[]).length > 0 ? (
-                      <div className="border rounded-lg overflow-hidden">
-                        <table className="w-full">
-                          <thead className="bg-muted">
-                            <tr>
-                              <th className="text-left p-3 font-medium">Especificação</th>
-                              <th className="text-left p-3 font-medium">Valor</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {((category as any).tabDetails as TabDetailItem[]).map((item, index) => (
-                              <tr key={index} className="border-t" data-testid={`detail-row-${index}`}>
-                                <td className="p-3 font-medium">{item.label}</td>
-                                <td className="p-3 text-muted-foreground">{item.value}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                    {(category as any).tabDetails ? (
+                      <div 
+                        className="prose prose-sm max-w-none prose-table:w-full prose-table:border prose-th:bg-muted prose-th:p-3 prose-th:text-left prose-th:font-medium prose-td:p-3 prose-td:border-t"
+                        dangerouslySetInnerHTML={{ __html: (category as any).tabDetails }}
+                      />
                     ) : (
                       <p className="text-muted-foreground text-center py-8">
                         Nenhuma especificação técnica disponível para esta categoria.

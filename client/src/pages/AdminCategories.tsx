@@ -164,7 +164,7 @@ function CategoryForm({ category, onClose }: {
     description: category?.description || '',
     image: category?.image || '',
     tabDescription: (category as any)?.tabDescription || '',
-    tabDetails: (category as any)?.tabDetails || [],
+    tabDetails: (category as any)?.tabDetails || '',
     tabInstallation: (category as any)?.tabInstallation || '',
     tabManualFile: (category as any)?.tabManualFile || '',
     tabFaq: (category as any)?.tabFaq || [],
@@ -419,13 +419,23 @@ function CategoryForm({ category, onClose }: {
             </div>
 
             <div className="space-y-2">
-              <Label>Detalhes Técnicos (Tab Detalhes)</Label>
-              <p className="text-sm text-muted-foreground">Especificações técnicas que aparecerão em formato de tabela</p>
-              <DetailsTableManager
-                items={formData.tabDetails as TabDetailItem[]}
-                onChange={(items) => setFormData({ ...formData, tabDetails: items })}
+              <Label htmlFor="tab-details">Detalhes Técnicos (Tab Detalhes)</Label>
+              <p className="text-sm text-muted-foreground">
+                Cole ou digite o conteúdo formatado com HTML. Você pode incluir parágrafos, tabelas, listas, etc.
+              </p>
+              <Textarea
+                id="tab-details"
+                value={formData.tabDetails as string}
+                onChange={(e) => setFormData({ ...formData, tabDetails: e.target.value })}
                 disabled={mutation.isPending}
+                rows={8}
+                placeholder="Exemplo: <p>Texto formatado</p> ou <table><tr><td>Coluna 1</td><td>Coluna 2</td></tr></table>"
+                className="font-mono text-sm"
+                data-testid="textarea-tab-details"
               />
+              <p className="text-xs text-muted-foreground">
+                💡 Dica: Você pode criar tabelas em HTML ou copiar de editores como Word/Google Docs
+              </p>
             </div>
 
             <div className="space-y-2">

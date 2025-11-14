@@ -13,7 +13,7 @@ export const categories = pgTable("categories", {
   image: text("image"),
   controlTypes: jsonb("control_types"),
   tabDescription: text("tab_description"),
-  tabDetails: jsonb("tab_details"),
+  tabDetails: text("tab_details"),
   tabInstallation: text("tab_installation"),
   tabManualFile: text("tab_manual_file"),
   tabFaq: jsonb("tab_faq"),
@@ -178,7 +178,7 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
   createdAt: true,
 }).extend({
   tabDescription: z.string().optional(),
-  tabDetails: z.array(tabDetailItemSchema).optional(),
+  tabDetails: z.string().optional(),
   tabInstallation: z.string().optional(),
   tabManualFile: z.string().optional(),
   tabFaq: z.array(tabFaqItemSchema).optional(),
